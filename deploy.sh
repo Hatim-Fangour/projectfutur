@@ -1,12 +1,9 @@
-echo "Switching to Production Branch : productionBranch"
-git checkout productionBranch
 
+echo "Pushing the repo ..." 
+git add .
+git commit -m "working on"
+git push -u origine master
 
-echo "Buildin App ..."
-npm run build 
-
-
-echo "Deploying file to server ..." 
-scp -r build/*   root@77.37.87.8:/var/www/spaManager/
+echo "Repo is pushed ..." 
 
 echo "Done !"
