@@ -1,5 +1,5 @@
 import React from "react";
-import { Home, Inbox, Calendar, Search, Settings, User2, ChevronUp } from "lucide-react";
+import { Home, Inbox, Calendar, Search, Settings, User2, ChevronUp, NotebookPen, HandCoins, Landmark, HandHelping, UserCog, Shapes, Bug, Users } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -18,11 +18,15 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 
 const items = [
   { label: "Home", url: "/", icon: Home },
-  { label: "Customers", url: "/customers", icon: Inbox },
+  { label: "Customers", url: "/customers", icon: UserCog },
   { label: "Calendar", url: "/calendar", icon: Calendar },
-  { label: "Search", url: "/#", icon: Search },
-  { label: "Services", url: "/services", icon: Settings },
-  { label: "Finance Management", url: "/financemanagement", icon: Settings },
+  // { label: "Search", url: "/#", icon: Search },
+  { label: "Services", url: "/services", icon: Shapes },
+  { label: "Finance Management", url: "/financemanagement", icon: Landmark  },
+  { label: "Office Inventory", url: "/needs", icon: HandHelping   },
+  { label: "Notes", url: "/notes", icon: NotebookPen  },
+  { label: "Stuff Management", url: "/staff-management", icon: Users   },
+  { label: "Test", url: "/test", icon: Bug  },
 ];
 
 const AppSidebar = () => {

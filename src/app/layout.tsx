@@ -46,7 +46,7 @@ export default async function RootLayout({
           <AppSidebar />
           <main className="w-full h-screen overflow-auto">
             <Navbar />
-            <div className="px-4">{children}</div>
+            <div className="px-16">{children}</div>
           </main>
           </SidebarProvider>
         </ThemeProvider>

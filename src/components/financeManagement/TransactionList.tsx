@@ -1,6 +1,25 @@
 "use client";
 
 import React, { useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { Input } from "../ui/input";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../ui/table";
 
 const TransactionList = ({ timeRange }: any) => {
   const [filterType, setFilterType] = useState("all");
@@ -140,38 +159,39 @@ const TransactionList = ({ timeRange }: any) => {
       return 0;
     });
 
-  const getTransactionIcon = (type:any) => {
+  const getTransactionIcon = (type: any) => {
     return type === "income" ? "ArrowUp" : "ArrowDown";
   };
 
-  const getTransactionColor = (type:any) => {
+  const getTransactionColor = (type: any) => {
     return type === "income" ? "text-success" : "text-error";
   };
 
-  // type StatusKey = keyof typeof statusConfig; 
+  // type StatusKey = keyof typeof statusConfig;
   // "completed" | "pending" | "failed"
-const getStatusBadge = (status: string) => {
-  const statusConfig = {
-    completed: { label: "Completed", color: "bg-success/10 text-success" },
-    pending: { label: "Pending", color: "bg-warning/10 text-warning" },
-    failed: { label: "Failed", color: "bg-error/10 text-error" },
+  const getStatusBadge = (status: string) => {
+    const statusConfig = {
+      completed: { label: "Completed", color: "bg-success/10 text-success" },
+      pending: { label: "Pending", color: "bg-warning/10 text-warning" },
+      failed: { label: "Failed", color: "bg-error/10 text-error" },
+    };
+
+    // Type-safe lookup (if key exists, use it; otherwise default)
+    const key =
+      status in statusConfig
+        ? (status as keyof typeof statusConfig)
+        : "completed";
+
+    const config = statusConfig[key];
+
+    return (
+      <span
+        className={`px-2 py-1 text-xs font-medium rounded-full ${config.color}`}
+      >
+        {config.label}
+      </span>
+    );
   };
-
-  // Type-safe lookup (if key exists, use it; otherwise default)
-  const key = status in statusConfig
-    ? (status as keyof typeof statusConfig)
-    : "completed";
-
-  const config = statusConfig[key];
-
-  return (
-    <span
-      className={`px-2 py-1 text-xs font-medium rounded-full ${config.color}`}
-    >
-      {config.label}
-    </span>
-  );
-};
 
   const categoryIcons = {
     "Service Payment": "Zap",
@@ -193,8 +213,8 @@ const getStatusBadge = (status: string) => {
     ?.reduce((sum, t) => sum + t?.amount, 0);
 
   return (
-    <div className="bg-card rounded-lg spa-shadow-soft">
-      <div className="p-6 border-b border-border">
+    <div className="bg-primary-foreground rounded-lg border">
+      <div className="p-6 pb-1 border-b">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h3 className="text-lg font-semibold text-card-foreground">
@@ -207,11 +227,11 @@ const getStatusBadge = (status: string) => {
         </div>
 
         {/* Filters and Search */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row gap-4 mb-4">
           <div className="flex-1">
             <div className="relative">
               {/* <Icon name="Search" size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" /> */}
-              <input
+              <Input
                 type="text"
                 placeholder="Search transactions..."
                 value={searchTerm}
@@ -221,7 +241,39 @@ const getStatusBadge = (status: string) => {
             </div>
           </div>
           <div className="flex gap-2">
-            <select
+            <Select
+              // onValueChange={(e) => setDataView(e)}
+              defaultValue="all"
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="income">Income Only</SelectItem>
+                  <SelectItem value="expense">Expenses Only</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+
+            <Select
+              // onValueChange={(e) => setDataView(e)}
+              defaultValue="date"
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="date">Sort by Date</SelectItem>
+                  <SelectItem value="amount">Sort by Amount</SelectItem>
+                  <SelectItem value="category">Sort by Category</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+
+            {/* <select
               value={filterType}
               onChange={(e) => setFilterType(e?.target?.value)}
               className="px-3 py-2 text-sm border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
@@ -238,97 +290,65 @@ const getStatusBadge = (status: string) => {
               <option value="date">Sort by Date</option>
               <option value="amount">Sort by Amount</option>
               <option value="category">Sort by Category</option>
-            </select>
+            </select> */}
           </div>
         </div>
 
         {/* Summary */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-2 gap-4 mb-2">
           <div className="text-center p-4 bg-success/10 rounded-lg">
-            <div className="text-xl font-semibold text-success">
+            <div className="text-xl font-bold text-green-600">
               {formatCurrency(totalIncome)}
             </div>
             <div className="text-xs text-muted-foreground">Total Income</div>
           </div>
           <div className="text-center p-4 bg-error/10 rounded-lg">
-            <div className="text-xl font-semibold text-error">
+            <div className="text-xl font-bold text-red-600">
               {formatCurrency(totalExpenses)}
             </div>
             <div className="text-xs text-muted-foreground">Total Expenses</div>
           </div>
         </div>
       </div>
+
       <div className="p-6">
         {/* Desktop View - Table */}
-        <div className="hidden md:block">
+        <div className="hidden md:block bg-green-00">
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left py-3 px-4 font-medium text-sm text-muted-foreground">
-                    Transaction
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium text-sm text-muted-foreground">
-                    Category
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium text-sm text-muted-foreground">
-                    Amount
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium text-sm text-muted-foreground">
-                    Date
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium text-sm text-muted-foreground">
-                    Method
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium text-sm text-muted-foreground">
-                    Status
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
+            <Table>
+              {/* <TableCaption>A list of your recent invoices.</TableCaption> */}
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[100px]">Transaction</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Method</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead className="text-center">Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {filteredTransactions?.map((transaction) => (
-                  <tr
-                    key={transaction?.id}
+                  <TableRow
+                    key={transaction.id}
                     className="hover:bg-muted/50 spa-transition"
                   >
-                    <td className="py-4 px-4">
-                      <div className="flex items-center space-x-3">
-                        <div
-                          className={`p-2 rounded-full ${
-                            transaction?.type === "income"
-                              ? "bg-success/10"
-                              : "bg-error/10"
-                          }`}
-                        >
-                          {/* <Icon 
-                            name={getTransactionIcon(transaction?.type)} 
-                            size={16} 
-                            className={getTransactionColor(transaction?.type)} 
-                          /> */}
-                        </div>
-                        <div>
-                          <div className="font-medium text-foreground">
-                            {transaction?.description}
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            ID: {transaction?.id}
-                          </div>
-                        </div>
+                    
+                    {/* Transaction */}
+                    <TableCell className="font-medium">
+                      <div className="font-medium text-foreground">
+                        {transaction?.description}
                       </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="flex items-center space-x-2">
-                        {/* <Icon 
-                          name={categoryIcons?.[transaction?.category] || 'Circle'} 
-                          size={16} 
-                          className="text-muted-foreground" 
-                        /> */}
-                        <span className="text-sm font-medium">
-                          {transaction?.category}
-                        </span>
+                      <div className="text-sm text-muted-foreground">
+                        ID: {transaction?.id}
                       </div>
-                    </td>
-                    <td className="py-4 px-4">
+                    </TableCell>
+                    
+                    {/* Category */}
+                    <TableCell>{transaction?.category}</TableCell>
+                    
+                    {/* Amount */}
+                    <TableCell>
                       <span
                         className={`font-semibold ${getTransactionColor(
                           transaction?.type
@@ -337,8 +357,17 @@ const getStatusBadge = (status: string) => {
                         {transaction?.type === "income" ? "+" : "-"}
                         {formatCurrency(transaction?.amount)}
                       </span>
-                    </td>
-                    <td className="py-4 px-4">
+                    </TableCell>
+                    
+                    {/* Methode */}
+                    <TableCell>
+                      <span className="text-sm text-muted-foreground">
+                        {transaction?.method}
+                      </span>
+                    </TableCell>
+                    
+                    {/* Date */}
+                    <TableCell className="text-righ">
                       <div>
                         <div className="text-sm font-medium text-foreground">
                           {formatDate(transaction?.date)}
@@ -347,24 +376,25 @@ const getStatusBadge = (status: string) => {
                           {formatTime(transaction?.date)}
                         </div>
                       </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <span className="text-sm text-muted-foreground">
-                        {transaction?.method}
-                      </span>
-                    </td>
-                    <td className="py-4 px-4">
-                      {getStatusBadge(transaction?.status)}
-                    </td>
-                  </tr>
+                    </TableCell>
+                    
+                    {/* Status */}
+                    <TableCell className="text-center">{getStatusBadge(transaction?.status)}</TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+              {/* <TableFooter>
+                <TableRow>
+                  <TableCell colSpan={3}>Total</TableCell>
+                  <TableCell className="text-right">$2,500.00</TableCell>
+                </TableRow>
+              </TableFooter> */}
+            </Table>
           </div>
         </div>
 
         {/* Mobile View - Cards */}
-        <div className="md:hidden space-y-4">
+        <div className="md:hidden space-y-4 bg-red-100">
           {filteredTransactions?.map((transaction) => (
             <div
               key={transaction?.id}

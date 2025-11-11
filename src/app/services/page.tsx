@@ -1,4 +1,7 @@
 "use client";
+import ColorPicker from "@/components/ColorPicker";
+import AddClassDialog from "@/components/services/AddClassDialog";
+import AddServiceDialog from "@/components/services/AddServiceDialog";
 import ClassCard from "@/components/services/ClassCard";
 import PackageCard from "@/components/services/PackageCard";
 import {
@@ -7,12 +10,22 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,8 +35,25 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Service } from "@/types/services";
-import { ChevronsUpDown } from "lucide-react";
+import {
+  ChevronsUpDown,
+  DollarSign,
+  ImageIcon,
+  MoreVertical,
+  Pen,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import React, { useState } from "react";
 
 const page: React.FC = () => {
@@ -31,6 +61,8 @@ const page: React.FC = () => {
   const [openCategories, setOpenCategories] = useState<number | null>(null);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [openServiceAccordion, setOpenServiceAccordion] = useState<string>("");
+  const [showNewServiceDialog, setShowNewServiceDialog] = useState(false);
+  const [openedDialog, setOpenedDialog] = useState<string | null>(null);
   const [openContentAccordions, setOpenContentAccordions] = useState<
     Record<string, string>
   >({});
@@ -187,6 +219,29 @@ const page: React.FC = () => {
     setOpenServiceAccordion(value);
   };
 
+  const eventColors = [
+    "#ef4444",
+    "#f97316",
+    "#f59e0b",
+    "#eab308",
+    "#84cc16",
+    "#22c55e",
+    "#10b981",
+    "#14b8a6",
+    "#06b6d4",
+    "#0ea5e9",
+    "#3b82f6",
+    "#6366f1",
+    "#8b5cf6",
+    "#a855f7",
+    "#d946ef",
+    "#ec4899",
+    "#f43f5e",
+    "#64748b",
+    "#6b7280",
+    "#71717a",
+  ];
+
   // Handler for nested content accordions
   const handleContentAccordionChange = (serviceId: string, value: string) => {
     setOpenContentAccordions((prev) => ({
@@ -243,16 +298,35 @@ const page: React.FC = () => {
       <div className="grid col-span-3 row-span-5 bg-amber-30 rounded-lg border p-4">
         <div className="flex w-full justify-between mb-4 border-b pb-2">
           <span>Services or Classes</span>
-          <DropdownMenu>
+          <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <Button className="rounded-full">+</Button>
-              {/* <Button variant="outline">Open</Button> */}
             </DropdownMenuTrigger>
-            <DropdownMenuContent sideOffset={10} side="left" className="" align="start">
-                <DropdownMenuItem>Service</DropdownMenuItem>
-                <DropdownMenuItem>Class</DropdownMenuItem>
+            <DropdownMenuContent
+              sideOffset={10}
+              side="left"
+              className=""
+              align="start"
+            >
+              <DropdownMenuItem onSelect={() => setOpenedDialog("service")}>
+                Service
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setOpenedDialog("class")}>
+                Class
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          <Dialog
+            open={!!openedDialog}
+            onOpenChange={() => setOpenedDialog(null)}
+          >
+            {openedDialog === "service" ? (
+              <AddServiceDialog />
+            ) : (
+              <AddClassDialog />
+            )}
+          </Dialog>
         </div>
         <div>
           {openCategories === 1 ? (
@@ -270,7 +344,46 @@ const page: React.FC = () => {
                     key={classItem.id}
                     value={`service-${classItem.id}`}
                   >
-                    <AccordionTrigger>{classItem.title}</AccordionTrigger>
+                    <AccordionTrigger>
+                      {classItem.title}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button className="">
+                            <MoreVertical />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                          sideOffset={10}
+                          side="left"
+                          className=""
+                          align="start"
+                        >
+                          <DropdownMenuItem
+                            onSelect={() => console.log("Details")}
+                            className="flex items-center justify-between w-full"
+                          >
+                            Add Details
+                            <Plus />
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onSelect={() => console.log("Edit")}
+                            className="flex items-center justify-between w-full"
+                          >
+                            Edit
+                            <Pen />
+                          </DropdownMenuItem>
+
+                          <DropdownMenuItem
+                            onSelect={() => console.log("Delete")}
+                            variant="destructive"
+                            className="flex items-center justify-between w-full"
+                          >
+                            Delete
+                            <Trash2 />
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </AccordionTrigger>
                     <AccordionContent className="flex flex-col gap-4 text-balance">
                       <Accordion
                         type="single"
@@ -289,6 +402,43 @@ const page: React.FC = () => {
                           >
                             <AccordionTrigger key={cntnt.id}>
                               {cntnt.description.substring(0, 50)}...
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button className="">
+                                    <MoreVertical />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent
+                                  sideOffset={10}
+                                  side="left"
+                                  className=""
+                                  align="start"
+                                >
+                                  <DropdownMenuItem
+                                    onSelect={() => console.log("add Package")}
+                                    className="flex items-center justify-between w-full"
+                                  >
+                                    Add Package
+                                    <Plus />
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onSelect={() => console.log("Edit")}
+                                    className="flex items-center justify-between w-full"
+                                  >
+                                    Edit
+                                    <Pen />
+                                  </DropdownMenuItem>
+
+                                  <DropdownMenuItem
+                                    onSelect={() => console.log("Delete")}
+                                    variant="destructive"
+                                    className="flex items-center justify-between w-full"
+                                  >
+                                    Delete
+                                    <Trash2 />
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             </AccordionTrigger>
                             <AccordionContent className="flex flex-col gap-4 text-balance">
                               <div className="flex justify-between border-b pb-2">
@@ -306,8 +456,6 @@ const page: React.FC = () => {
                   </AccordionItem>
                 )
               )}
-
-             
             </Accordion>
           ) : (
             // Render class information
@@ -315,7 +463,7 @@ const page: React.FC = () => {
               {LeftSideBarServicesList?.find((cat) => cat.id === 2)?.items.map(
                 (classItem: any) => (
                   <div key={classItem.id} className="">
-                    <ClassCard Class ={classItem}/>
+                    <ClassCard Class={classItem} />
                     {/* <h3 className="text-lg font-semibold mb-2">
                       {classItem.title}
                     </h3>

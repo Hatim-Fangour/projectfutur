@@ -1,0 +1,56 @@
+// type 1 : service
+$rbc-event-bgc-1: rgba(250, 226, 217, 0.592);
+$rbc-event-selected-bgc-1: rgba(250, 226, 217, 0.9);
+$rbc-event-content-bgc-1: rgba(244, 198, 182, 0.592);
+$rbc-event-content-selected-bgc-1: rgba(244, 198, 182, 0.9);
+$rbc-event-brdr-color-1: rgba(218, 58, 0,1);
+
+// type 2 : reminder
+$rbc-event-bgc-2: rgba(243, 242, 227, 0.592);
+$rbc-event-selected-bgc-2: rgba(243, 242, 227, 0.9);
+$rbc-event-content-bgc-2: rgba(228, 228, 161, 0.957);
+// $rbc-event-content-selected-bgc-1 : rgba(228, 228, 161, 0.957);
+$rbc-event-content-selected-bgc-2: rgba(231, 231, 157, 0.9);
+$rbc-event-brdr-color-2: rgb(255, 251, 0);
+
+
+// type 2 : time off
+$rbc-event-bgc-3: rgba(231, 244, 254, 0.592);
+$rbc-event-selected-bgc-3: rgba(231, 244, 254,  0.9);
+$rbc-event-content-bgc-3: rgba(193, 228, 255, 0.592);
+$rbc-event-content-selected-bgc-3: rgba(193, 228, 255, 0.9);
+$rbc-event-brdr-color-3: rgba(94, 176, 248,1);
+
+
+$out-of-range-color: lighten(#333, 40%) !default;
+$out-of-range-bg-color: lighten(#333, 70%) !default;
+
+$calendar-border: #ddd !default;
+$cell-border: #ddd !default;
+
+$border-color: #ccc !default;
+
+// Each calendar segment is 1/7th.
+$segment-width: 0.14286% !default;
+
+$time-selection-color: white !default;
+$time-selection-bg-color: rgba(0, 0, 0, 0.5) !default;
+$date-selection-bg-color: rgba(0, 0, 0, 0.1) !default;
+
+$event-bg: #3174ad !default;
+$event-border: darken(#3174ad, 10%) !default;
+$event-outline: #3b99fc !default;
+$event-color: #fff !default;
+$event-border-radius: 5px !default;
+$event-padding: 2px 5px !default;
+$event-zindex: 4 !default;
+
+$btn-color: #373a3c !default;
+$btn-bg: #fff !default;
+$btn-border: #ccc !default;
+
+$current-time-color: #74ad31 !default;
+
+$rbc-css-prefix: rbc-i !default;
+
+$today-highlight-bg: #eaf6ff !default;

@@ -35,7 +35,7 @@ export default function Home() {
       </div>
 
       {/* Alerts & Activity */}
-      <div className="bg-primary-foreground p-4 rounded-lg">
+      <div className="bg-primary-foreground p-4 rounded-lg border">
         <div className="mb-4">
           <h2 className="text-xl font-semibold text-foreground">
             Alerts & Activity
@@ -50,7 +50,7 @@ export default function Home() {
       </div>
 
       {/* Performance Tables */}
-      <div className="bg-primary-foreground p-4 rounded-lg">
+      <div className="bg-primary-foreground p-4 rounded-lg border">
         <div className="mb-4">
           <h2 className="text-xl font-semibold text-foreground">
             Performance Tables

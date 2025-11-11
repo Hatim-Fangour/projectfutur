@@ -1,6 +1,14 @@
 "use client";
 
+import { MoreVertical, Pen, Trash2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Button } from "../ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 const PackageCard = ({ pkg }: any) => {
   console.log({ pkg });
@@ -32,6 +40,35 @@ const PackageCard = ({ pkg }: any) => {
           <span className="promoPrice font-bold">{pkg.price} $</span>
         )}
       </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button className="">
+            <MoreVertical />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          sideOffset={10}
+          side="left"
+          className=""
+          align="start"
+        >
+          <DropdownMenuItem
+            onSelect={() => console.log("Edit")}
+            className="flex items-center justify-between w-full"
+          >
+            Edit
+            <Pen />
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={() => console.log("Delete")}
+            variant="destructive"
+            className="flex items-center justify-between w-full"
+          >
+            Delete
+            <Trash2 />
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };

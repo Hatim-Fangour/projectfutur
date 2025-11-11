@@ -3,33 +3,78 @@
 import BudgetManager from "@/components/financeManagement/BudgetManager";
 import ExpenseBreakdown from "@/components/financeManagement/ExpenseBreakdown";
 import SavingsGoals from "@/components/financeManagement/SavingsGoals";
+import TransactionForm from "@/components/financeManagement/TransactionForm";
 import TransactionList from "@/components/financeManagement/TransactionList";
 import OverViewFinManag from "@/components/OverViewFinManag";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const page = () => {
   const [timeRange, setTimeRange] = useState("month");
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [transactionType, setTransactionType] = useState("income");
+  useEffect(() => {}, []); // Before any returns
+  const handleAddTransaction = (type) => {
+    setTransactionType(type);
+    setShowAddModal(true);
+  };
+
+  // Conditional rendering AFTER all hooks
+  if (!timeRange) return null;
   return (
     <div className="grid grid-cols-1 gap-4 h-full">
-      <div className="grid grid-cols-3 justify-between w-full ">
-        <div className="grid grid-rows-2 col-span-2">
-          <span>Financial Management</span>
-          <span>Saturday, November 1, 2025 • 07:43 PM</span>
+      {/* Header */}
+      <div className="scroll-m-20 border-b pb-2 flex w-full justify-between items-center">
+        <div className="leftHeaderPart">
+          <h1 className="text-3xl font-semibold tracking-tight first:mt-0">
+            Financial Management
+          </h1>
+          <h2>Saturday, November 1, 2025 • 07:43 PM</h2>
         </div>
+        <div className="rightHeaderPart">
+          <div className="action grid grid-cols-3 justify-end gap-2">
+            <Button className="" onClick={() => handleAddTransaction("income")}>
+              View
+            </Button>
+            <Button className="">Download Report</Button>
 
-        <div className="action grid grid-cols-3 justify-end gap-2">
-          <button className="bg-primary-foreground p-2 rounded-lg">View</button>
-          <button className="bg-primary-foreground p-2 rounded-lg">
-            Download Report
-          </button>
-          <button className="bg-primary-foreground p-2 rounded-lg">
-            Add Transaction
-          </button>
+            <Dialog>
+              <form>
+                <DialogTrigger asChild>
+                  <Button variant="outline">Add Transaction</Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[600px]">
+                  {/* <DialogHeader>
+                    <DialogTitle>Edit profile</DialogTitle>
+                    <DialogDescription>
+                      Make changes to your profile here. Click save when
+                      you&apos;re done.
+                    </DialogDescription>
+                  </DialogHeader> */}
+                  <div className="grid gap-4">
+                   <TransactionForm/>
+                  </div>
+                </DialogContent>
+              </form>
+            </Dialog>
+          </div>
         </div>
       </div>
 
-      <div className="incomes&expenses grid gap-4 p-4 rounded-lg   h-full">
+      <div className="incomes&expenses grid gap-6 rounded-lg h-full">
         <Tabs defaultValue="overview">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -43,24 +88,22 @@ const page = () => {
             <OverViewFinManag timeRange={timeRange} />
           </TabsContent>
           <TabsContent value="transactions">
-            <TransactionList/>
+            <TransactionList />
           </TabsContent>
           <TabsContent value="expenses">
-            <ExpenseBreakdown/>
+            <ExpenseBreakdown />
           </TabsContent>
           <TabsContent value="savings">
-            <SavingsGoals/>
+            <SavingsGoals />
           </TabsContent>
           <TabsContent value="budget">
-            <BudgetManager/>
+            <BudgetManager />
           </TabsContent>
         </Tabs>
 
         {/* Financial Insights */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-          {" "}
-          <div className="bg-primary-foreground p-4 rounded-lg">
-            {" "}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+          <div className="bg-primary-foreground rounded-lg border p-4">
             {/* Spending Analysis */}
             <div className="bg-card rounded-lg p-6 spa-shadow-soft">
               <div className="flex items-center justify-between mb-4">
@@ -126,7 +169,7 @@ const page = () => {
               </div>
             </div>
           </div>
-          <div className="bg-primary-foreground p-4 rounded-lg">
+          <div className="bg-primary-foreground rounded-lg border p-4">
             {/* Financial Health Score */}
             <div className="bg-card rounded-lg p-6 spa-shadow-soft">
               <div className="flex items-center justify-between mb-4">
@@ -179,7 +222,7 @@ const page = () => {
               </div>
             </div>
           </div>
-          <div className="bg-primary-foreground p-4 rounded-lg">
+          <div className="bg-primary-foreground rounded-lg border p-4">
             {/* Recent Activity */}
             <div className="bg-card rounded-lg p-6 spa-shadow-soft">
               <div className="flex items-center justify-between mb-4">
