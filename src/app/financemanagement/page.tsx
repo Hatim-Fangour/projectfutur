@@ -35,7 +35,7 @@ const page = () => {
   // Conditional rendering AFTER all hooks
   if (!timeRange) return null;
   return (
-    <div className="grid grid-cols-1 gap-4 h-full">
+    <div className="grid grid-cols-1 gap-4  items-start pb-6">
       {/* Header */}
       <div className="scroll-m-20 border-b pb-2 flex w-full justify-between items-center">
         <div className="leftHeaderPart">
@@ -65,7 +65,7 @@ const page = () => {
                     </DialogDescription>
                   </DialogHeader> */}
                   <div className="grid gap-4">
-                   <TransactionForm/>
+                    <TransactionForm />
                   </div>
                 </DialogContent>
               </form>
@@ -76,13 +76,25 @@ const page = () => {
 
       <div className="incomes&expenses grid gap-6 rounded-lg h-full">
         <Tabs defaultValue="overview">
-          <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="transactions">Transactions</TabsTrigger>
-            <TabsTrigger value="expenses">Expenses</TabsTrigger>
-            <TabsTrigger value="incomes">Incomes</TabsTrigger>
-            <TabsTrigger value="savings">Savings</TabsTrigger>
-            <TabsTrigger value="budget">Budget</TabsTrigger>
+          <TabsList className="h-10">
+            <TabsTrigger value="overview" className="px-8">
+              <span>Overview</span>
+            </TabsTrigger>
+            <TabsTrigger value="transactions" className="px-8">
+              <span>Transactions</span>
+            </TabsTrigger>
+            <TabsTrigger value="expenses" className="px-8">
+              <span>Expenses</span>
+            </TabsTrigger>
+            <TabsTrigger value="incomes" className="px-8">
+              <span>Incomes</span>
+            </TabsTrigger>
+            <TabsTrigger value="savings" className="px-8">
+              <span>Savings</span>
+            </TabsTrigger>
+            <TabsTrigger value="budget" className="px-8">
+              <span>Budget</span>
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="overview">
             <OverViewFinManag timeRange={timeRange} />

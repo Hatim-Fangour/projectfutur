@@ -230,46 +230,7 @@ const page = () => {
         </div>
       </div>
 
-      {/* Filters and Search */}
-      <div className="flex items-center justify-between">
-        <Input
-          placeholder="Search notes, employees, or categories..."
-          className="w-1/2"
-          //   value={searchTerm}
-          //   onChange={(e) => setSearchTerm(e.target.value)}
-        />
-
-        <div className="flex gap-6">
-          <Select defaultValue="all">
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select a category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="done">Done</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-
-          <Select defaultValue="all">
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select a priority" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="all">All Priorities</SelectItem>
-                <SelectItem value="high">High</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="low">Low</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {/* Stats Cards */}
+       {/* Stats Cards */}
       <div className="flex items-center w-full gap-6 justify-between mt-4">
         {statsNotesCards.map((statCard) => (
           <Card
@@ -309,6 +270,47 @@ const page = () => {
           </Card>
         ))}
       </div>
+
+      {/* Filters and Search */}
+      <div className="flex items-center justify-between">
+        <Input
+          placeholder="Search notes, employees, or categories..."
+          className="w-1/2"
+          //   value={searchTerm}
+          //   onChange={(e) => setSearchTerm(e.target.value)}
+        />
+
+        <div className="flex gap-6">
+          <Select defaultValue="all">
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select a category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="done">Done</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+
+          <Select defaultValue="all">
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select a priority" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="all">All Priorities</SelectItem>
+                <SelectItem value="high">High</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="low">Low</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+     
 
       {/* Products Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">

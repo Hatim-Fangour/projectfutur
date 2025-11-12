@@ -58,7 +58,7 @@ import React, { useState } from "react";
 
 const page: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [openCategories, setOpenCategories] = useState<number | null>(null);
+  const [openCategories, setOpenCategories] = useState<number | null>(1);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [openServiceAccordion, setOpenServiceAccordion] = useState<string>("");
   const [showNewServiceDialog, setShowNewServiceDialog] = useState(false);
@@ -76,6 +76,7 @@ const page: React.FC = () => {
       content: [
         {
           id: 1,
+          title: "Consultation Fee",
           description:
             "During this Session you can expect to receive information regarding supplies needed to prepare for your surgery. We discuss physical sensations and emotional experiences One can expect Post Surgery. We recommend where to purchase your supplies, Doctor referrals, and your schedule for Lymphatic Drainage sessions. We will address all concerns and questions You may have.If consultation is booked prior to surgery, you will receive a complimentary day of or after service check-in call or text. Our services For the Pre-Op Consultation are available Virtually or In Person.",
           duration: 30,
@@ -85,13 +86,53 @@ const page: React.FC = () => {
               id: 1,
               name: "Consultation Fee",
               price: 209,
+              color: "#ff6789",
             },
           ],
         },
         {
           id: 2,
+          title: "this is title",
           description:
             "This package is designed to provide comprehensive post-operative care and support for individuals recovering from surgery. It includes a series of therapeutic sessions aimed at promoting healing, reducing discomfort, and enhancing overall well-being during the recovery process.",
+          duration: 60,
+          pricingPlan: [
+            {
+              duration: 60,
+              id: 1,
+              name: "Single Session",
+              price: 129,
+              color: "#26fd05",
+            },
+            {
+              duration: 60,
+              id: 2,
+              name: "5 Sessions Package",
+              price: 600,
+              color: "#0000ff",
+            },
+            {
+              duration: 60,
+              id: 3,
+              name: "10 Sessions Package",
+              price: 1150,
+              color: "#fbff00",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: 2,
+      description: "Lymphatic Drainage Description",
+      service: "LymphaticDrainage",
+      title: "Lymphatic Drainage",
+      content: [
+        {
+          id: 1,
+          title: "this is title 1",
+          description:
+            "Lymphatic Drainage is a gentle, rhythmic massage technique that stimulates the lymphatic system to promote the flow of lymph fluid throughout the body. This specialized massage is designed to enhance the body's natural detoxification process, reduce swelling, and improve overall immune function.",
           duration: 60,
           pricingPlan: [
             {
@@ -114,16 +155,9 @@ const page: React.FC = () => {
             },
           ],
         },
-      ],
-    },
-    {
-      id: 2,
-      description: "Lymphatic Drainage Description",
-      service: "LymphaticDrainage",
-      title: "Lymphatic Drainage",
-      content: [
         {
-          id: 1,
+          id: 2,
+          title: "this is title 2",
           description:
             "Lymphatic Drainage is a gentle, rhythmic massage technique that stimulates the lymphatic system to promote the flow of lymph fluid throughout the body. This specialized massage is designed to enhance the body's natural detoxification process, reduce swelling, and improve overall immune function.",
           duration: 60,
@@ -249,58 +283,53 @@ const page: React.FC = () => {
       [serviceId]: value,
     }));
   };
+
   return (
-    <div className="grid grid-cols-4 gap-4 overflow-hidden">
+    <div className="grid grid-cols-4 grid-row-1 gap-4 overflow-hidden h-full">
       {/* left sidebar */}
-      <div className="flex flex-col bg-primary-foreground p-2 rounded-lg">
+      <div className="h-full flex flex-col gap-5 bg-primary-foreground p-4 rounded-lg border">
         {/* Header */}
         <header className="flex flex-col gap-4">
           <h1 className="text-lg font-semibold">Services & classes</h1>
         </header>
 
         {/*  services&classes list */}
-        <div className="services&classes mt-4 flex-1 overflow-y-auto">
+        <div className="services&classes flex flex-col mt-4 flex-1 gap-4  overflow-y-auto ">
           {LeftSideBarServicesList.map((category) => (
-            <Collapsible
-              key={category.id}
-              open={!!(openCategories === category.id)} // 👈 unique open state per category
-              onOpenChange={() => toggleCategory(category.id)}
-              className="flex w-[350px] flex-col gap-2"
+            <Button
+              onClick={() => toggleCategory(category.id)}
+              className="cursor-pointer"
             >
-              <div className="flex items-center justify-between gap-4 px-4">
-                <h4 className="text-sm font-semibold">{category.title}</h4>
-                <CollapsibleTrigger asChild>
-                  <Button variant="ghost" size="icon" className="size-8">
-                    <ChevronsUpDown />
-                    <span className="sr-only">Toggle</span>
-                  </Button>
-                </CollapsibleTrigger>
-              </div>
-              <CollapsibleContent className="flex flex-col gap-2">
-                {category.items.map((item) => (
-                  <div
-                    key={item.id}
-                    className="pl-8"
-                    // onClick={() => setSelectedService(item)}
-                  >
-                    <div className="rounded-md border px-4 py-2 font-mono text-sm">
-                      {item.title}
-                    </div>
-                  </div>
-                ))}
-              </CollapsibleContent>
-            </Collapsible>
+              {category.title}
+            </Button>
           ))}
         </div>
       </div>
 
       {/* main content */}
-      <div className="grid col-span-3 row-span-5 bg-amber-30 rounded-lg border p-4">
+      <div className="grid col-span-3 bg-primary-foreground p-4 pb-6 rounded-lg border content-start">
         <div className="flex w-full justify-between mb-4 border-b pb-2">
-          <span>Services or Classes</span>
+          <div className="flex gap-2 text-lg font-bold">
+            <span>
+              {
+                LeftSideBarServicesList.find(
+                  (item) => item.id === openCategories
+                )?.title
+              }
+            </span>
+            <span>
+              (
+              {
+                LeftSideBarServicesList.find(
+                  (item) => item.id === openCategories
+                )?.items.length
+              }
+              )
+            </span>
+          </div>
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
-              <Button className="rounded-full">+</Button>
+              <Button className="">+</Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               sideOffset={10}
@@ -328,7 +357,9 @@ const page: React.FC = () => {
             )}
           </Dialog>
         </div>
-        <div>
+
+        <div className="w-full">
+          {/* openCategories === 1 means services */}
           {openCategories === 1 ? (
             <Accordion
               type="single"
@@ -340,49 +371,60 @@ const page: React.FC = () => {
             >
               {LeftSideBarServicesList?.find((cat) => cat.id === 1)?.items.map(
                 (classItem: any) => (
+                  // Service
                   <AccordionItem
                     key={classItem.id}
                     value={`service-${classItem.id}`}
+                    className="bg-primary-foreground border rounded-lg last:border-b mt-4 px-5"
                   >
-                    <AccordionTrigger>
-                      {classItem.title}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button className="">
-                            <MoreVertical />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                          sideOffset={10}
-                          side="left"
-                          className=""
-                          align="start"
-                        >
-                          <DropdownMenuItem
-                            onSelect={() => console.log("Details")}
-                            className="flex items-center justify-between w-full"
+                    <AccordionTrigger className="hover:!no-underline !no-underline cursor-pointer">
+                      <div className="flex gap-4 items-center">
+                        {/* service title */}
+                        <span className="font-bold text-lg">
+                          {classItem.title}
+                        </span>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              className="border-0"
+                              variant="ghost"
+                              size="sm"
+                            >
+                              <MoreVertical size={10} />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent
+                            sideOffset={1}
+                            side="right"
+                            className=""
+                            align="start"
                           >
-                            Add Details
-                            <Plus />
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onSelect={() => console.log("Edit")}
-                            className="flex items-center justify-between w-full"
-                          >
-                            Edit
-                            <Pen />
-                          </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onSelect={() => console.log("Details")}
+                              className="flex items-center justify-between w-full"
+                            >
+                              Add Details
+                              <Plus />
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onSelect={() => console.log("Edit")}
+                              className="flex items-center justify-between w-full"
+                            >
+                              Edit
+                              <Pen />
+                            </DropdownMenuItem>
 
-                          <DropdownMenuItem
-                            onSelect={() => console.log("Delete")}
-                            variant="destructive"
-                            className="flex items-center justify-between w-full"
-                          >
-                            Delete
-                            <Trash2 />
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                            <DropdownMenuItem
+                              onSelect={() => console.log("Delete")}
+                              variant="destructive"
+                              className="flex items-center justify-between w-full"
+                            >
+                              Delete
+                              <Trash2 />
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </AccordionTrigger>
                     <AccordionContent className="flex flex-col gap-4 text-balance">
                       <Accordion
@@ -396,57 +438,76 @@ const page: React.FC = () => {
                         }
                       >
                         {classItem.content.map((cntnt: any) => (
+                          // subService
                           <AccordionItem
                             key={classItem.id}
                             value={`content-${cntnt.id}`}
+                            className="dark:bg-[#2828288a] last:border-t-0 border-b-0 rounded-lg mb-3 pr-3"
                           >
-                            <AccordionTrigger key={cntnt.id}>
-                              {cntnt.description.substring(0, 50)}...
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button className="">
-                                    <MoreVertical />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent
-                                  sideOffset={10}
-                                  side="left"
-                                  className=""
-                                  align="start"
-                                >
-                                  <DropdownMenuItem
-                                    onSelect={() => console.log("add Package")}
-                                    className="flex items-center justify-between w-full"
+                            <AccordionTrigger
+                              key={cntnt.id}
+                              className="hover:!no-underline !no-underline cursor-pointer"
+                            >
+                              {/* subservice title */}
+                              <div className=" flex gap-4 items-center ml-8 pl-3 border-l-3">
+                                <span className="font-bold text-base">
+                                  {cntnt.title}
+                                </span>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button
+                                      className="w-8 h-8 border-0 p-0!"
+                                      variant="ghost"
+                                      size="sm"
+                                    >
+                                      <MoreVertical size={10} />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent
+                                    sideOffset={1}
+                                    side="right"
+                                    className=""
+                                    align="start"
                                   >
-                                    Add Package
-                                    <Plus />
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem
-                                    onSelect={() => console.log("Edit")}
-                                    className="flex items-center justify-between w-full"
-                                  >
-                                    Edit
-                                    <Pen />
-                                  </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onSelect={() =>
+                                        console.log("add Package")
+                                      }
+                                      className="flex items-center justify-between w-full"
+                                    >
+                                      Add Package
+                                      <Plus />
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onSelect={() => console.log("Edit")}
+                                      className="flex items-center justify-between w-full"
+                                    >
+                                      Edit
+                                      <Pen />
+                                    </DropdownMenuItem>
 
-                                  <DropdownMenuItem
-                                    onSelect={() => console.log("Delete")}
-                                    variant="destructive"
-                                    className="flex items-center justify-between w-full"
-                                  >
-                                    Delete
-                                    <Trash2 />
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
+                                    <DropdownMenuItem
+                                      onSelect={() => console.log("Delete")}
+                                      variant="destructive"
+                                      className="flex items-center justify-between w-full"
+                                    >
+                                      Delete
+                                      <Trash2 />
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
                             </AccordionTrigger>
-                            <AccordionContent className="flex flex-col gap-4 text-balance">
-                              <div className="flex justify-between border-b pb-2">
-                                <div>
+                            <AccordionContent className="flex flex-col gap-4 ">
+                              <div className="flex justify-between flex-col  pb-2">
+                                {/* packages */}
+                                <>
                                   {cntnt.pricingPlan.map((plan: any) => (
-                                    <PackageCard key={plan.id} pkg={plan} />
+                                    <div className="pl-18 mb-3">
+                                      <PackageCard key={plan.id} pkg={plan} />
+                                    </div>
                                   ))}
-                                </div>
+                                </>
                               </div>
                             </AccordionContent>
                           </AccordionItem>
@@ -459,21 +520,12 @@ const page: React.FC = () => {
             </Accordion>
           ) : (
             // Render class information
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 w-full ">
               {LeftSideBarServicesList?.find((cat) => cat.id === 2)?.items.map(
                 (classItem: any) => (
-                  <div key={classItem.id} className="">
-                    <ClassCard Class={classItem} />
-                    {/* <h3 className="text-lg font-semibold mb-2">
-                      {classItem.title}
-                    </h3>
-                    <p className="mb-2">{classItem.description}</p>
-                    <p className="mb-2">
-                      Duration: {classItem.duration} minutes
-                    </p>
-                    <p className="mb-2">Seats Available: {classItem.seats}</p>
-                    <p className="mb-2">Cost: ${classItem.cost}</p> */}
-                  </div>
+                  // <div key={classItem.id} className="w-full">
+                  <ClassCard key={classItem.id} Class={classItem} />
+                  // </div>
                 )
               )}
             </div>

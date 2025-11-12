@@ -378,7 +378,7 @@ const page = () => {
     },
   ];
   return (
-    <div className="">
+    <div className=" pb-6">
       <div className="flex flex-col gap-4">
         {/* Page Header */}
         <div className="scroll-m-20 border-b pb-2 flex w-full justify-between items-center">

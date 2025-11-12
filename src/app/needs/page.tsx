@@ -201,7 +201,43 @@ const page = () => {
         </div>
       </div>
 
-      {/* Filters and Search */}
+     
+
+      {/* Stats Cards */}
+      <div className="flex items-center w-full gap-6 justify-between mt-4">
+        {statsNeedsCards.map((statCard) => (
+          <Card className="w-1/4" key={statCard.id}>
+            <CardContent className="flex items-center gap-4">
+              <Avatar
+                className="flex items-center justify-center bg-[#e8f5e8] rounded-full w-14 h-14"
+                style={{
+                  color: statCard.color,
+                  backgroundColor: `${statCard.color}23`,
+                }}
+              >
+                <statCard.icon className="w-8 h-8" />
+              </Avatar>
+
+              <div>
+                <h1
+                  className="font-bold text-2xl"
+                  style={{
+                    color: statCard.color,
+                  }}
+                >
+                  12
+                  {/* {needs.length} */}
+                </h1>
+                <h2 className="" style={{ color: statCard.color }}>
+                  {statCard.title}
+                </h2>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+       {/* Filters and Search */}
       <div className="flex items-center justify-between">
         <Input
           placeholder="Search products, descriptions, or suppliers..."
@@ -244,40 +280,6 @@ const page = () => {
             </SelectContent>
           </Select>
         </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="flex items-center w-full gap-6 justify-between mt-4">
-        {statsNeedsCards.map((statCard) => (
-          <Card className="w-1/4" key={statCard.id}>
-            <CardContent className="flex items-center gap-4">
-              <Avatar
-                className="flex items-center justify-center bg-[#e8f5e8] rounded-full w-14 h-14"
-                style={{
-                  color: statCard.color,
-                  backgroundColor: `${statCard.color}23`,
-                }}
-              >
-                <statCard.icon className="w-8 h-8" />
-              </Avatar>
-
-              <div>
-                <h1
-                  className="font-bold text-2xl"
-                  style={{
-                    color: statCard.color,
-                  }}
-                >
-                  12
-                  {/* {needs.length} */}
-                </h1>
-                <h2 className="" style={{ color: statCard.color }}>
-                  {statCard.title}
-                </h2>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
       </div>
 
       {/* Products Grid */}

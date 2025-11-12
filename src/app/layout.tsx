@@ -27,9 +27,9 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-    const cookieStore = await cookies()
-  const defaultOpen = cookieStore.get("sidebar_state")?.value === "true"
- 
+  const cookieStore = await cookies();
+  const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -42,12 +42,11 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <SidebarProvider defaultOpen={defaultOpen}>
-
-          <AppSidebar />
-          <main className="w-full h-screen overflow-auto">
-            <Navbar />
-            <div className="px-16">{children}</div>
-          </main>
+            <AppSidebar />
+            <main className="w-full  h-screen flex flex-col overflow-auto">
+              <Navbar />
+              <div className="px-16 pb-6 box-border h-screen">{children}</div>
+            </main>
           </SidebarProvider>
         </ThemeProvider>
       </body>

@@ -10,7 +10,7 @@ export default function Home() {
     <div
       className="grid grid-cols-1 
     lg:grid-cols-1 2xl:grid-cols-1 
-    gap-4"
+    gap-4 pb-6"
     >
       {/* Overview */}
       <div className="bg-primary-foreground p-4 rounded-lg">

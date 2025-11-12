@@ -5,11 +5,13 @@ export type PricingPlan = {
   name: string;
   price: number;
   duration: number; // in minutes
+  color:string
 };
 
 export type ServiceContent = {
   id: number;
   description: string;
+  title: string;
   duration: number;
   pricingPlan: PricingPlan[];
 };

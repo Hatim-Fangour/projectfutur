@@ -24,13 +24,16 @@ const page = () => {
       notes: [
         {
           id: 1,
-          content: "Followed up on the last appointment.",
-          date: "2024-10-01",
+          content:
+            "Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.",
+          date: "2024-10-01 20:09",
+          writer: "Hatim Fangour",
         },
         {
           id: 2,
           content: "Interested in new spa packages.",
           date: "2024-10-05",
+          writer: "Hatim Fangour",
         },
       ],
     },
@@ -134,14 +137,14 @@ const page = () => {
     },
   ];
   return (
-    <div className="grid grid-cols-4 gap-4 overflow-hidden">
+    <div className="grid grid-cols-4 gap-4 overflow-hidden items-start pb-6">
       {/* left sidebar */}
       <div className="flex flex-col bg-primary-foreground p-2 rounded-lg">
         {/* Header */}
         <header className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <h1 className="text-lg font-semibold">Customers</h1>
-            <Button className="w-8 h-8 rounded-full">+</Button>
+            <Button className="w-8 h-8">+</Button>
           </div>
 
           <div className="search-section">
@@ -150,7 +153,7 @@ const page = () => {
         </header>
 
         {/* Scrollable customer list */}
-        <ScrollArea className="mt-4 p-4 h-[750px]">
+        <ScrollArea className="mt-4 p-1 pr-3 py-4 h-[700px]">
           {customers.map((customer) => (
             <div
               key={customer.id}
@@ -177,8 +180,8 @@ const page = () => {
       <div className="grid grid-cols-1 gap-4 grid-rows-6 bg-primary-foreground p-2 rounded-lg col-span-3">
         <div className="grid bg-amber-20 rounded-lg border">
           <div className="header w-full">
-            <div className="flex items-center justify-between space-x-2 w-full">
-              <div className="leftHeader flex items-center justify-between space-x-2">
+            <div className="flex items-center justify-between space-x-2 w-full h-full px-5">
+              <div className="leftHeader flex items-center justify-between space-x-2 h-full">
                 {(() => {
                   // const selectedOne = ""
                   const selectedOne = customers[0];
@@ -190,18 +193,25 @@ const page = () => {
 
                   return (
                     <>
-                      <Avatar>
+                      <Avatar className="size-25 text-5xl">
                         <AvatarImage
+                          sizes="40"
                           src={selectedOne?.pictureURL}
                           alt={selectedOne.fullName}
                         />
-                        <AvatarFallback>
+                        <AvatarFallback className="text">
                           {selectedOne.fullName?.[0]?.toUpperCase() || "?"}
                         </AvatarFallback>
                       </Avatar>
+                      <div className="flex flex-col gap-2">
+
                       <span className="text-nowrap text-ellipsis overflow-hidden block w-full">
                         {selectedOne?.fullName}
                       </span>
+                      <span className="text-nowrap text-ellipsis overflow-hidden block w-full">
+                        {selectedOne?.address}
+                      </span>
+                      </div>
                     </>
                   );
                 })()}
@@ -240,19 +250,23 @@ const page = () => {
         <div className="grid row-span-5 bg-amber-30 rounded-lg border">
           <Tabs defaultValue="about" className="">
             <TabsList>
-              <TabsTrigger value="about">About</TabsTrigger>
-              <TabsTrigger value="notes">Notes</TabsTrigger>
-              <TabsTrigger value="appointments">Appointments</TabsTrigger>
-              <TabsTrigger value="services">Services</TabsTrigger>
+              <TabsTrigger value="about" className="px-8">About</TabsTrigger>
+              <TabsTrigger value="notes" className="px-8">Notes</TabsTrigger>
+              <TabsTrigger value="appointments" className="px-8">Appointments</TabsTrigger>
+              <TabsTrigger value="services" className="px-8">Services</TabsTrigger>
             </TabsList>
-            <TabsContent value="about" className="p-4">
+            <TabsContent value="about" className="p-6">
               <AboutTabContent customer={customers[0]} />
             </TabsContent>
-            <TabsContent value="notes" className="p-4">
-              <NoteTabContent customer={customers[0]}/>
+            <TabsContent value="notes" className="p-6">
+              <NoteTabContent customer={customers[0]} />
             </TabsContent>
-            <TabsContent value="appointments" className="p-4">appointments Content</TabsContent>
-            <TabsContent value="services" className="p-4">services Content</TabsContent>
+            <TabsContent value="appointments" className="p-6">
+              appointments Content
+            </TabsContent>
+            <TabsContent value="services" className="p-6">
+              services Content
+            </TabsContent>
           </Tabs>
         </div>
       </div>

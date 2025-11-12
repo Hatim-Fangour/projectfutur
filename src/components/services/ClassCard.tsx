@@ -1,6 +1,14 @@
 import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { MoreVertical, Pen, Trash2 } from "lucide-react";
+import {
+  AlarmClockCheck,
+  Armchair,
+  CircleDollarSign,
+  MoreVertical,
+  Pen,
+  RockingChair,
+  Trash2,
+} from "lucide-react";
 import { Button } from "../ui/button";
 import {
   DropdownMenu,
@@ -11,34 +19,50 @@ import {
 
 const ClassCard = ({ Class }: any) => {
   return (
-    <div className="packageCardContainer border rounded-lg flex items-center w-full p-2.5 cursor-pointer overflow-hidden justify-between relative after:content-[''] after:absolute  after:top-0 after:left-0 after:h-full after:w-2 after:bg-blue-500 ">
-      {/* <span className="absolute top-0 left-0 h-full w-4"></span> */}
-
-      <div className="info flex items-center gap-2.5">
-        <Avatar>
+    <div
+      className="packageCardContainer w-full border rounded-lg flex items-center p-2.5 pl-5 overflow-hidden justify-between relative"
+     
+    >
+      <div
+        className="absolute top-0 left-0 h-full w-1 rounded-l-lg"
+        style={{ backgroundColor: Class.color }}
+      />
+      <div className="info flex w-1/ items-center gap-5 ">
+        <Avatar className="size-15 text-xl">
           <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
 
-        <div className="titleContainer flex-2 py-[5px]">
+        <div className="title flex flex-col w-full gap-1">
           <div
-            className="title text-[15px] font-bold  line-clamp-2 overflow-hidden text-ellipsis leading-snug max-h-[2.4em]"
+            className="overflow-hidden text-ellipsis font-bold"
             title={Class.title}
           >
             {Class.title}
           </div>
+          <div className="flex gap-8 w-full">
+            <div className="flex items-center gap-2">
+              <AlarmClockCheck className="h-4 w-4" />
+              <span>{Class.duration} minutes</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Armchair className="h-4 w-4" />
+              <span>{Class.seats}</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <CircleDollarSign className="h-4 w-4" />
+              <span>{Class.cost}</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <p className="mb-2">{Class.description}</p>
-      <p className="mb-2">Duration: {Class.duration} minutes</p>
-      <p className="mb-2">Seats Available: {Class.seats}</p>
-      <p className="mb-2">Cost: ${Class.cost}</p>
-
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button className="">
-            <MoreVertical />
+         <Button className="w-8 h-8 border-0 p-0!" variant="ghost" size="sm">
+            <MoreVertical size={10} />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent

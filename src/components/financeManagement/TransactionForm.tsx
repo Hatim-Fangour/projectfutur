@@ -1,4 +1,22 @@
 import React, { useState } from "react";
+import { Input } from "../ui/input";
+import { Field, FieldLabel } from "../ui/field";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Button } from "../ui/button";
+import { ChevronDownIcon } from "lucide-react";
+import { Calendar } from "../ui/calendar";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "../ui/textarea";
+import { Checkbox } from "../ui/checkbox";
+import { Label } from "../ui/label";
 
 const TransactionForm = ({ isOpen, onClose, transactionType }: any) => {
   const [formData, setFormData] = useState({
@@ -86,13 +104,15 @@ const TransactionForm = ({ isOpen, onClose, transactionType }: any) => {
       [field]: value,
     }));
   };
+  const [open, setOpen] = useState(false);
+  const [date, setDate] = useState<Date | undefined>(undefined);
 
   //   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-card rounded-lg w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto spa-shadow-elevated">
         {/* Header */}
-        <div className="p-6 border-b border-border">
+        <div className="p-4 border-b ">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div
@@ -132,10 +152,10 @@ const TransactionForm = ({ isOpen, onClose, transactionType }: any) => {
             <label className="block text-sm font-medium text-foreground mb-3">
               Transaction Type
             </label>
-            <div className="flex items-center space-x-1 bg-muted rounded-lg">
+            <div className="flex items-center space-x-1 bg-muted rounded-lg p-1">
               <button
                 onClick={() => handleInputChange("type", "income")}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-md spa-transition flex-1 justify-center 
+                className={`flex items-center space-x-2 px-4 py-1 rounded-md spa-transition flex-1 justify-center 
                    
                    ${
                      formData?.type === "income"
@@ -150,7 +170,7 @@ const TransactionForm = ({ isOpen, onClose, transactionType }: any) => {
               </button>
               <button
                 onClick={() => handleInputChange("type", "expense")}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-md spa-transition flex-1 justify-center  ${
+                className={`flex items-center space-x-2 px-4 py-1 rounded-md spa-transition flex-1 justify-center  ${
                   formData?.type === "expense"
                     ? "bg-primary text-primary-foreground"
                     : "hover:bg-muted"
@@ -164,34 +184,35 @@ const TransactionForm = ({ isOpen, onClose, transactionType }: any) => {
             </div>
           </div>
 
+          {/* main form */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Description */}
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Description *
-              </label>
-              <input
-                type="text"
-                value={formData?.description}
-                onChange={(e) =>
-                  handleInputChange("description", e?.target?.value)
-                }
-                className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                placeholder={`Enter ${formData?.type} description`}
-                required
-              />
+              <Field>
+                <FieldLabel htmlFor="checkout-7j9-description-43j">
+                  Description *
+                </FieldLabel>
+                <Input
+                  id="checkout-7j9-description-43j"
+                  type="text"
+                  value={formData?.description}
+                  onChange={(e) =>
+                    handleInputChange("description", e?.target?.value)
+                  }
+                  className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  placeholder={`Enter ${formData?.type} description`}
+                  required
+                />
+              </Field>
             </div>
 
             {/* Amount */}
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Amount *
-              </label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
-                  $
-                </span>
-                <input
+              <Field>
+                <FieldLabel htmlFor="checkout-7j9-amount-43j">
+                  Amount ($) *
+                </FieldLabel>
+                <Input
                   type="number"
                   step="0.01"
                   min="0"
@@ -203,51 +224,117 @@ const TransactionForm = ({ isOpen, onClose, transactionType }: any) => {
                   placeholder="0.00"
                   required
                 />
-              </div>
+              </Field>
             </div>
 
             {/* Date */}
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Date *
-              </label>
-              <input
+              <Field>
+                <FieldLabel htmlFor="checkout-7j9-date-43j">Date *</FieldLabel>
+                <Popover open={open} onOpenChange={setOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      id="checkout-7j9-date-43j"
+                      className="w-48 justify-between font-normal"
+                    >
+                      {date ? date.toLocaleDateString() : "Select date"}
+                      <ChevronDownIcon />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="overflow-hidden p-0 w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                    align="start"
+                  >
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      captionLayout="dropdown"
+                      onSelect={(date) => {
+                        setDate(date);
+                        setOpen(false);
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </Field>
+
+              {/* <input
                 type="date"
                 value={formData?.date}
                 onChange={(e) => handleInputChange("date", e?.target?.value)}
                 className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 required
-              />
+              /> */}
             </div>
 
             {/* Category */}
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Category *
-              </label>
-              <select
-                value={formData?.category}
-                onChange={(e) =>
-                  handleInputChange("category", e?.target?.value)
-                }
-                className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                required
-              >
-                <option value="">Select a category</option>
-                {categories?.map((category) => (
-                  <option key={category?.value} value={category?.value}>
-                    {category?.label}
-                  </option>
-                ))}
-              </select>
+              <Field>
+                <FieldLabel htmlFor="checkout-7j9-category-43j">
+                  Category *
+                </FieldLabel>
+                <Select>
+                  <SelectTrigger
+                    className="w-full"
+                    id="checkout-7j9-category-43j"
+                  >
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent
+                    //  value={formData?.category}
+                    onChange={(e) =>
+                      handleInputChange("category", e?.target?.value)
+                    }
+                    className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                    // required
+                  >
+                    <SelectGroup>
+                      {categories?.map((category) => (
+                        <SelectItem
+                          key={category?.value}
+                          value={category?.value}
+                        >
+                          {category?.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </Field>
             </div>
 
             {/* Payment Method */}
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Payment Method
-              </label>
-              <select
+              <Field>
+                <FieldLabel htmlFor="checkout-7j9-payment-method-43j">
+                  Payment Method
+                </FieldLabel>
+
+                <Select>
+                  <SelectTrigger className="w-full" id="checkout-7j9-payment-method-43j">
+                    <SelectValue placeholder="Select a payment method" />
+                  </SelectTrigger>
+                  <SelectContent
+                    //  value={formData?.category}
+                    onChange={(e) =>
+                      handleInputChange("category", e?.target?.value)
+                    }
+                    className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                    // required
+                  >
+                    <SelectGroup>
+                      {paymentMethods?.map((method) => (
+                        <SelectItem key={method?.value} value={method?.value}>
+                          {method?.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </Field>
+
+              {/* <select
                 value={formData?.paymentMethod}
                 onChange={(e) =>
                   handleInputChange("paymentMethod", e?.target?.value)
@@ -259,84 +346,103 @@ const TransactionForm = ({ isOpen, onClose, transactionType }: any) => {
                     {method?.label}
                   </option>
                 ))}
-              </select>
+              </select> */}
             </div>
           </div>
 
           {/* Notes */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">
-              Notes (Optional)
-            </label>
-            <textarea
+            <Field>
+              <FieldLabel htmlFor="checkout-7j9-notes-43j">
+                Notes (Optional)
+              </FieldLabel>
+              <Textarea
+              id="checkout-7j9-notes-43j"
+                placeholder="Add any additional notes or details..."
+                rows={3}
+                value={formData?.notes}
+                onChange={(e) => handleInputChange("notes", e?.target?.value)}
+              />
+            </Field>
+
+            {/* <textarea
               value={formData?.notes}
               onChange={(e) => handleInputChange("notes", e?.target?.value)}
               className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               rows={3}
               placeholder="Add any additional notes or details..."
-            />
+            /> */}
           </div>
 
           {/* Recurring Transaction */}
           <div>
             <div className="flex items-center space-x-3 mb-3">
-              <input
-                type="checkbox"
-                id="recurring"
+              <Checkbox
+                id="reccuring"
                 checked={formData?.recurring}
-                onChange={(e) =>
-                  handleInputChange("recurring", e?.target?.checked)
+                onCheckedChange={(value) =>
+                  handleInputChange("recurring", value)
                 }
-                className="rounded border-border text-primary focus:ring-ring"
               />
-              <label
-                htmlFor="recurring"
-                className="text-sm font-medium text-foreground"
-              >
-                This is a recurring transaction
-              </label>
+              <Label htmlFor="reccuring">This is a recurring transaction</Label>
+              
             </div>
 
             {formData?.recurring && (
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Recurring Frequency
-                </label>
-                <select
-                  value={formData?.recurringFrequency}
-                  onChange={(e) =>
-                    handleInputChange("recurringFrequency", e?.target?.value)
-                  }
-                  className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                >
-                  <option value="weekly">Weekly</option>
-                  <option value="monthly">Monthly</option>
-                  <option value="quarterly">Quarterly</option>
-                  <option value="yearly">Yearly</option>
-                </select>
+                <Field>
+                  <FieldLabel htmlFor="checkout-7j9-recurring-43j">
+                    Recurring Frequency
+                  </FieldLabel>
+                  <Select>
+                    <SelectTrigger className="w-full" id="checkout-7j9-recurring-43j">
+                      <SelectValue placeholder="Select a frequency" />
+                    </SelectTrigger>
+                    <SelectContent
+                      //   value={formData?.recurringFrequency}
+                      onChange={(e) =>
+                        handleInputChange(
+                          "recurringFrequency",
+                          e?.target?.value
+                        )
+                      }
+                      className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                      // required
+                    >
+                      <SelectGroup>
+                        <SelectItem value="weekly">Weekly</SelectItem>
+                        <SelectItem value="monthly">Monthly</SelectItem>
+                        <SelectItem value="quarterly">Quarterly</SelectItem>
+                        <SelectItem value="yearly">Yearly</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </Field>
+
+               
               </div>
             )}
           </div>
 
           {/* Action Buttons */}
-          <div className="flex space-x-3 pt-4 border-t border-border">
-            <button
-              type="button"
+          <div className="flex space-x-3 pt-4 border-t ">
+            <Button
+              
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-border rounded-lg text-foreground hover:bg-muted spa-transition"
+              className="flex-1 px-4 py-2 border rounded-lg "
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              className={`flex-1 px-4 py-2 rounded-lg spa-transition text-white ${
+              className={`flex-1 px-4 py-2 border rounded-lg ${
                 formData?.type === "income"
-                  ? "bg-success hover:bg-success/90"
-                  : "bg-error hover:bg-error/90"
+                  ? "bg-red-900 text-white"
+                  : "bg-green-900 text-white"
               }`}
             >
               Add {formData?.type === "income" ? "Income" : "Expense"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
