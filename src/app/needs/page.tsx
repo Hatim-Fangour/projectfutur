@@ -238,17 +238,17 @@ const page = () => {
       </div>
 
        {/* Filters and Search */}
-      <div className="flex items-center justify-between">
+      <div className="grid grid-cols-4 gap-6 border-b pb-4">
         <Input
           placeholder="Search products, descriptions, or suppliers..."
-          className="w-1/2"
+          className="col-span-2"
           //   value={searchTerm}
           //   onChange={(e) => setSearchTerm(e.target.value)}
         />
 
-        <div className="flex gap-6">
+        
           <Select defaultValue="all">
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="col-span-1 w-full">
               <SelectValue placeholder="Select a category" />
             </SelectTrigger>
             <SelectContent>
@@ -262,7 +262,7 @@ const page = () => {
           </Select>
 
           <Select defaultValue="all">
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="col-span-1 w-full">
               <SelectValue placeholder="Select a category" />
             </SelectTrigger>
             <SelectContent>
@@ -279,11 +279,11 @@ const page = () => {
               </SelectGroup>
             </SelectContent>
           </Select>
-        </div>
+        
       </div>
 
       {/* Products Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-4">
         {filteredNeeds.map((need) => {
           //   const categoryInfo = getCategoryInfo(need.category);
           return <NeedCard need={need} />;

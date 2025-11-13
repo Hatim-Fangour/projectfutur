@@ -285,7 +285,7 @@ const page: React.FC = () => {
   };
 
   return (
-    <div className="grid grid-cols-4 grid-row-1 gap-4 overflow-hidden h-full">
+    <div className="grid grid-cols-4 grid-row-1 gap-4 overflow-hidden h-[calc(100vh-95px)]">
       {/* left sidebar */}
       <div className="h-full flex flex-col gap-5 bg-primary-foreground p-4 rounded-lg border">
         {/* Header */}
@@ -298,7 +298,12 @@ const page: React.FC = () => {
           {LeftSideBarServicesList.map((category) => (
             <Button
               onClick={() => toggleCategory(category.id)}
-              className="cursor-pointer"
+              className={`cursor-pointer transition-all duration-300 ease-in-out ${
+                openCategories === category.id ? "w-full" : "w-6/7"
+              }`}
+              // style={{
+              //   width:"100%"
+              // }}
             >
               {category.title}
             </Button>

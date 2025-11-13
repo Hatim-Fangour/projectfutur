@@ -43,9 +43,12 @@ export default async function RootLayout({
         >
           <SidebarProvider defaultOpen={defaultOpen}>
             <AppSidebar />
-            <main className="w-full  h-screen flex flex-col overflow-auto">
-              <Navbar />
-              <div className="px-16 pb-6 box-border h-screen">{children}</div>
+            <main className="w-full  h-screen flex flex-col">
+             
+                <Navbar />
+              <div className="px-16 pb-6 flex-1 overflow-auto">
+                {children}
+              </div>
             </main>
           </SidebarProvider>
         </ThemeProvider>

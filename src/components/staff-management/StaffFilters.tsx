@@ -52,79 +52,68 @@ const StaffFilters = ({
     searchTerm || selectedRole || selectedDepartment || selectedStatus;
 
   return (
-    <div className="bg-card border border-border rounded-lg p-6 spa-shadow-soft">
-      <div className="flex flex-col lg:flex-row lg:items-end gap-4">
-        {/* Search */}
-        <div className="flex-1">
-          <Input
-            type="search"
-            placeholder="Search staff by name, email, or phone..."
-            value={searchTerm}
-            onChange={(e) => onSearchChange(e?.target?.value)}
-            className="w-full"
-          />
-        </div>
-
+    <div className="grid grid-cols-4 gap-6 border-b pb-4">
+      {/* Search */}
+      <Input
+        type="search"
+        placeholder="Search staff by name, email, or phone..."
+        value={searchTerm}
+        onChange={(e) => onSearchChange(e?.target?.value)}
+        className="col-span-2"
+      />
+      <div className="grid grid-cols-3 col-span-2 gap-6">
         {/* Role Filter */}
-        <div className="w-full lg:w-48">
-          <Select>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filter by role" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {roleOptions.map((role) => (
-                  <SelectItem key={role.value} value={role.value}>
-                    {role.label}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
+        <Select>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Filter by role" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {roleOptions.map((role) => (
+                <SelectItem key={role.value} value={role.value}>
+                  {role.label}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
 
         {/* Department Filter */}
-        <div className="w-full lg:w-48">
-         
-          <Select>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filter by departements" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {departmentOptions.map((departmentOption, index) => (
-                  <SelectItem key={index} value={departmentOption.value}>
-                    {departmentOption.label}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
+        <Select>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Filter by departements" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {departmentOptions.map((departmentOption, index) => (
+                <SelectItem key={index} value={departmentOption.value}>
+                  {departmentOption.label}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
 
         {/* Status Filter */}
-        <div className="w-full lg:w-40">
-          <Select>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {statusOptions.map((statusOption) => (
-                  <SelectItem
-                    key={statusOption.value}
-                    value={statusOption.value}
-                  >
-                    {statusOption.label}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
+        <Select>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {statusOptions.map((statusOption) => (
+                <SelectItem key={statusOption.value} value={statusOption.value}>
+                  {statusOption.label}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
 
-        {/* Clear Filters */}
-        {hasActiveFilters && (
+      {hasActiveFilters && (
+        <div className="flex flex-col lg:flex-row lg:items-end gap-4">
+          {/* Clear Filters */}(
           <Button
             variant="outline"
             // iconName="X"
@@ -133,8 +122,9 @@ const StaffFilters = ({
           >
             Clear
           </Button>
-        )}
-      </div>
+          )
+        </div>
+      )}
     </div>
   );
 };

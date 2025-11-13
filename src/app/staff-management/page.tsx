@@ -509,7 +509,7 @@ const page = () => {
         )}
 
         {/* Filters */}
-        <div className="mb-6">
+        <div className="">
           <StaffFilters
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}

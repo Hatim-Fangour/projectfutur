@@ -125,7 +125,7 @@ const page = () => {
       },
     },
     {
-       id: 3,
+      id: 3,
       category: "Development",
       name: "Note 2",
       description: "This is the description for Note 2.",
@@ -141,10 +141,9 @@ const page = () => {
         email: "Jane.smith@gmail.com",
         avatar: "",
       },
-
     },
-     {
-       id: 4,
+    {
+      id: 4,
       category: "Development",
       name: "Note 2",
       description: "This is the description for Note 2.",
@@ -160,10 +159,9 @@ const page = () => {
         email: "Jane.smith@gmail.com",
         avatar: "",
       },
-
     },
-     {
-       id: 5,
+    {
+      id: 5,
       category: "Development",
       name: "Note 2",
       description: "This is the description for Note 2.",
@@ -179,8 +177,7 @@ const page = () => {
         email: "Jane.smith@gmail.com",
         avatar: "",
       },
-
-    }
+    },
   ];
 
   const statsNotesCards = [
@@ -230,16 +227,16 @@ const page = () => {
         </div>
       </div>
 
-       {/* Stats Cards */}
+      {/* Stats Cards */}
       <div className="flex items-center w-full gap-6 justify-between mt-4">
         {statsNotesCards.map((statCard) => (
           <Card
-          className="w-1/4"
-          // sx={{
-          //   bgcolor: "white",
-          //   borderRadius: 3,
-          //   divShadow: "0 2px 8px rgba(0,0,0,0.1)",
-          // }}
+            className="w-1/4"
+            // sx={{
+            //   bgcolor: "white",
+            //   borderRadius: 3,
+            //   divShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            // }}
           >
             <CardContent className="flex items-center gap-4">
               <Avatar
@@ -272,53 +269,47 @@ const page = () => {
       </div>
 
       {/* Filters and Search */}
-      <div className="flex items-center justify-between">
+      <div className="grid grid-cols-4 gap-6 border-b pb-4">
         <Input
-          placeholder="Search notes, employees, or categories..."
-          className="w-1/2"
+          placeholder="Search products, descriptions, or suppliers..."
+          className="col-span-2"
           //   value={searchTerm}
           //   onChange={(e) => setSearchTerm(e.target.value)}
         />
 
-        <div className="flex gap-6">
-          <Select defaultValue="all">
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select a category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="done">Done</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+        <Select defaultValue="all">
+          <SelectTrigger className="col-span-1 w-full">
+            <SelectValue placeholder="Select a category" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="done">Done</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
 
-          <Select defaultValue="all">
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select a priority" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
+        <Select defaultValue="all">
+          <SelectTrigger className="col-span-1 w-full">
+            <SelectValue placeholder="Select a priority" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
                 <SelectItem value="all">All Priorities</SelectItem>
                 <SelectItem value="high">High</SelectItem>
                 <SelectItem value="medium">Medium</SelectItem>
                 <SelectItem value="low">Low</SelectItem>
               </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
+          </SelectContent>
+        </Select>
       </div>
 
-     
-
       {/* Products Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-4">
         {filteredNotes.map((note) => {
           //   const categoryInfo = getCategoryInfo(note.category);
-          return (
-            <NoteCard note={note} key={note.id}/>
-          );
+          return <NoteCard note={note} key={note.id} />;
         })}
       </div>
     </div>
