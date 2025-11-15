@@ -1,10 +1,11 @@
+import { TabContentProps } from "@/Interfaces/customerInterfaces";
 import { Customer } from "@/types/customers";
 import { Mail, MapPin, Phone } from "lucide-react";
 import React from "react";
 // ✅ Best practice - Interface
-interface TabContentProps {
-  customer: Customer;
-}
+// interface TabContentProps {
+//   customer: Customer;
+// }
 const AboutTabContent = ({customer}:TabContentProps) => {
   console.log(customer)
   return (

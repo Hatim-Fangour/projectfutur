@@ -27,11 +27,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ExpendedProgressTabContent from "./ExpendedProgressTabContent";
 import { Customer } from "@/types/customers";
+import { TabContentProps } from "@/Interfaces/customerInterfaces";
 
 
-interface TabContentProps {
-  customer: Customer;
-}
+
 const ProgressTabContent = ({ customer }: TabContentProps) => {
   console.log(customer)
   const [selectedSession, setSelectedSession] = useState<string>("1");

@@ -18,9 +18,8 @@ import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
 import ShoppingCart from "./ShoppingCart";
 import ServiceCard from "./ServiceCard";
 import { Customer } from "@/types/customers";
-interface TabContentProps {
-  customer: Customer;
-}
+import { TabContentProps } from "@/Interfaces/customerInterfaces";
+
 const ServiceTabContent = ({ customer }: TabContentProps) => {
   console.log(customer);
   const [filter, setFilter] = useState<

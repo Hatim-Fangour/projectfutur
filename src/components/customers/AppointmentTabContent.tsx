@@ -14,11 +14,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import AppointmentCard from "./AppointmentCard";
-import { Customer } from "@/types/customers";
+import { TabContentProps } from "@/Interfaces/customerInterfaces";
 
-interface TabContentProps {
-  customer: Customer;
-}
+
 
 const AppointmentTabContent = ({ customer }: TabContentProps) => {
   const [filter, setFilter] = useState<"all" | "completed" | "upcoming">("all");

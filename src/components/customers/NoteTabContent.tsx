@@ -5,10 +5,9 @@ import { Plus } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Textarea } from "../ui/textarea";
 import { Customer } from "@/types/customers";
+import { TabContentProps } from "@/Interfaces/customerInterfaces";
 
-interface TabContentProps {
-  customer: Customer;
-}
+
 
 const NoteTabContent = ({ customer }: TabContentProps) => {
   console.log(customer);
