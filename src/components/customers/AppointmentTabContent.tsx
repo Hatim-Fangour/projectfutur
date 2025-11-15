@@ -14,74 +14,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import AppointmentCard from "./AppointmentCard";
+import { Customer } from "@/types/customers";
 
-const AppointmentTabContent = () => {
+interface TabContentProps {
+  customer: Customer;
+}
+
+const AppointmentTabContent = ({ customer }: TabContentProps) => {
   const [filter, setFilter] = useState<"all" | "completed" | "upcoming">("all");
+console.log(customer)
+ 
 
-  const appointments = [
-    {
-      id: "1",
-      date: "2024-11-13",
-      time: "14:00",
-      service: "Full Body Massage",
-      therapist: "Sarah Johnson",
-      reason: "Relaxation and stress relief",
-      status: "completed",
-      location: "Spa Studio A",
-      duration: "90 min",
-      notes: "Great session, client was very satisfied",
-    },
-    {
-      id: "2",
-      date: "2024-11-20",
-      time: "10:30",
-      service: "Facial Treatment",
-      therapist: "Emma Davis",
-      reason: "Anti-aging treatment",
-      status: "upcoming",
-      location: "Spa Studio B",
-      duration: "60 min",
-    },
-    {
-      id: "3",
-      date: "2024-11-06",
-      time: "15:30",
-      service: "Hot Stone Massage",
-      therapist: "Michael Chen",
-      reason: "Deep tissue and relaxation",
-      status: "completed",
-      location: "Spa Studio A",
-      duration: "75 min",
-      notes: "Client reported excellent results",
-    },
-    {
-      id: "4",
-      date: "2024-11-27",
-      time: "11:00",
-      service: "Spa Package - Full Treatment",
-      therapist: "Sarah Johnson",
-      reason: "Complete wellness package",
-      status: "upcoming",
-      location: "Spa Studio C",
-      duration: "180 min",
-    },
-    {
-      id: "5",
-      date: "2024-10-30",
-      time: "09:00",
-      service: "Skincare Treatment",
-      therapist: "Emma Davis",
-      reason: "Skin health and hydration",
-      status: "completed",
-      location: "Spa Studio B",
-      duration: "45 min",
-    },
-  ];
-
-  const filteredAppointments = appointments.filter((apt) => {
-    if (filter === "all") return true;
-    return apt.status === filter;
-  });
+const filteredAppointments = (customer?.appointments ?? []).filter((apt) => {
+  if (filter === "all") return true;
+  return apt.status === filter;
+});
 
 
   return (
@@ -95,15 +42,15 @@ const AppointmentTabContent = () => {
           <SelectContent>
             <SelectGroup>
               <SelectItem value="all">
-                All Appointments ({appointments.length})
+                All Appointments ({(customer?.appointments ?? []).length})
               </SelectItem>
               <SelectItem value="completed">
                 Completed (
-                {appointments.filter((a) => a.status === "completed").length})
+                {(customer?.appointments ?? []).filter((a) => a.status === "completed").length})
               </SelectItem>
               <SelectItem value="upcoming">
                 Upcoming (
-                {appointments.filter((a) => a.status === "upcoming").length})
+                {(customer?.appointments ?? []).filter((a) => a.status === "upcoming").length})
               </SelectItem>
             </SelectGroup>
           </SelectContent>

@@ -17,8 +17,12 @@ import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
 import ShoppingCart from "./ShoppingCart";
 import ServiceCard from "./ServiceCard";
-
-const ServiceTabContent = () => {
+import { Customer } from "@/types/customers";
+interface TabContentProps {
+  customer: Customer;
+}
+const ServiceTabContent = ({ customer }: TabContentProps) => {
+  console.log(customer);
   const [filter, setFilter] = useState<
     "all" | "active" | "expiring-soon" | "expired"
   >("all");
@@ -91,8 +95,6 @@ const ServiceTabContent = () => {
     return srv.status === filter;
   });
 
-
-
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
@@ -154,8 +156,7 @@ const ServiceTabContent = () => {
         {filteredServices.length > 0 ? (
           filteredServices.map((service) => (
             <ServiceCard key={service.id} service={service} />
-          )
-        )
+          ))
         ) : (
           <Card className="border-accent/20 bg-card/50">
             <CardContent className="p-12 text-center">

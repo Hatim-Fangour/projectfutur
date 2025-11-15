@@ -26,6 +26,7 @@ import {
   CalendarIcon,
   Check,
   ChevronsUpDown,
+  Clock,
   Pencil,
   ReceiptText,
   Sparkles,
@@ -61,6 +62,9 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import TimeRangePicker from "@/components/customers/TimeRangePicker";
+import { Textarea } from "@/components/ui/textarea";
+import { Customer } from "@/types/customers";
 
 function formatDate(date: Date | undefined) {
   if (!date) {
@@ -88,11 +92,12 @@ const page = () => {
   const [date, setDate] = useState<Date | undefined>(new Date("2025-06-01"));
   const [month, setMonth] = useState<Date | undefined>(date);
   const [value, setValue] = useState(formatDate(date));
-  const [openCombobox, setOpenCombobox] = React.useState(false);
-  const [valueCombobox, setValueCombobox] = React.useState("");
-  const customers = [
+  const [openCombobox, setOpenCombobox] = useState(false);
+  const [valueCombobox, setValueCombobox] = useState("");
+
+  const customers: Customer[] = [
     {
-      id: 1,
+      id: "1",
       fullName: "John Doe",
       email: "John.Doe@gmail.com",
       pictureURL: "",
@@ -100,119 +105,191 @@ const page = () => {
       address: "123 Main St, Cityville",
       notes: [
         {
-          id: 1,
+          id: "1",
           content:
             "Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.Followed up on the last appointment.",
           date: "2024-10-01 20:09",
           writer: "Hatim Fangour",
         },
         {
-          id: 2,
+          id: "2",
           content: "Interested in new spa packages.",
           date: "2024-10-05",
           writer: "Hatim Fangour",
         },
       ],
+      appointments: [
+        {
+          id: "1",
+          date: "2024-11-13",
+          startTime: "14:00",
+          endTime: "15:15",
+          service: "Full Body Massage",
+          therapist: "Sarah Johnson",
+          reason: "Relaxation and stress relief",
+          status: "completed",
+          room: "Spa Studio A",
+          duration: "90 min",
+          notes: "Great session, client was very satisfied",
+        },
+        {
+          id: "2",
+          date: "2024-11-20",
+          startTime: "10:30",
+          endTime: "10:30",
+          service: "Facial Treatment",
+          therapist: "Emma Davis",
+          reason: "Anti-aging treatment",
+          status: "upcoming",
+          room: "Spa Studio B",
+          duration: "60 min",
+        },
+        {
+          id: "3",
+          date: "2024-11-06",
+          startTime: "15:30",
+          endTime: "16:30",
+          service: "Hot Stone Massage",
+          therapist: "Michael Chen",
+          reason: "Deep tissue and relaxation",
+          status: "completed",
+          room: "Spa Studio A",
+          duration: "75 min",
+          notes: "Client reported excellent results",
+        },
+        {
+          id: "4",
+          date: "2024-11-27",
+          startTime: "11:00",
+          endTime: "11:30",
+          service: "Spa Package - Full Treatment",
+          therapist: "Sarah Johnson",
+          reason: "Complete wellness package",
+          status: "upcoming",
+          room: "Spa Studio C",
+          duration: "180 min",
+        },
+        {
+          id: "5",
+          date: "2024-10-30",
+          startTime: "09:00",
+          endTime: "09:30",
+
+          service: "Skincare Treatment",
+          therapist: "Emma Davis",
+          reason: "Skin health and hydration",
+          status: "completed",
+          room: "Spa Studio B",
+          duration: "45 min",
+        },
+      ],
+      services: ["serviceID_1", "serviceID_2"],
+      progress: [
+        { date: "2024-10-01", details: "Initial consultation completed." },
+      ],
     },
     {
-      id: 2,
+      id: "2",
       fullName: "Jane Smith",
       email: "",
       pictureURL: "",
       phone: "+0123456789",
     },
     {
-      id: 3,
+      id: "3",
       fullName: "Alice Johnson",
       email: "",
       pictureURL: "",
       phone: "+0123456789",
     },
     {
-      id: 4,
+      id: "4",
       fullName: "Bob Brown",
       email: "",
       pictureURL: "",
       phone: "+0123456789",
     },
     {
-      id: 5,
+      id: "5",
       fullName: "Charlie Davis",
       email: "",
       pictureURL: "",
       phone: "+0123456789",
     },
     {
-      id: 6,
+      id: "6",
       fullName: "Diana Evans",
       email: "",
       pictureURL: "",
       phone: "+0123456789",
     },
     {
-      id: 7,
+      id: "7",
       fullName: "Frank Green",
       email: "",
       pictureURL: "",
       phone: "+0123456789",
     },
     {
-      id: 8,
+      id: "8",
       fullName: "Grace Harris",
       email: "",
       pictureURL: "",
       phone: "+0123456789",
     },
     {
-      id: 9,
+      id: "9",
       fullName: "Henry Lee",
       email: "",
       pictureURL: "",
       phone: "+0123456789",
     },
     {
-      id: 10,
+      id: "10",
       fullName: "Ivy Martinez",
       email: "",
       pictureURL: "",
       phone: "+0123456789",
     },
     {
-      id: 11,
+      id: "11",
       fullName: "Ivy Martinez",
       email: "",
       pictureURL: "",
       phone: "+0123456789",
     },
     {
-      id: 12,
+      id: "12",
       fullName: "Ivy Martinez",
       email: "",
       pictureURL: "",
       phone: "+0123456789",
     },
     {
-      id: 13,
+      id: "13",
       fullName: "Ivy Martinez",
       email: "",
       pictureURL: "",
       phone: "+0123456789",
     },
     {
-      id: 14,
+      id: "14",
       fullName: "Ivy Martinez",
       email: "",
       pictureURL: "",
       phone: "+0123456789",
     },
     {
-      id: 15,
+      id: "15",
       fullName: "Ivy Martinez",
       email: "",
       pictureURL: "",
       phone: "+0123456789",
     },
   ];
+
+
+
   const frameworks = [
     {
       value: "next.js",
@@ -235,6 +312,23 @@ const page = () => {
       label: "Astro",
     },
   ];
+
+  const [startTime, setStartTime] = useState("09:00 AM");
+  const [endTime, setEndTime] = useState("05:00 PM");
+
+  // Generate hours 1-12
+  const hours = Array.from({ length: 12 }, (_, i) =>
+    String(i + 1).padStart(2, "0")
+  );
+
+  // Generate minutes in 15-minute intervals
+  const minutes = ["00", "15", "30", "45"];
+
+  const BUSINESS_HOURS = {
+    start: "08:00 AM",
+    end: "08:00 PM",
+  };
+
   return (
     <div className="grid grid-cols-10 gap-4 h-[calc(100vh-95px)] w-full overflow-hidden">
       {/* left sidebar */}
@@ -352,7 +446,7 @@ const page = () => {
                   <DialogTrigger asChild>
                     <Button>Book appointment</Button>
                   </DialogTrigger>
-                  <DialogContent className="w-full">
+                  <DialogContent className="w-1/2! h-[95%]! max-w-full!">
                     <DialogHeader>
                       <DialogTitle>Book Appointment for Achille</DialogTitle>
                       <DialogDescription>
@@ -427,12 +521,9 @@ const page = () => {
                       {/* Date and Time */}
                       <div className="flex  items-center gap-4">
                         <span>Clock</span>
+                        {/* date */}
                         <div>
-                          {" "}
                           <div className="flex flex-col gap-3">
-                            <Label htmlFor="date" className="px-1">
-                              Subscription Date
-                            </Label>
                             <div className="relative flex gap-2">
                               <Input
                                 id="date"
@@ -475,6 +566,7 @@ const page = () => {
                                     mode="single"
                                     selected={date}
                                     captionLayout="dropdown"
+                                    disabled={{ before: new Date() }}
                                     month={month}
                                     onMonthChange={setMonth}
                                     onSelect={(date) => {
@@ -488,25 +580,58 @@ const page = () => {
                             </div>
                           </div>
                         </div>
-                        <div>date & time</div>
+
+                        {/* Time */}
+                        <div>
+                          <TimeRangePicker
+                            startTime={startTime}
+                            endTime={endTime}
+                            onStartTimeChange={setStartTime}
+                            onEndTimeChange={setEndTime}
+                          />
+                        </div>
                       </div>
 
                       {/* Guest */}
                       <div className="flex  items-center gap-4">
                         <span>Guest icon</span>
-                        <div>Guest</div>
+                        <div>
+                          <div>
+                            <Avatar>
+                              <AvatarImage
+                                src="https://github.com/shadcn.png"
+                                alt="@shadcn"
+                              />
+                              <AvatarFallback>CN</AvatarFallback>
+                            </Avatar>
+                          </div>
+                          <span>{customers[0].fullName}</span>
+                        </div>
                       </div>
 
                       {/* Note */}
                       <div className="flex  items-center gap-4">
                         <span>Note icon</span>
-                        <div>Note</div>
+                        <div>
+                          <Textarea placeholder="Notes to provider and guest(s)" />
+                        </div>
                       </div>
 
                       {/* Creator */}
                       <div className="flex  items-center gap-4">
                         <span>Craetor icon</span>
-                        <div>Craetor</div>
+                        <div>
+                          <div>
+                            <Avatar>
+                              <AvatarImage
+                                src="https://github.com/shadcn.png"
+                                alt="@shadcn"
+                              />
+                              <AvatarFallback>CN</AvatarFallback>
+                            </Avatar>
+                          </div>
+                          <span>Hatim Fangour</span>
+                        </div>
                       </div>
                     </div>
 
@@ -553,19 +678,19 @@ const page = () => {
               value="appointments"
               className="flex-1 overflow-y-auto p-6"
             >
-              <AppointmentTabContent />
+              <AppointmentTabContent customer={customers[0]}/>
             </TabsContent>
             <TabsContent
               value="services"
               className="flex-1 overflow-y-auto p-6"
             >
-              <ServiceTabContent />
+              <ServiceTabContent customer={customers[0]}/>
             </TabsContent>
             <TabsContent
               value="progress"
               className="flex-1 overflow-y-auto p-6"
             >
-              <ProgressTabContent />
+              <ProgressTabContent customer={customers[0]}/>
             </TabsContent>
           </Tabs>
         </div>

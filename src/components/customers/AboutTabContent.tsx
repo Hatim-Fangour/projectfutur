@@ -1,7 +1,12 @@
+import { Customer } from "@/types/customers";
 import { Mail, MapPin, Phone } from "lucide-react";
 import React from "react";
-
-const AboutTabContent = ({customer}:any) => {
+// ✅ Best practice - Interface
+interface TabContentProps {
+  customer: Customer;
+}
+const AboutTabContent = ({customer}:TabContentProps) => {
+  console.log(customer)
   return (
     <div className="">
       <div className="flex flex-col gap-6">
