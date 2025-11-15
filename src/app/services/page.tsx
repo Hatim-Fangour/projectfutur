@@ -285,9 +285,9 @@ const page: React.FC = () => {
   };
 
   return (
-    <div className="grid grid-cols-4 grid-row-1 gap-4 overflow-hidden h-[calc(100vh-95px)]">
+    <div className="grid grid-cols-10 grid-row-1 gap-4 overflow-hidden h-[calc(100vh-95px)]">
       {/* left sidebar */}
-      <div className="h-full flex flex-col gap-5 bg-primary-foreground p-4 rounded-lg border">
+      <div className="h-full col-span-2 flex flex-col gap-5 bg-primary-foreground p-4 rounded-lg border">
         {/* Header */}
         <header className="flex flex-col gap-4">
           <h1 className="text-lg font-semibold">Services & classes</h1>
@@ -312,7 +312,7 @@ const page: React.FC = () => {
       </div>
 
       {/* main content */}
-      <div className="grid col-span-3 bg-primary-foreground p-4 pb-6 rounded-lg border content-start">
+      <div className="grid col-span-8 bg-primary-foreground p-4 pb-6 rounded-lg border content-start">
         <div className="flex w-full justify-between mb-4 border-b pb-2">
           <div className="flex gap-2 text-lg font-bold">
             <span>

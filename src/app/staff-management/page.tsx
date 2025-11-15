@@ -509,7 +509,6 @@ const page = () => {
         )}
 
         {/* Filters */}
-        <div className="">
           <StaffFilters
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
@@ -521,7 +520,6 @@ const page = () => {
             onStatusChange={setSelectedStatus}
             onClearFilters={handleClearFilters}
           />
-        </div>
 
         {/* View Toggle and Results */}
         <div className="flex items-center justify-between mb-6">

@@ -1,29 +1,95 @@
 "use client";
+import ColorPicker from "@/components/ColorPicker";
 import AboutTabContent from "@/components/customers/AboutTabContent";
+import AppointmentTabContent from "@/components/customers/AppointmentTabContent";
 import CustomerForm from "@/components/customers/CustomerForm";
 import NoteTabContent from "@/components/customers/NoteTabContent";
+import ProgressTabContent from "@/components/customers/ProgressTabContent";
+import ServiceTabContent from "@/components/customers/ServiceTabContent";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Pencil, Trash2 } from "lucide-react";
+import {
+  CalendarIcon,
+  Check,
+  ChevronsUpDown,
+  Pencil,
+  ReceiptText,
+  Sparkles,
+  TimerReset,
+  Trash,
+  Trash2,
+  User,
+  X,
+} from "lucide-react";
 import React, { useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+
+function formatDate(date: Date | undefined) {
+  if (!date) {
+    return "";
+  }
+  return date.toLocaleDateString("en-US", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+}
+function isValidDate(date: Date | undefined) {
+  if (!date) {
+    return false;
+  }
+  return !isNaN(date.getTime());
+}
 
 const page = () => {
   const [openedDialog, setOpenedDialog] = useState<boolean | null>(null);
   const tags = Array.from({ length: 50 }).map(
     (_, i, a) => `v1.2.0-beta.${a.length - i}`
   );
-
+  const [open, setOpen] = useState(false);
+  const [date, setDate] = useState<Date | undefined>(new Date("2025-06-01"));
+  const [month, setMonth] = useState<Date | undefined>(date);
+  const [value, setValue] = useState(formatDate(date));
+  const [openCombobox, setOpenCombobox] = React.useState(false);
+  const [valueCombobox, setValueCombobox] = React.useState("");
   const customers = [
     {
       id: 1,
@@ -147,54 +213,77 @@ const page = () => {
       phone: "+0123456789",
     },
   ];
+  const frameworks = [
+    {
+      value: "next.js",
+      label: "Next.js",
+    },
+    {
+      value: "sveltekit",
+      label: "SvelteKit",
+    },
+    {
+      value: "nuxt.js",
+      label: "Nuxt.js",
+    },
+    {
+      value: "remix",
+      label: "Remix",
+    },
+    {
+      value: "astro",
+      label: "Astro",
+    },
+  ];
   return (
-    <div className="grid grid-cols-4 gap-4 h-[calc(100vh-95px)] w-full overflow-hidden">
-
+    <div className="grid grid-cols-10 gap-4 h-[calc(100vh-95px)] w-full overflow-hidden">
       {/* left sidebar */}
-      <div className="h-full flex flex-col gap-5 bg-primary-foreground p-4 rounded-lg border overflow-hidden">
-        {/* Header */}
-        <header className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-lg font-semibold">Customers</h1>
+      {true && (
+        <div className="col-span-2 h-full flex flex-col gap-5 bg-primary-foreground p-4 rounded-lg border overflow-hidden">
+          {/* Header */}
+          <header className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <h1 className="text-lg font-semibold">Customers</h1>
 
-            <Button className="w-8 h-8" onClick={() => setOpenedDialog(true)}>
-              +
-            </Button>
-          </div>
-
-          <div className="search-section">
-            <Input type="text" placeholder="Search customers..." />
-          </div>
-        </header>
-
-        {/* Scrollable customer list */}
-        <ScrollArea className="flex-1 overflow-y-auto p-1 pr-4">
-          {customers.map((customer) => (
-            <div
-              key={customer.id}
-              className="mb-2 p-2 mr-2 flex items-center justify-between w-full border-2 rounded-lg hover:bg-muted transition-colors duration-200"
-            >
-              <div className="flex items-center space-x-2 w-full">
-                <Avatar>
-                  <AvatarImage
-                    src={customer?.pictureURL}
-                    alt={customer.fullName}
-                  />
-                  <AvatarFallback>
-                    {customer.fullName?.[0]?.toUpperCase() || "?"}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="truncate w-full">{customer.fullName}</span>
-              </div>
+              <Button className="w-8 h-8" onClick={() => setOpenedDialog(true)}>
+                +
+              </Button>
             </div>
-          ))}
-        </ScrollArea>
-      </div>
+
+            <div className="search-section">
+              <Input type="text" placeholder="Search customers..." />
+            </div>
+          </header>
+
+          {/* Scrollable customer list */}
+          <ScrollArea className="flex-1 overflow-y-auto p-1 pr-4">
+            {customers.map((customer) => (
+              <div
+                key={customer.id}
+                className="mb-2 p-2 mr-2 flex items-center justify-between w-full border-2 rounded-lg hover:bg-muted transition-colors duration-200"
+              >
+                <div className="flex items-center space-x-2 w-full">
+                  <Avatar>
+                    <AvatarImage
+                      src={customer?.pictureURL}
+                      alt={customer.fullName}
+                    />
+                    <AvatarFallback>
+                      {customer.fullName?.[0]?.toUpperCase() || "?"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="truncate w-full">{customer.fullName}</span>
+                </div>
+              </div>
+            ))}
+          </ScrollArea>
+        </div>
+      )}
 
       {/* main content */}
-      <div className="col-span-3 bg-primary-foreground rounded-lg border p-4 flex flex-col overflow-hidden h-full">
+      <div className="col-span-8 bg-primary-foreground rounded-lg border p-4 flex flex-col overflow-hidden h-full">
         {/* header */}
-        <div className="flex w-full justify-between border-b pb-4 flex-shrink-0">
+        <div className="flex w-full justify-between border-b pb-4 shrink-0">
           <div className="flex items-center justify-between  w-full px-5 py-0">
             <div className="leftHeader flex items-center justify-between gap-2">
               {(() => {
@@ -257,6 +346,179 @@ const page = () => {
               >
                 <Trash2 className="w-4 h-4" />
               </Button>
+
+              <Dialog>
+                <form>
+                  <DialogTrigger asChild>
+                    <Button>Book appointment</Button>
+                  </DialogTrigger>
+                  <DialogContent className="w-full">
+                    <DialogHeader>
+                      <DialogTitle>Book Appointment for Achille</DialogTitle>
+                      <DialogDescription>
+                        Make changes to your profile here. Click save when
+                        you&apos;re done.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-8">
+                      {/* Service selector */}
+                      <div className="flex  items-center gap-4">
+                        <span>ColorPicker</span>
+                        <Popover
+                          open={openCombobox}
+                          onOpenChange={setOpenCombobox}
+                        >
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              aria-expanded={openCombobox}
+                              className="w-[200px] justify-between"
+                            >
+                              {valueCombobox
+                                ? frameworks.find(
+                                    (framework) =>
+                                      framework.value === valueCombobox
+                                  )?.label
+                                : "Select framework..."}
+                              <ChevronsUpDown className="opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[200px] p-0">
+                            <Command>
+                              <CommandInput
+                                placeholder="Search framework..."
+                                className="h-9"
+                              />
+                              <CommandList>
+                                <CommandEmpty>No framework found.</CommandEmpty>
+                                <CommandGroup>
+                                  {frameworks.map((framework) => (
+                                    <CommandItem
+                                      key={framework.value}
+                                      value={framework.value}
+                                      onSelect={(currentValue) => {
+                                        setValueCombobox(
+                                          currentValue === valueCombobox
+                                            ? ""
+                                            : currentValue
+                                        );
+                                        setOpenCombobox(false);
+                                      }}
+                                    >
+                                      {framework.label}
+                                      <Check
+                                        className={cn(
+                                          "ml-auto",
+                                          valueCombobox === framework.value
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        )}
+                                      />
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+
+                      {/* Date and Time */}
+                      <div className="flex  items-center gap-4">
+                        <span>Clock</span>
+                        <div>
+                          {" "}
+                          <div className="flex flex-col gap-3">
+                            <Label htmlFor="date" className="px-1">
+                              Subscription Date
+                            </Label>
+                            <div className="relative flex gap-2">
+                              <Input
+                                id="date"
+                                value={value}
+                                placeholder="June 01, 2025"
+                                className="bg-background pr-10"
+                                onChange={(e) => {
+                                  const date = new Date(e.target.value);
+                                  setValue(e.target.value);
+                                  if (isValidDate(date)) {
+                                    setDate(date);
+                                    setMonth(date);
+                                  }
+                                }}
+                                onKeyDown={(e) => {
+                                  if (e.key === "ArrowDown") {
+                                    e.preventDefault();
+                                    setOpen(true);
+                                  }
+                                }}
+                              />
+                              <Popover open={open} onOpenChange={setOpen}>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    id="date-picker"
+                                    variant="ghost"
+                                    className="absolute top-1/2 right-2 size-6 -translate-y-1/2"
+                                  >
+                                    <CalendarIcon className="size-3.5" />
+                                    <span className="sr-only">Select date</span>
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent
+                                  className="w-auto overflow-hidden p-0"
+                                  align="end"
+                                  alignOffset={-8}
+                                  sideOffset={10}
+                                >
+                                  <Calendar
+                                    mode="single"
+                                    selected={date}
+                                    captionLayout="dropdown"
+                                    month={month}
+                                    onMonthChange={setMonth}
+                                    onSelect={(date) => {
+                                      setDate(date);
+                                      setValue(formatDate(date));
+                                      setOpen(false);
+                                    }}
+                                  />
+                                </PopoverContent>
+                              </Popover>
+                            </div>
+                          </div>
+                        </div>
+                        <div>date & time</div>
+                      </div>
+
+                      {/* Guest */}
+                      <div className="flex  items-center gap-4">
+                        <span>Guest icon</span>
+                        <div>Guest</div>
+                      </div>
+
+                      {/* Note */}
+                      <div className="flex  items-center gap-4">
+                        <span>Note icon</span>
+                        <div>Note</div>
+                      </div>
+
+                      {/* Creator */}
+                      <div className="flex  items-center gap-4">
+                        <span>Craetor icon</span>
+                        <div>Craetor</div>
+                      </div>
+                    </div>
+
+                    <DialogFooter>
+                      <DialogClose asChild>
+                        <Button variant="outline">Cancel</Button>
+                      </DialogClose>
+                      <Button type="submit">Book Appointment</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </form>
+              </Dialog>
             </div>
           </div>
         </div>
@@ -291,13 +553,19 @@ const page = () => {
               value="appointments"
               className="flex-1 overflow-y-auto p-6"
             >
-              appointments Content
+              <AppointmentTabContent />
             </TabsContent>
-            <TabsContent value="services" className="flex-1 overflow-y-auto p-6">
-              services Content
+            <TabsContent
+              value="services"
+              className="flex-1 overflow-y-auto p-6"
+            >
+              <ServiceTabContent />
             </TabsContent>
-            <TabsContent value="progress" className="flex-1 overflow-y-auto p-6">
-              progress Content
+            <TabsContent
+              value="progress"
+              className="flex-1 overflow-y-auto p-6"
+            >
+              <ProgressTabContent />
             </TabsContent>
           </Tabs>
         </div>
