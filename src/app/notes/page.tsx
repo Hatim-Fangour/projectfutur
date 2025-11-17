@@ -1,4 +1,4 @@
-import NoteCard from "@/components/needsAndNotes/NoteCard";
+// import NoteCard from "@/app/needs/needsComps/NoteCard";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,7 @@ import {
   RefreshCcw,
 } from "lucide-react";
 import React from "react";
+import NoteCard from "./notesComps/NoteCard";
 
 const page = () => {
   const categories = [

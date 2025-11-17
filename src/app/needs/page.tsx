@@ -1,4 +1,4 @@
-import NeedCard from "@/components/needsAndNotes/NeedCard";
+// import NeedCard from "@/app/needs/needsComps/NeedCard";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,7 @@ import {
   Siren,
 } from "lucide-react";
 import React from "react";
+import NeedCard from "./needsComps/NeedCard";
 
 const page = () => {
   const categories = [

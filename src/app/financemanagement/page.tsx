@@ -1,11 +1,10 @@
 "use client";
 
-import BudgetManager from "@/components/financeManagement/BudgetManager";
-import ExpenseBreakdown from "@/components/financeManagement/ExpenseBreakdown";
-import SavingsGoals from "@/components/financeManagement/SavingsGoals";
-import TransactionForm from "@/components/financeManagement/TransactionForm";
-import TransactionList from "@/components/financeManagement/TransactionList";
-import OverViewFinManag from "@/components/OverViewFinManag";
+import BudgetManager from "@/app/financemanagement/financeManagementComps/BudgetManager";
+import ExpenseBreakdown from "@/app/financemanagement/financeManagementComps/ExpenseBreakdown";
+import SavingsGoals from "@/app/financemanagement/financeManagementComps/SavingsGoals";
+import TransactionForm from "@/app/financemanagement/financeManagementComps/TransactionForm";
+import TransactionList from "@/app/financemanagement/financeManagementComps/TransactionList";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -21,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import React, { useEffect, useState } from "react";
+import OverViewFinManag from "./financeManagementComps/OverViewFinManag";
 
 const page = () => {
   const [timeRange, setTimeRange] = useState("month");

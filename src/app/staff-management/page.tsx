@@ -1,7 +1,7 @@
 "use client";
-import StaffCard from "@/components/staff-management/StaffCard";
-import StaffFilters from "@/components/staff-management/StaffFilters";
-import StaffTable from "@/components/staff-management/StaffTable";
+import StaffCard from "@/app/staff-management/staff-managementComps/StaffCard";
+import StaffFilters from "@/app/staff-management/staff-managementComps/StaffFilters";
+import StaffTable from "@/app/staff-management/staff-managementComps/StaffTable";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

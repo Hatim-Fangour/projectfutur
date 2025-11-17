@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { cookies } from "next/headers";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,10 +45,11 @@ export default async function RootLayout({
           <SidebarProvider defaultOpen={defaultOpen}>
             <AppSidebar />
             <main className="w-full  h-screen flex flex-col">
-             
-                <Navbar />
+              <Navbar />
               <div className="px-16 pb-6 flex-1 overflow-auto">
                 {children}
+                {/* ✅ Add Toaster component */}
+                <Toaster position="top-right" richColors />
               </div>
             </main>
           </SidebarProvider>

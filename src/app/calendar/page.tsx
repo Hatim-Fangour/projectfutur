@@ -7,16 +7,14 @@ import {
   DateLocalizer,
   momentLocalizer,
 } from "react-big-calendar";
+import moment from "moment";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-// import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 
-import moment from "moment";
-import "./../../styles/calendarStyle.scss";
-import CustomToolbar from "@/components/calendar/CustomToolbar";
-import CustomEvent from "@/components/calendar/CustomEvent";
-import PopOverEvent from "@/components/calendar/PopOverEvent";
-import { Button } from "@/components/ui/button";
+import "./style/calendarStyle.scss";
+import CustomToolbar from "@/app/calendar/calendarComps/CustomToolbar";
+import CustomEvent from "@/app/calendar/calendarComps/CustomEvent";
+import PopOverEvent from "@/app/calendar/calendarComps/PopOverEvent";
 import { Calendar1, Clock, Info, Plus } from "lucide-react";
 import {
   Select,
@@ -46,28 +44,28 @@ const page = () => {
 
   const events = [
     {
-      id: 1,
+      id: "1",
       title: "Long Event",
       start: new Date(2025, 12, 7),
       end: new Date(2025, 12, 10),
     },
 
     {
-      id: 2,
+      id: "2",
       title: "DTS STARTS",
       start: new Date(2025, 10, 5, 8, 5, 0),
       end: new Date(2025, 10, 5, 11, 0, 0),
     },
 
     {
-      id: 3,
+      id: "3",
       title: "DTS ENDS",
       start: new Date(2025, 10, 9, 8, 5, 0),
       end: new Date(2025, 10, 9, 11, 0, 0),
     },
 
     {
-      id: 4,
+      id: "4",
       title: "Some Event",
       start: new Date(2025, 3, 9, 0, 0, 0),
       end: new Date(2025, 3, 9, 0, 0, 0),
@@ -75,7 +73,7 @@ const page = () => {
     },
 
     {
-      id: 7,
+      id: "7",
       title: "Lunch",
       start: new Date(2025, 3, 12, 12, 0, 0, 0),
       end: new Date(2025, 3, 12, 13, 0, 0, 0),
@@ -83,12 +81,15 @@ const page = () => {
     },
 
     {
-      id: 14,
+      id: "8",
       title: "Today",
       start: new Date(new Date().setHours(new Date().getHours() - 3)),
       end: new Date(new Date().setHours(new Date().getHours() + 3)),
     },
   ];
+
+
+
   const [myEvents, setMyEvents] = useState(events);
 
   const moveEvent = useCallback(

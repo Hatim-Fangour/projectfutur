@@ -1,7 +1,7 @@
-import AlertsSection from "@/components/dashboard/AlertsSection";
-import ChartsSection from "@/components/dashboard/ChartsSection";
-import Kpicards from "@/components/dashboard/Kpicards";
-import TablesSection from "@/components/dashboard/TablesSection";
+import AlertsSection from "@/app/dashboard/AlertsSection";
+import ChartsSection from "@/app/dashboard/ChartsSection";
+import Kpicards from "@/app/dashboard/Kpicards";
+import TablesSection from "@/app/dashboard/TablesSection";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 

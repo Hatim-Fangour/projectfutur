@@ -1,9 +1,9 @@
 "use client";
 import ColorPicker from "@/components/ColorPicker";
-import AddClassDialog from "@/components/services/AddClassDialog";
-import AddServiceDialog from "@/components/services/AddServiceDialog";
-import ClassCard from "@/components/services/ClassCard";
-import PackageCard from "@/components/services/PackageCard";
+import AddClassDialog from "@/app/services/servicesComps/AddClassDialog";
+import AddServiceDialog from "@/app/services/servicesComps/AddServiceDialog";
+import ClassCard from "@/app/services/servicesComps/ClassCard";
+import PackageCard from "@/app/services/servicesComps/PackageCard";
 import {
   Accordion,
   AccordionContent,
@@ -44,7 +44,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Service } from "@/types/services";
+import { Service } from "@/app/services/types/services";
 import {
   ChevronsUpDown,
   DollarSign,
