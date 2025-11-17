@@ -367,18 +367,18 @@ const page = () => {
   const [appointments, setAppointments] = useState([
     {
       id: "1",
-      start: new Date("2024-11-15T10:30:00"),
-      end: new Date("2024-11-15T11:45:00"),
+      start: new Date("2024-11-17T10:30:00"),
+      end: new Date("2024-11-17T11:45:00"),
     },
     {
       id: "2",
-      start: new Date("2024-11-15T02:00:00"),
-      end: new Date("2024-11-15T03:30:00"),
+      start: new Date("2024-11-17T02:00:00"),
+      end: new Date("2024-11-17T03:30:00"),
     },
     {
       id: "3",
-      start: new Date("2024-11-15T09:00:00"),
-      end: new Date("2024-11-15T10:00:00"),
+      start: new Date("2024-11-17T09:00:00"),
+      end: new Date("2024-11-17T10:00:00"),
     },
   ]);
 

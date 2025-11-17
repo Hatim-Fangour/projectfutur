@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 
-export const combineDateAndTime = (date:string, timeString:string) => {
+export const combineDateAndTime = (date: string, timeString: string) => {
   // Step 1: Validate inputs
   if (!date || !timeString) return null;
   // Returns null if date or timeString is missing
@@ -35,21 +35,48 @@ export const combineDateAndTime = (date:string, timeString:string) => {
   return newDate;
 };
 
-// export const formatDate = (date, format = "default") => {
-//   const formats = {
-//     default: "MMMM D, YYYY", // "November 15, 2024"
-//     short: "MMM D, YYYY", // "Nov 15, 2024"
-//     numeric: "MM/DD/YYYY", // "11/15/2024"
-//     iso: "YYYY-MM-DD", // "2024-11-15"
-//     full: "dddd, MMMM D, YYYY", // "Friday, November 15, 2024"
-//     dayMonth: "MMM D", // "Nov 15"
-//     monthYear: "MMMM YYYY", // "November 2024"
-//     shortMonthYear: "MMM YYYY", // "Nov 2024"
-//     compact: "MM/DD/YY", // "11/15/24"
-//     european: "DD/MM/YYYY", // "15/11/2024"
-//     dotted: "DD.MM.YYYY", // "15.11.2024"
-//     dashed: "DD-MM-YYYY", // "15-11-2024"
-//   };
+export const events = [
+  {
+    id: "1",
+    title: "Long Event",
+    start: new Date(2025, 12, 7),
+    end: new Date(2025, 12, 10),
+  },
 
-//   return dayjs(date).format(formats[format] || formats.default);
-// };
+  {
+    id: "2",
+    title: "DTS STARTS",
+    start: new Date(2025, 10, 5, 8, 5, 0),
+    end: new Date(2025, 10, 5, 11, 0, 0),
+  },
+
+  {
+    id: "3",
+    title: "DTS ENDS",
+    start: new Date(2025, 10, 9, 8, 5, 0),
+    end: new Date(2025, 10, 9, 11, 0, 0),
+  },
+
+  {
+    id: "4",
+    title: "Some Event",
+    start: new Date(2025, 3, 9, 0, 0, 0),
+    end: new Date(2025, 3, 9, 0, 0, 0),
+    allDay: true,
+  },
+
+  {
+    id: "7",
+    title: "Lunch",
+    start: new Date(2025, 3, 12, 12, 0, 0, 0),
+    end: new Date(2025, 3, 12, 13, 0, 0, 0),
+    desc: "Power lunch",
+  },
+
+  {
+    id: "8",
+    title: "Today",
+    start: new Date(new Date().setHours(new Date().getHours() - 3)),
+    end: new Date(new Date().setHours(new Date().getHours() + 3)),
+  },
+];

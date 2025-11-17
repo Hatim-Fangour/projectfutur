@@ -154,6 +154,12 @@ const TimeRangePicker = ({
     businessEndMinutes,
   ]);
 
+  // ✅ Added this useEffect
+useEffect(() => {
+  setStartTime(initialStartTime);
+  setEndTime(initialEndTime);
+}, [initialStartTime, initialEndTime]);
+
 
   // ✅ Handle clicking on available slot suggestion
   const handleSlotSelect = (slot: { start: string; end: string }) => {

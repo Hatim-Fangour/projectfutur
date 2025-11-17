@@ -32,7 +32,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { events } from "./utils/helpers";
 
 const DragAndDropCalendar = withDragAndDrop(Calendar);
 // Initialize localizer OUTSIDE the component
@@ -42,51 +42,7 @@ const page = () => {
 
   const now = new Date();
 
-  const events = [
-    {
-      id: "1",
-      title: "Long Event",
-      start: new Date(2025, 12, 7),
-      end: new Date(2025, 12, 10),
-    },
 
-    {
-      id: "2",
-      title: "DTS STARTS",
-      start: new Date(2025, 10, 5, 8, 5, 0),
-      end: new Date(2025, 10, 5, 11, 0, 0),
-    },
-
-    {
-      id: "3",
-      title: "DTS ENDS",
-      start: new Date(2025, 10, 9, 8, 5, 0),
-      end: new Date(2025, 10, 9, 11, 0, 0),
-    },
-
-    {
-      id: "4",
-      title: "Some Event",
-      start: new Date(2025, 3, 9, 0, 0, 0),
-      end: new Date(2025, 3, 9, 0, 0, 0),
-      allDay: true,
-    },
-
-    {
-      id: "7",
-      title: "Lunch",
-      start: new Date(2025, 3, 12, 12, 0, 0, 0),
-      end: new Date(2025, 3, 12, 13, 0, 0, 0),
-      desc: "Power lunch",
-    },
-
-    {
-      id: "8",
-      title: "Today",
-      start: new Date(new Date().setHours(new Date().getHours() - 3)),
-      end: new Date(new Date().setHours(new Date().getHours() + 3)),
-    },
-  ];
 
 
 
