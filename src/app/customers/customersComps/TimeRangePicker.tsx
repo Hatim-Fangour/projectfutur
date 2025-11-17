@@ -37,15 +37,16 @@ const TimeRangePicker = ({
 
   const timeSlots = generateTimeSlots();
 
+  const businessTimeSlots = timeSlots
   // Filter time slots within business hours
-  const businessTimeSlots = timeSlots.filter((slot) => {
-    const slotMinutes = timeToMinutes(slot);
-    const businessStartMinutes = timeToMinutes(BUSINESS_HOURS.start);
-    const businessEndMinutes = timeToMinutes(BUSINESS_HOURS.end);
-    return (
-      slotMinutes >= businessStartMinutes && slotMinutes <= businessEndMinutes
-    );
-  });
+  // const businessTimeSlots = timeSlots.filter((slot) => {
+  //   const slotMinutes = timeToMinutes(slot);
+  //   const businessStartMinutes = timeToMinutes(BUSINESS_HOURS.start);
+  //   const businessEndMinutes = timeToMinutes(BUSINESS_HOURS.end);
+  //   return (
+  //     slotMinutes >= businessStartMinutes && slotMinutes <= businessEndMinutes
+  //   );
+  // });
 
   // Check for conflicts whenever time or date changes
   useEffect(() => {
@@ -61,20 +62,20 @@ const TimeRangePicker = ({
     const businessStartMinutes = timeToMinutes(BUSINESS_HOURS.start);
     const businessEndMinutes = timeToMinutes(BUSINESS_HOURS.end);
 
-    if (
-      startMinutes < businessStartMinutes ||
-      endMinutes > businessEndMinutes ||
-      startMinutes >= endMinutes
-    ) {
-      setConflict({
-        id: "business-hours",
-        date: selectedDate,
-        startTime: BUSINESS_HOURS.start,
-        endTime: BUSINESS_HOURS.end,
-      });
-      onValidationChange?.(false);
-      return;
-    }
+    // if (
+    //   startMinutes < businessStartMinutes ||
+    //   endMinutes > businessEndMinutes ||
+    //   startMinutes >= endMinutes
+    // ) {
+    //   setConflict({
+    //     id: "business-hours",
+    //     date: selectedDate,
+    //     startTime: BUSINESS_HOURS.start,
+    //     endTime: BUSINESS_HOURS.end,
+    //   });
+    //   onValidationChange?.(false);
+    //   return;
+    // }
 
     // Check for appointment conflicts
     const dayAppointments = appointments.filter(
@@ -84,8 +85,8 @@ const TimeRangePicker = ({
       timesOverlap(startTime, endTime, apt.startTime, apt.endTime)
     );
 
-    setConflict(conflictingAppointment || null);
-    onValidationChange?.(!conflictingAppointment);
+    // setConflict(conflictingAppointment || null);
+    // onValidationChange?.(!conflictingAppointment);
 
     // Calculate available slots
     const duration = endMinutes - startMinutes;

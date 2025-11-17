@@ -24,4 +24,10 @@ export interface TimeRangePickerProps {
   className?: string;
 }
 
+export interface BookAppointmentProps {
+  customer: Customer;
+  existingAppointments: any;
+  onSubmit: (appointment: any) => void;
+}
+
 

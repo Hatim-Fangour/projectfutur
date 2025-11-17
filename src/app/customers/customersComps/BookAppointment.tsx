@@ -17,7 +17,6 @@ import {
   CommandList,
 } from "../../../components/ui/command";
 import { useState } from "react";
-import { TabContentProps } from "@/app/customers/Interfaces/customerInterfaces";
 import { cn } from "@/lib/utils";
 import {
   Dialog,
@@ -32,6 +31,8 @@ import {
 import { toast } from "sonner";
 import { Customer } from "@/app/customers/types/customers";
 import { formatDateToString } from "../utils/helpers";
+import { BookAppointmentProps } from "../Interfaces/customerInterfaces";
+import dayjs from "dayjs";
 
 
 function formatDate(date: Date | undefined) {
@@ -52,17 +53,63 @@ function isValidDate(date: Date | undefined) {
   return !isNaN(date.getTime());
 }
 
-interface BookAppointmentProps {
-  customer: Customer;
-  existingAppointments: any;
-  onSubmit: (appointment: any) => void;
-}
+
+/**
+ * Get the next 15-minute time slot from now
+ * Example: If it's 2:05 PM, returns "02:15 PM"
+ */
+export const getNextTimeSlot = (date = new Date()): string => {
+  const now = dayjs(date);
+  const minutes = now.minute();
+  
+  // Round up to next 15-minute interval
+  const roundedMinutes = Math.ceil(minutes / 15) * 15;
+  
+  // Add the difference to current time
+  const nextSlot = now.minute(0).add(roundedMinutes, 'minute');
+  
+  return nextSlot.format('hh:mm A');
+};
+
+/**
+ * Add duration (in minutes) to a time string
+ * Example: addDuration("02:15 PM", 60) returns "03:15 PM"
+ */
+export const addDuration = (timeString: string, durationMinutes: number): string => {
+  // Create a date with the time
+  const [time, period] = timeString.split(' ');
+  let [hours, minutes] = time.split(':').map(Number);
+  
+  // Convert to 24-hour
+  if (period === 'PM' && hours !== 12) hours += 12;
+  if (period === 'AM' && hours === 12) hours = 0;
+  
+  // Create dayjs object for today with this time
+  const baseTime = dayjs().hour(hours).minute(minutes);
+  
+  // Add duration
+  const newTime = baseTime.add(durationMinutes, 'minute');
+  
+  return newTime.format('hh:mm A');
+};
+
+/**
+ * Add 1 hour to a time string
+ */
+export const addOneHour = (timeString: string): string => {
+  return addDuration(timeString, 60);
+};
+
+
 
 const BookAppointment = ({
   customer,
   existingAppointments,
   onSubmit,
 }: BookAppointmentProps) => {
+  // ✅ Get default times based on current time
+  const defaultStartTime = getNextTimeSlot();
+  const defaultEndTime = addOneHour(defaultStartTime);
 // ✅ Control dialog state properly
 const [dialogOpen, setDialogOpen] = useState(false);
 // ✅ Control Calendar popover state properly
@@ -79,8 +126,9 @@ const [valueCombobox, setValueCombobox] = useState("");
 // ✅ Control if time is valide  properly
   const [isTimeValid, setIsTimeValid] = useState(false);
 
-  const [startTime, setStartTime] = useState("09:00 AM");
-  const [endTime, setEndTime] = useState("05:00 PM");
+ // ✅ Use calculated default times
+  const [startTime, setStartTime] = useState(defaultStartTime);
+  const [endTime, setEndTime] = useState(defaultEndTime);
 
   const handleSubmit = () => {
     if (!date) {
@@ -108,7 +156,8 @@ const [valueCombobox, setValueCombobox] = useState("");
     setStartTime("09:00 AM");
     setEndTime("10:00 AM");
   };
-
+console.log({startTime})
+console.log({endTime})
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <form>

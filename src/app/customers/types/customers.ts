@@ -63,3 +63,5 @@ export type Customer = {
   services?: PricingPlan[];
   progress?: CustomerProgressSessionType[];
 };
+
+
