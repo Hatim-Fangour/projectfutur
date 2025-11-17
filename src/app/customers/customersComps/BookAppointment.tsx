@@ -3,8 +3,8 @@
 import {
   Calendar as BigCalendar,
   Views,
-  DateLocalizer,
   momentLocalizer,
+  Event as CalendarEvent,
 } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import {
@@ -14,6 +14,7 @@ import {
   Clock,
   House,
   NotebookPen,
+  Timer,
   UserStar,
 } from "lucide-react";
 import {
@@ -39,7 +40,7 @@ import {
   CommandItem,
   CommandList,
 } from "../../../components/ui/command";
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   Dialog,
@@ -53,7 +54,7 @@ import {
 } from "../../../components/ui/dialog";
 import { toast } from "sonner";
 import { Customer } from "@/app/customers/types/customers";
-import { formatDateToString } from "../utils/helpers";
+import { formatDateToString, timeToMinutes } from "../utils/helpers";
 import { BookAppointmentProps } from "../Interfaces/customerInterfaces";
 import dayjs from "dayjs";
 import ColorPicker from "@/components/ColorPicker";
@@ -69,6 +70,7 @@ import {
 } from "@/components/ui/select";
 import { events } from "@/app/calendar/utils/helpers";
 import moment from "moment";
+import { Label } from "@/components/ui/label";
 
 function formatDate(date: Date | undefined) {
   if (!date) {
@@ -140,11 +142,38 @@ export const addOneHour = (timeString: string): string => {
 // Initialize localizer OUTSIDE the component
 const localizer = momentLocalizer(moment);
 
+interface CalendarEventType extends CalendarEvent {
+  id: string;
+  title: string;
+  start: Date;
+  end: Date;
+  actualEnd?: Date; // End time without buffer
+  bufferTime?: number; // Buffer time in minutes
+  color?: string;
+  isDraft?: boolean; // For preview appointment
+}
+
+// ✅ Helper to convert time string to Date object for calendar
+const timeStringToDate = (dateStr: string, timeStr: string): Date => {
+  const [time, period] = timeStr.split(" ");
+  let [hours, minutes] = time.split(":").map(Number);
+
+  if (period === "PM" && hours !== 12) hours += 12;
+  if (period === "AM" && hours === 12) hours = 0;
+
+  const date = new Date(dateStr);
+  date.setHours(hours, minutes, 0, 0);
+  return date;
+};
+
 const BookAppointment = ({
   customer,
   existingAppointments,
   onSubmit,
 }: BookAppointmentProps) => {
+  // ✅ Calendar date - synced with date picker
+  const [calendarDate, setCalendarDate] = useState(new Date());
+
   // ✅ Get default times based on current time
   const defaultStartTime = getNextTimeSlot();
   const defaultEndTime = addOneHour(defaultStartTime);
@@ -164,10 +193,121 @@ const BookAppointment = ({
   // ✅ Control if time is valide  properly
   const [isTimeValid, setIsTimeValid] = useState(false);
 
+  const [selectedService, setSelectedService] = useState("");
+  const [selectedColor, setSelectedColor] = useState(existingColors[0]);
+  const [selectedRoom, setSelectedRoom] = useState("");
+  const [notes, setNotes] = useState("");
+  const [bufferTime, setBufferTime] = useState(0); // in minutes
+
   // ✅ Use calculated default times
   const [startTime, setStartTime] = useState(defaultStartTime);
   const [endTime, setEndTime] = useState(defaultEndTime);
 
+  // ✅ Convert existing appointments to calendar events
+  const existingEvents: CalendarEventType[] = useMemo(() => {
+    return existingAppointments.map((apt) => ({
+      id: apt.id,
+      title: apt.title || "Appointment",
+      start: apt.start,
+      end: apt.end,
+      color: apt.color || "#3174ad",
+    }));
+  }, [existingAppointments]);
+
+  // ✅ Create draft event for real-time preview
+  const draftEvent: CalendarEventType | null = useMemo(() => {
+    if (!date || !startTime || !endTime || !selectedService) {
+      return null;
+    }
+
+    const dateStr = formatDateToString(date);
+    const start = timeStringToDate(dateStr, startTime);
+    const actualEnd = timeStringToDate(dateStr, endTime);
+
+    // Add buffer time to end
+    const endWithBuffer = new Date(actualEnd);
+    endWithBuffer.setMinutes(endWithBuffer.getMinutes() + bufferTime);
+
+    return {
+      id: "draft",
+      title:
+        selectedService + (bufferTime > 0 ? ` (+${bufferTime}min buffer)` : ""),
+      start,
+      end: endWithBuffer,
+      actualEnd, // Store actual end without buffer
+      bufferTime,
+      color: selectedColor,
+      isDraft: true,
+    };
+  }, [date, startTime, endTime, selectedService, bufferTime, selectedColor]);
+
+  // ✅ Combine existing and draft events
+  const allEvents = useMemo(() => {
+    const events = [...existingEvents];
+    if (draftEvent) {
+      events.push(draftEvent);
+    }
+    return events;
+  }, [existingEvents, draftEvent]);
+
+  // ✅ Event styling with buffer visualization
+  const eventPropGetter = useCallback((event: CalendarEventType) => {
+    const style: React.CSSProperties = {
+      backgroundColor: event.color || "#3174ad",
+      borderRadius: "5px",
+      opacity: event.isDraft ? 0.7 : 1,
+      color: "white",
+      border: event.isDraft ? "2px dashed white" : "none",
+      display: "block",
+    };
+
+    // ✅ If event has buffer time, add gradient background
+    if (event.bufferTime && event.bufferTime > 0 && event.actualEnd) {
+      const totalDuration = event.end.getTime() - event.start.getTime();
+      const actualDuration = event.actualEnd.getTime() - event.start.getTime();
+      const bufferPercentage =
+        ((totalDuration - actualDuration) / totalDuration) * 100;
+
+      style.background = `linear-gradient(to bottom, 
+            ${event.color || "#3174ad"} 0%, 
+            ${event.color || "#3174ad"} ${100 - bufferPercentage}%, 
+            repeating-linear-gradient(
+              45deg,
+              ${event.color || "#3174ad"}80,
+              ${event.color || "#3174ad"}80 10px,
+              ${event.color || "#3174ad"}40 10px,
+              ${event.color || "#3174ad"}40 20px
+            ) ${100 - bufferPercentage}%
+          )`;
+    }
+
+    return { style };
+  }, []);
+
+  // ✅ Handle date change - sync with calendar
+  const handleDateChange = (newDate: Date | undefined) => {
+    if (newDate && isValidDate(newDate)) {
+      setDate(newDate);
+      setMonth(newDate);
+      setValue(formatDate(newDate));
+      setCalendarDate(newDate); // ✅ Sync calendar
+    }
+  };
+
+  // ✅ Handle calendar date navigation
+  const handleCalendarNavigate = (newDate: Date) => {
+    setCalendarDate(newDate);
+  };
+
+  // Calculate actual end time with buffer
+  const actualEndTime = endTime;
+  const endWithBuffer = dayjs(
+    timeStringToDate(formatDateToString(date), endTime)
+  )
+    .add(bufferTime, "minute")
+    .format("hh:mm A");
+
+  // handle sunmit the appointment after getting all data
   const handleSubmit = () => {
     if (!date) {
       toast.error("Please select a date");
@@ -197,11 +337,11 @@ const BookAppointment = ({
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <form className="w-full">
+      <form className="w-full ">
         <DialogTrigger asChild>
           <Button>Book appointment</Button>
         </DialogTrigger>
-        <DialogContent className="flex flex-col w-full h-full gap-15! sm:max-w-full">
+        <DialogContent className="thisDialog flex flex-col justify-between w-full h-full gap-10! sm:max-w-full">
           <DialogHeader className="flex">
             <DialogTitle>Book Appointment for Achille</DialogTitle>
             <DialogDescription>
@@ -209,43 +349,39 @@ const BookAppointment = ({
               done.
             </DialogDescription>
           </DialogHeader>
-          <div className="flex w-full gap-8 h-full! ">
-            <div className="flex-3">
+          <div className="flex w-full gap-8 h-[80%] ">
+            {/* Big Calendar */}
+            <div className="flex-2">
               <div className={`calendar-container h-full month-view`}>
                 <BigCalendar
-                  defaultView={Views.MONTH}
-                  events={events}
+                  defaultView={Views.DAY}
+                  view={Views.DAY}
+                  views={[Views.DAY]}
+                  events={allEvents}
+                  date={calendarDate}
                   localizer={localizer}
+                  onNavigate={handleCalendarNavigate}
                   popup
-                  // resizable
-                  formats={{
-                    timeGutterFormat: (date, culture, localizer: any) =>
-                      localizer.format(date, "h a", culture), // 👈 "12 AM" instead of "12:00 AM"
-                  }}
-                  // startAccessor="start"
-                  // endAccessor="end"
-                  // eventPropGetter={eventPropGetter}
-                  // view={calendarHook.currentView}
-                  // onView={calendarHook.setCurrentView}
-                  // onSelectSlot={calendarHook.onClickOrSelectSlot}
+                  style={{ height: "100%" }}
+                  // formats={{
+                  //   timeGutterFormat: (date, culture, localizer: any) =>
+                  //     localizer.format(date, "h a", culture), // 👈 "12 AM" instead of "12:00 AM"
+                  // }}
+                  startAccessor="start"
+                  endAccessor="end"
                   step={15} // each slot = 15 minutes
                   timeslots={4} // 4 slots per hour → 15 × 4 = 60 min
                   selectable
-                  // onSelectEvent={(event, e) => {
-                  //   e.preventDefault(); // stop default event handling
-                  //   e.stopPropagation(); // prevent bubbling
-                  //   console.log("Event clicked:", event);
-                  //   handleSelectEvent(event, e);
-
-                  //   // calendarHook.onClickEvent(event, e); // your custom handler
-                  // }}
-                  // components={{
-                  //   toolbar: CustomToolbar,
-                  //   event: CustomEvent,
-                  // }}
+                  eventPropGetter={eventPropGetter}
+                  formats={{
+                    timeGutterFormat: (date, culture, localizer: any) =>
+                      localizer.format(date, "h A", culture),
+                  }}
+                  toolbar={true}
                 />
               </div>
             </div>
+
             <div className="grid gap-8 flex-1">
               {/* Service selector */}
               <div className="flex  items-start flex-col gap-6 w-full">
@@ -254,73 +390,91 @@ const BookAppointment = ({
                     <ColorPicker
                       eventColors={existingColors}
                       selectedColor={existingColors[0]}
-                      onColorChange={() =>
-                        console.log("Color has benn changed !")
-                      }
+                      onColorChange={setSelectedColor}
                     />
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
-                      <PopoverTrigger asChild className="flex">
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          aria-expanded={openCombobox}
-                          className="w-full justify-between"
-                        >
-                          {valueCombobox
-                            ? (customer.services || []).find(
-                                (service) => service.name === valueCombobox
-                              )?.name
-                            : "Select service..."}
-                          <ChevronsUpDown className="opacity-50" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent
-                        className="p-0" // ✅ Add these props to fix z-index issue
-                        // modal={true}
-                        style={{ zIndex: 9999 }}
+                    <Select
+                      value={selectedService}
+                      onValueChange={setSelectedService}
+                    >
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder="Select service..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(customer.services || []).map((service) => (
+                          <SelectItem key={service.id} value={service.name}>
+                            {service.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {false && (
+                      <Popover
+                        open={openCombobox}
+                        onOpenChange={setOpenCombobox}
                       >
-                        <Command>
-                          <CommandInput
-                            placeholder="Search service..."
-                            className="h-9"
-                          />
-                          <CommandList>
-                            <CommandEmpty>No framework found.</CommandEmpty>
-                            <CommandGroup>
-                              {(customer.services || []).map((service) => (
-                                <CommandItem
-                                  key={service.id}
-                                  value={service.name}
-                                  onSelect={(currentValue) => {
-                                    console.log({ currentValue });
-                                    console.log({ valueCombobox });
-                                    setValueCombobox(
-                                      currentValue === valueCombobox
-                                        ? ""
-                                        : currentValue
-                                    );
-                                    setOpenCombobox(false);
-                                  }}
-                                >
-                                  {service.name}
-                                  <Check
-                                    className={cn(
-                                      "ml-auto",
-                                      valueCombobox === service.name
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
+                        <PopoverTrigger asChild className="flex">
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={openCombobox}
+                            className="w-full justify-between"
+                          >
+                            {valueCombobox
+                              ? (customer.services || []).find(
+                                  (service) => service.name === valueCombobox
+                                )?.name
+                              : "Select service..."}
+                            <ChevronsUpDown className="opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          className="p-0" // ✅ Add these props to fix z-index issue
+                          // modal={true}
+                          style={{ zIndex: 9999 }}
+                        >
+                          <Command>
+                            <CommandInput
+                              placeholder="Search service..."
+                              className="h-9"
+                            />
+                            <CommandList>
+                              <CommandEmpty>No framework found.</CommandEmpty>
+                              <CommandGroup>
+                                {(customer.services || []).map((service) => (
+                                  <CommandItem
+                                    key={service.id}
+                                    value={service.name}
+                                    onSelect={(currentValue) => {
+                                      console.log({ currentValue });
+                                      console.log({ valueCombobox });
+                                      setValueCombobox(
+                                        currentValue === valueCombobox
+                                          ? ""
+                                          : currentValue
+                                      );
+                                      setOpenCombobox(false);
+                                    }}
+                                  >
+                                    {service.name}
+                                    <Check
+                                      className={cn(
+                                        "ml-auto",
+                                        valueCombobox === service.name
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    )}
                   </div>
                 </div>
 
@@ -339,19 +493,18 @@ const BookAppointment = ({
                       placeholder="June 01, 2025"
                       className="bg-background pr-10"
                       onChange={(e) => {
-                        const date = new Date(e.target.value);
                         setValue(e.target.value);
-                        if (isValidDate(date)) {
-                          setDate(date);
-                          setMonth(date);
+                        const newDate = new Date(e.target.value);
+                        if (isValidDate(newDate)) {
+                          handleDateChange(newDate);
                         }
                       }}
-                      onKeyDown={(e) => {
-                        if (e.key === "ArrowDown") {
-                          e.preventDefault();
-                          setOpenCalendar(true);
-                        }
-                      }}
+                      // onKeyDown={(e) => {
+                      //   if (e.key === "ArrowDown") {
+                      //     e.preventDefault();
+                      //     setOpenCalendar(true);
+                      //   }
+                      // }}
                     />
                     <Popover open={openCalendar} onOpenChange={setOpenCalendar}>
                       <PopoverTrigger asChild>
@@ -377,9 +530,8 @@ const BookAppointment = ({
                           disabled={{ before: new Date() }}
                           month={month}
                           onMonthChange={setMonth}
-                          onSelect={(date) => {
-                            setDate(date);
-                            setValue(formatDate(date));
+                          onSelect={(newDate) => {
+                            handleDateChange(newDate);
                             setOpenCalendar(false);
                           }}
                         />
@@ -402,6 +554,38 @@ const BookAppointment = ({
                 </div>
               </div>
 
+              {/* ✅ Buffer Time */}
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Timer className="h-4 w-4" />
+                  Buffer Time (minutes)
+                </Label>
+                <Select
+                  value={bufferTime.toString()}
+                  onValueChange={(value) => setBufferTime(parseInt(value))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">No buffer</SelectItem>
+                    <SelectItem value="15">15 minutes</SelectItem>
+                    <SelectItem value="30">30 minutes</SelectItem>
+                    <SelectItem value="45">45 minutes</SelectItem>
+                    <SelectItem value="60">60 minutes</SelectItem>
+                  </SelectContent>
+                </Select>
+                {bufferTime > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    Total time:{" "}
+                    {timeToMinutes(endTime) -
+                      timeToMinutes(startTime) +
+                      bufferTime}{" "}
+                    minutes (includes {bufferTime}min buffer shown with stripes)
+                  </p>
+                )}
+              </div>
+
               {/* Guest */}
               <div className="flex  items-center gap-6">
                 <UserStar />
@@ -421,7 +605,7 @@ const BookAppointment = ({
               <div className="flex  items-center gap-6">
                 <House />
                 <div className="flex  items-center gap-2 w-full">
-                  <Select>
+                  <Select value={selectedRoom} onValueChange={setSelectedRoom}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select a room" />
                     </SelectTrigger>

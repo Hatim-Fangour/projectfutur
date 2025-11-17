@@ -5,4 +5,5 @@ export type BaseAppointment = {
   end: Date;
   allDay?: boolean;
   desc?: string;
+  color?: string;
 };

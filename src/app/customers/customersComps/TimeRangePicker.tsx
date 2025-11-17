@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -7,7 +7,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 import {
   Alert,
   AlertDescription,
@@ -22,6 +21,7 @@ import {
   timesOverlap,
   timeToMinutes,
   minutesToTime,
+  getValidEndTimes,
 } from "../utils/helpers";
 import { TimeRangePickerProps } from "../Interfaces/customerInterfaces";
 
@@ -48,25 +48,6 @@ const TimeRangePicker = ({
   const timeSlots = generateTimeSlots();
   const businessStartMinutes = timeToMinutes(BUSINESS_HOURS.start);
   const businessEndMinutes = timeToMinutes(BUSINESS_HOURS.end);
-
-  // ✅ Filter time slots within business hours
-  const businessTimeSlots = timeSlots.filter((slot) => {
-    const slotMinutes = timeToMinutes(slot);
-    return (
-      slotMinutes >= businessStartMinutes && slotMinutes <= businessEndMinutes
-    );
-  });
-
-  // ✅ Get valid end times based on selected start time
-  const getValidEndTimes = (selectedStartTime: string) => {
-    const startMinutes = timeToMinutes(selectedStartTime);
-    const minEndMinutes = startMinutes + minimumDuration;
-
-    return businessTimeSlots.filter((slot) => {
-      const slotMinutes = timeToMinutes(slot);
-      return slotMinutes >= minEndMinutes;
-    });
-  };
 
   // ✅ Handle start time change with smart end time adjustment
   const handleStartTimeChange = (newStartTime: string) => {
@@ -97,6 +78,7 @@ const TimeRangePicker = ({
   };
 
   // ✅ Handle end time change
+
   const handleEndTimeChange = (newEndTime: string) => {
     setEndTime(newEndTime);
     onEndTimeChange?.(newEndTime);
@@ -104,7 +86,7 @@ const TimeRangePicker = ({
 
   // ✅ Check for conflicts
   useEffect(() => {
-    if (!selectedDate) {  
+    if (!selectedDate) {
       setConflict(null);
       onValidationChange?.(true);
       return;
@@ -155,11 +137,10 @@ const TimeRangePicker = ({
   ]);
 
   // ✅ Added this useEffect
-useEffect(() => {
-  setStartTime(initialStartTime);
-  setEndTime(initialEndTime);
-}, [initialStartTime, initialEndTime]);
-
+  useEffect(() => {
+    setStartTime(initialStartTime);
+    setEndTime(initialEndTime);
+  }, [initialStartTime, initialEndTime]);
 
   // ✅ Handle clicking on available slot suggestion
   const handleSlotSelect = (slot: { start: string; end: string }) => {
@@ -176,8 +157,7 @@ useEffect(() => {
     }
   };
 
-  const validEndTimes = getValidEndTimes(startTime);
-
+  const validEndTimes = getValidEndTimes(timeSlots, minimumDuration, startTime);
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Time Selectors */}
@@ -189,7 +169,7 @@ useEffect(() => {
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="max-h-80">
-              {businessTimeSlots.map((slot) => (
+              {timeSlots.map((slot) => (
                 <SelectItem
                   key={`start-${slot}`}
                   value={slot}
@@ -213,7 +193,7 @@ useEffect(() => {
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="max-h-80">
-              {validEndTimes.map((slot) => (
+              {validEndTimes.map((slot: string) => (
                 <SelectItem
                   key={`end-${slot}`}
                   value={slot}

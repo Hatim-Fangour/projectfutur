@@ -87,7 +87,16 @@ export const getStatusLabel = (status: string) => {
 };
 
 // Generate all time slots in 15-min intervals
-export const generateTimeSlots = () => {
+export const generateTimeSlots = (
+  restricted: boolean = false,
+  businessTime: {
+    start: string;
+    end: string;
+  } = {
+    start: "08:00 AM",
+    end: "08:00 PM",
+  }
+) => {
   const slots: string[] = [];
   const periods = ["AM", "PM"];
 
@@ -113,6 +122,21 @@ export const generateTimeSlots = () => {
       }
     }
   });
+  // restricted= true means we have a business hours to respect
+  if (restricted) {
+    // if we have bussiness hours for exp from 9:00 AM to 5:00 PM
+    // we want to filter timeSlots to only include those between 9:00 AM and 5:00 PM
+    const businessStartMinutes = timeToMinutes(businessTime.start);
+    const businessEndMinutes = timeToMinutes(businessTime.end);
+    const businessTimeSlots = slots.filter((slot) => {
+      const slotMinutes = timeToMinutes(slot);
+      return (
+        slotMinutes >= businessStartMinutes && slotMinutes <= businessEndMinutes
+      );
+    });
+
+    return businessTimeSlots;
+  }
 
   return slots;
 };
@@ -169,7 +193,11 @@ export function getAvailableTimeSlots(
   // Get appointments for this specific date
   const dayAppointments = appointments
     .filter((apt) => formatDate(apt.start, "iso") === date)
-    .sort((a, b) => timeToMinutes(formatToSlot(a.start)) - timeToMinutes(formatToSlot(b.start)));
+    .sort(
+      (a, b) =>
+        timeToMinutes(formatToSlot(a.start)) -
+        timeToMinutes(formatToSlot(b.start))
+    );
 
   const availableSlots: { start: string; end: string }[] = [];
   let currentTime = businessStart;
@@ -246,4 +274,19 @@ export const calculateDuration = (
   const endDate = dayjs(end);
 
   return endDate.diff(startDate, "minute");
+};
+
+// ✅ Get valid end times based on selected start time
+export const getValidEndTimes = (
+  timeSlots: string[] = [],
+  minimumDuration: number = 0,
+  selectedStartTime: string
+) => {
+  const startMinutes = timeToMinutes(selectedStartTime);
+  const minEndMinutes = startMinutes + minimumDuration;
+
+  return timeSlots.filter((slot) => {
+    const slotMinutes = timeToMinutes(slot);
+    return slotMinutes >= minEndMinutes;
+  });
 };
