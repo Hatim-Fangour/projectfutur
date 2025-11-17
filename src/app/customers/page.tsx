@@ -369,22 +369,16 @@ const page = () => {
       id: "1",
       start: new Date("2024-11-15T10:30:00"),
       end: new Date("2024-11-15T11:45:00"),
-      customerId: "customer-1",
-      serviceId: "service-1",
     },
     {
       id: "2",
       start: new Date("2024-11-15T02:00:00"),
       end: new Date("2024-11-15T03:30:00"),
-      customerId: "customer-2",
-      serviceId: "service-2",
     },
     {
       id: "3",
       start: new Date("2024-11-15T09:00:00"),
       end: new Date("2024-11-15T10:00:00"),
-      customerId: "customer-3",
-      serviceId: "service-1",
     },
   ]);
 

@@ -1,3 +1,4 @@
+import { BaseAppointment } from "@/app/calendar/types/reservations";
 import { Customer } from "@/app/customers/types/customers";
 import { PricingPlan } from "@/app/services/types/services";
 
@@ -15,18 +16,18 @@ export interface ServiceCardProps {
 export interface TimeRangePickerProps {
   startTime?: string;
   endTime?: string;
-  selectedDate?: string; // Format: "2025-11-15"
-  // appointments: Appointment[];
-  appointments: [];
+  selectedDate?: string;
+  appointments?: BaseAppointment[];
   onStartTimeChange?: (time: string) => void;
   onEndTimeChange?: (time: string) => void;
   onValidationChange?: (isValid: boolean) => void;
   className?: string;
+  minimumDuration?: number; // in minutes, default 15
 }
 
 export interface BookAppointmentProps {
   customer: Customer;
-  existingAppointments: any;
+  existingAppointments: BaseAppointment[];
   onSubmit: (appointment: any) => void;
 }
 

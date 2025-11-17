@@ -3,6 +3,7 @@ import duration from "dayjs/plugin/duration";
 dayjs.extend(duration);
 import { DateFormatType } from "../types/customers";
 import { AlertCircle, CheckCircle2, Clock } from "lucide-react";
+import { BaseAppointment } from "@/app/calendar/types/reservations";
 
 export const BUSINESS_HOURS = {
   start: "08:00 AM",
@@ -160,22 +161,22 @@ export function timesOverlap(
 // Get available time slots for a given day
 export function getAvailableTimeSlots(
   date: string,
-  appointments: [],
+  appointments: BaseAppointment[],
   duration: number = 60 // duration in minutes
 ): { start: string; end: string }[] {
   const businessStart = timeToMinutes(BUSINESS_HOURS.start);
   const businessEnd = timeToMinutes(BUSINESS_HOURS.end);
   // Get appointments for this specific date
   const dayAppointments = appointments
-    .filter((apt) => apt.date === date)
-    .sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
+    .filter((apt) => formatDate(apt.start, "iso") === date)
+    .sort((a, b) => timeToMinutes(formatToSlot(a.start)) - timeToMinutes(formatToSlot(b.start)));
 
   const availableSlots: { start: string; end: string }[] = [];
   let currentTime = businessStart;
 
   for (const appointment of dayAppointments) {
-    const aptStart = timeToMinutes(appointment.startTime);
-    const aptEnd = timeToMinutes(appointment.endTime);
+    const aptStart = timeToMinutes(formatToSlot(appointment.start));
+    const aptEnd = timeToMinutes(formatToSlot(appointment.end));
 
     // If there's a gap before this appointment
     if (currentTime + duration <= aptStart) {

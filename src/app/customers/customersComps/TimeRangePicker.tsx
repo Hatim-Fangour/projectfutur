@@ -8,108 +8,160 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription, AlertTitle } from "../../../components/ui/alert";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "../../../components/ui/alert";
 import { AlertCircle, CheckCircle, Clock } from "lucide-react";
 import { Badge } from "../../../components/ui/badge";
-import { BUSINESS_HOURS, generateTimeSlots, getAvailableTimeSlots, timesOverlap, timeToMinutes } from "../utils/helpers";
-
-
+import {
+  BUSINESS_HOURS,
+  generateTimeSlots,
+  getAvailableTimeSlots,
+  timesOverlap,
+  timeToMinutes,
+  minutesToTime,
+} from "../utils/helpers";
+import { TimeRangePickerProps } from "../Interfaces/customerInterfaces";
 
 const TimeRangePicker = ({
   startTime: initialStartTime = "09:00 AM",
-  endTime: initialEndTime = "05:00 PM",
+  endTime: initialEndTime = "10:00 AM",
   selectedDate = "",
   appointments = [],
   onStartTimeChange,
   onEndTimeChange,
   onValidationChange,
-  className,
-}: any) => {
+  className = "",
+  minimumDuration = 15,
+}: TimeRangePickerProps) => {
+  // initialStartTime/initialEndTime calculated based on actual time and business hours
   const [startTime, setStartTime] = useState(initialStartTime);
   const [endTime, setEndTime] = useState(initialEndTime);
-  const [conflict, setConflict] = useState<{} | null>(null);
 
+  const [conflict, setConflict] = useState<any>(null);
   const [availableSlots, setAvailableSlots] = useState<
     { start: string; end: string }[]
   >([]);
 
-
-
   const timeSlots = generateTimeSlots();
+  const businessStartMinutes = timeToMinutes(BUSINESS_HOURS.start);
+  const businessEndMinutes = timeToMinutes(BUSINESS_HOURS.end);
 
-  const businessTimeSlots = timeSlots
-  // Filter time slots within business hours
-  // const businessTimeSlots = timeSlots.filter((slot) => {
-  //   const slotMinutes = timeToMinutes(slot);
-  //   const businessStartMinutes = timeToMinutes(BUSINESS_HOURS.start);
-  //   const businessEndMinutes = timeToMinutes(BUSINESS_HOURS.end);
-  //   return (
-  //     slotMinutes >= businessStartMinutes && slotMinutes <= businessEndMinutes
-  //   );
-  // });
+  // ✅ Filter time slots within business hours
+  const businessTimeSlots = timeSlots.filter((slot) => {
+    const slotMinutes = timeToMinutes(slot);
+    return (
+      slotMinutes >= businessStartMinutes && slotMinutes <= businessEndMinutes
+    );
+  });
 
-  // Check for conflicts whenever time or date changes
+  // ✅ Get valid end times based on selected start time
+  const getValidEndTimes = (selectedStartTime: string) => {
+    const startMinutes = timeToMinutes(selectedStartTime);
+    const minEndMinutes = startMinutes + minimumDuration;
+
+    return businessTimeSlots.filter((slot) => {
+      const slotMinutes = timeToMinutes(slot);
+      return slotMinutes >= minEndMinutes;
+    });
+  };
+
+  // ✅ Handle start time change with smart end time adjustment
+  const handleStartTimeChange = (newStartTime: string) => {
+    const newStartMinutes = timeToMinutes(newStartTime);
+    const currentEndMinutes = timeToMinutes(endTime);
+
+    setStartTime(newStartTime);
+    onStartTimeChange?.(newStartTime);
+
+    // ✅ If new start time is after current end time, adjust end time
+    if (newStartMinutes >= currentEndMinutes) {
+      const newEndMinutes = newStartMinutes + minimumDuration;
+      const newEndTime = minutesToTime(newEndMinutes);
+
+      // Check if new end time is within business hours
+      if (newEndMinutes <= businessEndMinutes) {
+        setEndTime(newEndTime);
+        onEndTimeChange?.(newEndTime);
+      } else {
+        // If it exceeds business hours, set to business end time
+        const businessEndTime = BUSINESS_HOURS.end;
+        setEndTime(businessEndTime);
+        onEndTimeChange?.(businessEndTime);
+      }
+    }
+    // ✅ If new start time is before current end time, keep end time as is
+    // (no action needed, end time stays the same)
+  };
+
+  // ✅ Handle end time change
+  const handleEndTimeChange = (newEndTime: string) => {
+    setEndTime(newEndTime);
+    onEndTimeChange?.(newEndTime);
+  };
+
+  // ✅ Check for conflicts
   useEffect(() => {
-    if (!selectedDate) {
+    if (!selectedDate) {  
       setConflict(null);
       onValidationChange?.(true);
       return;
     }
 
-    // Check if times are within business hours
     const startMinutes = timeToMinutes(startTime);
     const endMinutes = timeToMinutes(endTime);
-    const businessStartMinutes = timeToMinutes(BUSINESS_HOURS.start);
-    const businessEndMinutes = timeToMinutes(BUSINESS_HOURS.end);
 
-    // if (
-    //   startMinutes < businessStartMinutes ||
-    //   endMinutes > businessEndMinutes ||
-    //   startMinutes >= endMinutes
-    // ) {
-    //   setConflict({
-    //     id: "business-hours",
-    //     date: selectedDate,
-    //     startTime: BUSINESS_HOURS.start,
-    //     endTime: BUSINESS_HOURS.end,
-    //   });
-    //   onValidationChange?.(false);
-    //   return;
-    // }
+    // Check if times are within business hours
+    if (
+      startMinutes < businessStartMinutes ||
+      endMinutes > businessEndMinutes ||
+      startMinutes >= endMinutes
+    ) {
+      setConflict({
+        id: "business-hours",
+        date: selectedDate,
+        startTime: BUSINESS_HOURS.start,
+        endTime: BUSINESS_HOURS.end,
+      });
+      onValidationChange?.(false);
+      return;
+    }
 
     // Check for appointment conflicts
     const dayAppointments = appointments.filter(
-      (apt:any) => apt.date === selectedDate
+      (apt: any) => apt.date === selectedDate
     );
-    const conflictingAppointment = dayAppointments.find((apt:any) =>
+    const conflictingAppointment = dayAppointments.find((apt: any) =>
       timesOverlap(startTime, endTime, apt.startTime, apt.endTime)
     );
 
-    // setConflict(conflictingAppointment || null);
-    // onValidationChange?.(!conflictingAppointment);
+    setConflict(conflictingAppointment || null);
+    onValidationChange?.(!conflictingAppointment);
 
     // Calculate available slots
     const duration = endMinutes - startMinutes;
     const slots = getAvailableTimeSlots(selectedDate, appointments, duration);
     setAvailableSlots(slots);
-  }, [startTime, endTime, selectedDate, appointments, onValidationChange]);
+  }, [
+    startTime,
+    endTime,
+    selectedDate,
+    appointments,
+    onValidationChange,
+    businessStartMinutes,
+    businessEndMinutes,
+  ]);
 
-  const handleStartTimeChange = (time: string) => {
-    setStartTime(time);
-    onStartTimeChange?.(time);
-  };
 
-  const handleEndTimeChange = (time: string) => {
-    setEndTime(time);
-    onEndTimeChange?.(time);
-  };
-
+  // ✅ Handle clicking on available slot suggestion
   const handleSlotSelect = (slot: { start: string; end: string }) => {
-    handleStartTimeChange(slot.start);
-    // Set end time to match the original duration
     const duration = timeToMinutes(endTime) - timeToMinutes(startTime);
     const newEndMinutes = timeToMinutes(slot.start) + duration;
     const slotEndMinutes = timeToMinutes(slot.end);
+
+    handleStartTimeChange(slot.start);
 
     if (newEndMinutes <= slotEndMinutes) {
       handleEndTimeChange(minutesToTime(newEndMinutes));
@@ -118,12 +170,14 @@ const TimeRangePicker = ({
     }
   };
 
+  const validEndTimes = getValidEndTimes(startTime);
+
   return (
-    <>
-      <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 ${className}`}>
+    <div className={`space-y-4 ${className}`}>
+      {/* Time Selectors */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Start Time */}
         <div className="space-y-2">
-          {/* <Label htmlFor="start-time">Start Time</Label> */}
           <Select value={startTime} onValueChange={handleStartTimeChange}>
             <SelectTrigger id="start-time" className="font-mono">
               <SelectValue />
@@ -144,13 +198,16 @@ const TimeRangePicker = ({
 
         {/* End Time */}
         <div className="space-y-2">
-          {/* <Label htmlFor="end-time">End Time</Label> */}
-          <Select value={endTime} onValueChange={handleEndTimeChange}>
+          <Select
+            value={endTime}
+            onValueChange={handleEndTimeChange}
+            disabled={validEndTimes.length === 0}
+          >
             <SelectTrigger id="end-time" className="font-mono">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="max-h-80">
-              {businessTimeSlots.map((slot) => (
+              {validEndTimes.map((slot) => (
                 <SelectItem
                   key={`end-${slot}`}
                   value={slot}
@@ -165,8 +222,8 @@ const TimeRangePicker = ({
       </div>
 
       {/* Validation Messages */}
-      {selectedDate && (
-        <>
+      {selectedDate && false && (
+        <div className="space-y-3">
           {conflict?.id === "business-hours" ? (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
@@ -212,7 +269,6 @@ const TimeRangePicker = ({
                   const slotDuration =
                     timeToMinutes(slot.end) - timeToMinutes(slot.start);
 
-                  // Only show slots that can accommodate the requested duration
                   if (slotDuration >= duration) {
                     return (
                       <Badge
@@ -239,9 +295,9 @@ const TimeRangePicker = ({
               )}
             </div>
           )}
-        </>
+        </div>
       )}
-    </>
+    </div>
   );
 };
 
