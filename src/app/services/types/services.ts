@@ -12,6 +12,7 @@ export type PricingPlan = {
   remainingSessions?: number;
   totalSessions?: number;
   duration?: number; // in minutes
+  bufferTime?: number; // in minutes
   color?: string;
   description?: string;
 };

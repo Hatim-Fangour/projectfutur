@@ -35,6 +35,7 @@ const TimeRangePicker = ({
   onValidationChange,
   className = "",
   minimumDuration = 15,
+  isEndTimeDisabled = false, // ✅ New prop
 }: TimeRangePickerProps) => {
   // initialStartTime/initialEndTime calculated based on actual time and business hours
   const [startTime, setStartTime] = useState(initialStartTime);
@@ -48,6 +49,8 @@ const TimeRangePicker = ({
   const timeSlots = generateTimeSlots();
   const businessStartMinutes = timeToMinutes(BUSINESS_HOURS.start);
   const businessEndMinutes = timeToMinutes(BUSINESS_HOURS.end);
+  const validEndTimes = getValidEndTimes(timeSlots, minimumDuration, startTime);
+
 
   // ✅ Handle start time change with smart end time adjustment
   const handleStartTimeChange = (newStartTime: string) => {
@@ -78,7 +81,6 @@ const TimeRangePicker = ({
   };
 
   // ✅ Handle end time change
-
   const handleEndTimeChange = (newEndTime: string) => {
     setEndTime(newEndTime);
     onEndTimeChange?.(newEndTime);
@@ -157,7 +159,6 @@ const TimeRangePicker = ({
     }
   };
 
-  const validEndTimes = getValidEndTimes(timeSlots, minimumDuration, startTime);
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Time Selectors */}
@@ -187,7 +188,8 @@ const TimeRangePicker = ({
           <Select
             value={endTime}
             onValueChange={handleEndTimeChange}
-            disabled={validEndTimes.length === 0}
+            // disabled={validEndTimes.length === 0}
+             disabled={isEndTimeDisabled || validEndTimes.length === 0} // ✅ Disable if needed
           >
             <SelectTrigger id="end-time" className="font-mono">
               <SelectValue />

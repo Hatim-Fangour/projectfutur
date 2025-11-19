@@ -40,7 +40,7 @@ import {
   CommandItem,
   CommandList,
 } from "../../../components/ui/command";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   Dialog,
@@ -53,9 +53,10 @@ import {
   DialogTrigger,
 } from "../../../components/ui/dialog";
 import { toast } from "sonner";
-import { Customer } from "@/app/customers/types/customers";
-import { formatDateToString, timeToMinutes } from "../utils/helpers";
-import { BookAppointmentProps } from "../Interfaces/customerInterfaces";
+import {
+  BookAppointmentProps,
+  CalendarEventType,
+} from "../Interfaces/customerInterfaces";
 import dayjs from "dayjs";
 import ColorPicker from "@/components/ColorPicker";
 import { existingColors } from "@/app/Utils";
@@ -71,6 +72,9 @@ import {
 import { events } from "@/app/calendar/utils/helpers";
 import moment from "moment";
 import { Label } from "@/components/ui/label";
+import BufferEventComponent from "@/app/calendar/calendarComps/BufferEventComponent";
+import CustomCalendarEvent from "./CustomCalendarEvent";
+import { formatDateToString, timeToMinutes } from "../utils/helpers";
 
 function formatDate(date: Date | undefined) {
   if (!date) {
@@ -139,20 +143,6 @@ export const addOneHour = (timeString: string): string => {
   return addDuration(timeString, 60);
 };
 
-// Initialize localizer OUTSIDE the component
-const localizer = momentLocalizer(moment);
-
-interface CalendarEventType extends CalendarEvent {
-  id: string;
-  title: string;
-  start: Date;
-  end: Date;
-  actualEnd?: Date; // End time without buffer
-  bufferTime?: number; // Buffer time in minutes
-  color?: string;
-  isDraft?: boolean; // For preview appointment
-}
-
 // ✅ Helper to convert time string to Date object for calendar
 const timeStringToDate = (dateStr: string, timeStr: string): Date => {
   const [time, period] = timeStr.split(" ");
@@ -166,6 +156,9 @@ const timeStringToDate = (dateStr: string, timeStr: string): Date => {
   return date;
 };
 
+// Initialize localizer OUTSIDE the component
+const localizer = momentLocalizer(moment);
+
 const BookAppointment = ({
   customer,
   existingAppointments,
@@ -177,27 +170,43 @@ const BookAppointment = ({
   // ✅ Get default times based on current time
   const defaultStartTime = getNextTimeSlot();
   const defaultEndTime = addOneHour(defaultStartTime);
+
   // ✅ Control dialog state properly
   const [dialogOpen, setDialogOpen] = useState(true);
+
   // ✅ Control Calendar popover state properly
   const [openCalendar, setOpenCalendar] = useState(false);
+
   // ✅ Control Calendar default date properly
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [month, setMonth] = useState<Date | undefined>(date);
+
   // ✅ Control Calendar date value properly
   const [value, setValue] = useState(formatDate(date));
+
   // ✅ Control Combobox state of services  properly
   const [openCombobox, setOpenCombobox] = useState(false);
+
   // ✅ Control Combobox value of services  properly
   const [valueCombobox, setValueCombobox] = useState("");
+
   // ✅ Control if time is valide  properly
   const [isTimeValid, setIsTimeValid] = useState(false);
 
+  // ✅ Control selected service properly
   const [selectedService, setSelectedService] = useState("");
+
+  // ✅ Control selected Color properly
   const [selectedColor, setSelectedColor] = useState(existingColors[0]);
+
+  // ✅ Control selected Room properly
   const [selectedRoom, setSelectedRoom] = useState("");
+
+  // ✅ Control typed Note properly
   const [notes, setNotes] = useState("");
-  const [bufferTime, setBufferTime] = useState(0); // in minutes
+
+  // ✅ Control buffer time properly
+  const [bufferTime, setBufferTime] = useState(0);
 
   // ✅ Use calculated default times
   const [startTime, setStartTime] = useState(defaultStartTime);
@@ -214,7 +223,67 @@ const BookAppointment = ({
     }));
   }, [existingAppointments]);
 
+  // ✅ Get selected service data
+  const selectedServiceInfo = useMemo(() => {
+    if (!selectedService) return null;
+    return (customer.services || []).find((svc) => svc.id === selectedService);
+  }, [customer.services, selectedService]);
+
+  // ✅ 1. When service changes, sync buffer time AND adjust end time based on duration
+  useEffect(() => {
+    if (selectedServiceInfo) {
+      // Set buffer time from service
+      if (selectedServiceInfo.bufferTime !== undefined) {
+        setBufferTime(selectedServiceInfo.bufferTime);
+      } else {
+        setBufferTime(0);
+      }
+
+      // ✅ Adjust end time based on service duration
+      if (selectedServiceInfo.duration) {
+        const newEndTime = addDuration(startTime, selectedServiceInfo.duration);
+        setEndTime(newEndTime);
+      }
+    } else {
+      setBufferTime(0);
+    }
+  }, [selectedServiceInfo, startTime]);
+
+  // ✅ 2. When start time changes, maintain service duration
+  const handleStartTimeChange = (newStartTime: string) => {
+    setStartTime(newStartTime);
+
+    // ✅ If service is selected, maintain its duration
+    if (selectedServiceInfo?.duration) {
+      const newEndTime = addDuration(
+        newStartTime,
+        selectedServiceInfo.duration
+      );
+      setEndTime(newEndTime);
+    } else {
+      // If no service, maintain current duration
+      const currentDuration = timeToMinutes(endTime) - timeToMinutes(startTime);
+      const newEndTime = addDuration(newStartTime, currentDuration);
+      setEndTime(newEndTime);
+    }
+  };
+
+  // ✅ 3. Prevent manual end time changes when service is selected
+  const handleEndTimeChange = (newEndTime: string) => {
+    // ✅ Only allow end time changes if no service is selected
+    if (!selectedServiceInfo) {
+      setEndTime(newEndTime);
+    } else {
+      // Show a message that duration is fixed by service
+      toast.info(
+        `End time is automatically set based on ${selectedServiceInfo.name} duration (${selectedServiceInfo.duration} min)`
+      );
+    }
+  };
+
   // ✅ Create draft event for real-time preview
+
+  // ✅ Create draft event with proper time calculations
   const draftEvent: CalendarEventType | null = useMemo(() => {
     if (!date || !startTime || !endTime || !selectedService) {
       return null;
@@ -224,26 +293,47 @@ const BookAppointment = ({
     const start = timeStringToDate(dateStr, startTime);
     const actualEnd = timeStringToDate(dateStr, endTime);
 
-    // Add buffer time to end
+    // ✅ Add buffer time to end (only for visual display)
     const endWithBuffer = new Date(actualEnd);
     endWithBuffer.setMinutes(endWithBuffer.getMinutes() + bufferTime);
 
+    const title = (customer.services || []).find(
+      (svc) => svc.id === selectedService
+    )?.name;
+
+    console.log("📅 Draft Event:", {
+      title,
+      start: start.toLocaleTimeString(),
+      actualEnd: actualEnd.toLocaleTimeString(),
+      endWithBuffer: endWithBuffer.toLocaleTimeString(),
+      serviceDuration: selectedServiceInfo?.duration,
+      bufferTime,
+    });
+
     return {
       id: "draft",
-      title:
-        selectedService + (bufferTime > 0 ? ` (+${bufferTime}min buffer)` : ""),
+      title: title || "Appointment",
       start,
-      end: endWithBuffer,
+      end: endWithBuffer, // Display with buffer
       actualEnd, // Store actual end without buffer
       bufferTime,
       color: selectedColor,
       isDraft: true,
     };
-  }, [date, startTime, endTime, selectedService, bufferTime, selectedColor]);
+  }, [
+    date,
+    startTime,
+    endTime,
+    selectedService,
+    bufferTime,
+    selectedColor,
+    selectedServiceInfo,
+  ]);
 
   // ✅ Combine existing and draft events
   const allEvents = useMemo(() => {
     const events = [...existingEvents];
+    console.log({ draftEvent });
     if (draftEvent) {
       events.push(draftEvent);
     }
@@ -251,37 +341,18 @@ const BookAppointment = ({
   }, [existingEvents, draftEvent]);
 
   // ✅ Event styling with buffer visualization
+  // ✅ Simplified eventPropGetter - only for colors and borders
   const eventPropGetter = useCallback((event: CalendarEventType) => {
-    const style: React.CSSProperties = {
-      backgroundColor: event.color || "#3174ad",
-      borderRadius: "5px",
-      opacity: event.isDraft ? 0.7 : 1,
-      color: "white",
-      border: event.isDraft ? "2px dashed white" : "none",
-      display: "block",
+    console.log({ event });
+    return {
+      style: {
+        // backgroundColor: event.color || "#3174ad",
+        borderRadius: "5px",
+        color: "white",
+        border: event.isDraft ? "2px dashed rgba(255, 255, 255, 0.9)" : "none",
+        opacity: event.isDraft ? 0.85 : 1,
+      },
     };
-
-    // ✅ If event has buffer time, add gradient background
-    if (event.bufferTime && event.bufferTime > 0 && event.actualEnd) {
-      const totalDuration = event.end.getTime() - event.start.getTime();
-      const actualDuration = event.actualEnd.getTime() - event.start.getTime();
-      const bufferPercentage =
-        ((totalDuration - actualDuration) / totalDuration) * 100;
-
-      style.background = `linear-gradient(to bottom, 
-            ${event.color || "#3174ad"} 0%, 
-            ${event.color || "#3174ad"} ${100 - bufferPercentage}%, 
-            repeating-linear-gradient(
-              45deg,
-              ${event.color || "#3174ad"}80,
-              ${event.color || "#3174ad"}80 10px,
-              ${event.color || "#3174ad"}40 10px,
-              ${event.color || "#3174ad"}40 20px
-            ) ${100 - bufferPercentage}%
-          )`;
-    }
-
-    return { style };
   }, []);
 
   // ✅ Handle date change - sync with calendar
@@ -298,14 +369,6 @@ const BookAppointment = ({
   const handleCalendarNavigate = (newDate: Date) => {
     setCalendarDate(newDate);
   };
-
-  // Calculate actual end time with buffer
-  const actualEndTime = endTime;
-  const endWithBuffer = dayjs(
-    timeStringToDate(formatDateToString(date), endTime)
-  )
-    .add(bufferTime, "minute")
-    .format("hh:mm A");
 
   // handle sunmit the appointment after getting all data
   const handleSubmit = () => {
@@ -335,6 +398,8 @@ const BookAppointment = ({
     setEndTime("10:00 AM");
   };
 
+  console.log({ selectedService });
+  console.log(customer.services);
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <form className="w-full ">
@@ -363,10 +428,6 @@ const BookAppointment = ({
                   onNavigate={handleCalendarNavigate}
                   popup
                   style={{ height: "100%" }}
-                  // formats={{
-                  //   timeGutterFormat: (date, culture, localizer: any) =>
-                  //     localizer.format(date, "h a", culture), // 👈 "12 AM" instead of "12:00 AM"
-                  // }}
                   startAccessor="start"
                   endAccessor="end"
                   step={15} // each slot = 15 minutes
@@ -378,13 +439,17 @@ const BookAppointment = ({
                       localizer.format(date, "h A", culture),
                   }}
                   toolbar={true}
+                  // ✅ ADD THIS - Use custom event component
+                  components={{
+                    event: BufferEventComponent,
+                  }}
                 />
               </div>
             </div>
 
-            <div className="grid gap-8 flex-1">
+            <div className="grid gap-8 flex-1 h-fit">
               {/* Service selector */}
-              <div className="flex  items-start flex-col gap-6 w-full">
+              <div className="flex  items-start flex-col gap-4 w-full">
                 <div className="flex  items-center gap-6 w-full">
                   <div>
                     <ColorPicker
@@ -394,22 +459,23 @@ const BookAppointment = ({
                     />
                   </div>
 
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 w-full">
                     <Select
                       value={selectedService}
                       onValueChange={setSelectedService}
                     >
-                      <SelectTrigger className="flex-1">
+                      <SelectTrigger className="flex-1 w-full!">
                         <SelectValue placeholder="Select service..." />
                       </SelectTrigger>
                       <SelectContent>
                         {(customer.services || []).map((service) => (
-                          <SelectItem key={service.id} value={service.name}>
+                          <SelectItem key={service.id} value={service.id}>
                             {service.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
+
                     {false && (
                       <Popover
                         open={openCombobox}
@@ -478,7 +544,134 @@ const BookAppointment = ({
                   </div>
                 </div>
 
-                <div className="info">Infoooooooooo</div>
+                {false && (
+                  <div className="info ml-14 w-full">
+                    {(() => {
+                      const service = (customer.services || []).find(
+                        (svc) => svc.id === selectedService
+                      );
+
+                      // if (!service) {
+                      //   return (
+                      //     <p className="text-sm text-muted-foreground">
+                      //       No service selected
+                      //     </p>
+                      //   );
+                      // }
+                      return (
+                        <div className="space-y-1 flex items-center w-full gap-7 text-lg">
+                          <div className="flex items-center min-w-0 gap-7">
+                            {service && service.price && (
+                              <p className="text-muted-foreground">
+                                Cost: $ {service.price}
+                              </p>
+                            )}
+                            {service && service.duration && (
+                              <p className="text-muted-foreground">
+                                Duration: {service.duration} min
+                              </p>
+                            )}
+                          </div>
+
+                          {/* ✅ Buffer Time */}
+                          {!!bufferTime && (
+                            <div className="flex items-center gap-6">
+                              <p className="text-muted-foreground">Buffer:</p>
+                              <div className="flex flex-col min-w-0 gap-2">
+                                <Select
+                                  value={bufferTime.toString()}
+                                  onValueChange={(value) =>
+                                    setBufferTime(parseInt(value))
+                                  }
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="0">No buffer</SelectItem>
+                                    <SelectItem value="15">
+                                      15 minutes
+                                    </SelectItem>
+                                    <SelectItem value="30">
+                                      30 minutes
+                                    </SelectItem>
+                                    <SelectItem value="45">
+                                      45 minutes
+                                    </SelectItem>
+                                    <SelectItem value="60">
+                                      60 minutes
+                                    </SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                {/* {bufferTime > 0 && (
+                                <p className="text-xs text-muted-foreground">
+                                  Total time:{" "}
+                                  {timeToMinutes(endTime) -
+                                    timeToMinutes(startTime) +
+                                    bufferTime}{" "}
+                                  minutes (includes {bufferTime}min buffer)
+                                </p>
+                              )} */}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+
+                {/* Service Info */}
+                <div className="info ml-14 w-full">
+                  {selectedServiceInfo ? (
+                    <div className="space-y-1 flex items-center w-full gap-7 text-sm">
+                      <div className="flex items-center gap-7">
+                        {selectedServiceInfo.price && (
+                          <p className="text-muted-foreground">
+                            Cost: ${selectedServiceInfo.price}
+                          </p>
+                        )}
+                        {selectedServiceInfo.duration && (
+                          <p className="text-muted-foreground flex items-center gap-1">
+                            <Clock className="h-4 w-4" />
+                            Duration: {selectedServiceInfo.duration} min
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Buffer Time */}
+                      {bufferTime > 0 && (
+                        <div className="flex items-center gap-3">
+                          <p className="text-muted-foreground flex items-center gap-1">
+                            <Timer className="h-4 w-4" />
+                            Buffer:
+                          </p>
+                          <Select
+                            value={bufferTime.toString()}
+                            onValueChange={(value) =>
+                              setBufferTime(parseInt(value))
+                            }
+                          >
+                            <SelectTrigger className="w-32">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="0">No buffer</SelectItem>
+                              <SelectItem value="15">15 min</SelectItem>
+                              <SelectItem value="30">30 min</SelectItem>
+                              <SelectItem value="45">45 min</SelectItem>
+                              <SelectItem value="60">60 min</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground italic ml-0">
+                      Select a service to see details
+                    </p>
+                  )}
+                </div>
               </div>
 
               {/* Date and Time */}
@@ -499,12 +692,6 @@ const BookAppointment = ({
                           handleDateChange(newDate);
                         }
                       }}
-                      // onKeyDown={(e) => {
-                      //   if (e.key === "ArrowDown") {
-                      //     e.preventDefault();
-                      //     setOpenCalendar(true);
-                      //   }
-                      // }}
                     />
                     <Popover open={openCalendar} onOpenChange={setOpenCalendar}>
                       <PopoverTrigger asChild>
@@ -547,47 +734,36 @@ const BookAppointment = ({
                     endTime={endTime}
                     selectedDate={formatDateToString(date)}
                     appointments={existingAppointments}
-                    onStartTimeChange={setStartTime}
-                    onEndTimeChange={setEndTime}
+                    onStartTimeChange={handleStartTimeChange}
+                    onEndTimeChange={handleEndTimeChange}
                     onValidationChange={setIsTimeValid}
+                    isEndTimeDisabled={!!selectedServiceInfo}
                   />
                 </div>
               </div>
 
-              {/* ✅ Buffer Time */}
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <Timer className="h-4 w-4" />
-                  Buffer Time (minutes)
-                </Label>
-                <Select
-                  value={bufferTime.toString()}
-                  onValueChange={(value) => setBufferTime(parseInt(value))}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="0">No buffer</SelectItem>
-                    <SelectItem value="15">15 minutes</SelectItem>
-                    <SelectItem value="30">30 minutes</SelectItem>
-                    <SelectItem value="45">45 minutes</SelectItem>
-                    <SelectItem value="60">60 minutes</SelectItem>
-                  </SelectContent>
-                </Select>
-                {bufferTime > 0 && (
-                  <p className="text-xs text-muted-foreground">
-                    Total time:{" "}
-                    {timeToMinutes(endTime) -
-                      timeToMinutes(startTime) +
-                      bufferTime}{" "}
-                    minutes (includes {bufferTime}min buffer shown with stripes)
-                  </p>
-                )}
-              </div>
+               {/* ✅ Show duration info */}
+              {selectedServiceInfo && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/30 p-3 rounded-md">
+                  <Clock className="h-3 w-3" />
+                  <span>
+                    Appointment duration is fixed at{" "}
+                    <strong>{selectedServiceInfo.duration} minutes</strong>
+                    {bufferTime > 0 && (
+                      <>
+                        {" "}
+                        + <strong>{bufferTime} min buffer</strong> ={" "}
+                        <strong>
+                          {selectedServiceInfo.duration + bufferTime} min total
+                        </strong>
+                      </>
+                    )}
+                  </span>
+                </div>
+              )}
 
               {/* Guest */}
-              <div className="flex  items-center gap-6">
+              <div className="flex items-center gap-6">
                 <UserStar />
                 <div className="flex  items-center gap-2">
                   <Avatar>
@@ -602,7 +778,7 @@ const BookAppointment = ({
               </div>
 
               {/* Room */}
-              <div className="flex  items-center gap-6">
+              <div className="flex items-center gap-6">
                 <House />
                 <div className="flex  items-center gap-2 w-full">
                   <Select value={selectedRoom} onValueChange={setSelectedRoom}>
@@ -622,7 +798,7 @@ const BookAppointment = ({
               </div>
 
               {/* Note */}
-              <div className="flex  items-center gap-6 w-full">
+              <div className="flex items-center gap-6 w-full">
                 <NotebookPen />
                 <Textarea
                   placeholder="Notes to provider and guest(s)"
@@ -631,7 +807,7 @@ const BookAppointment = ({
               </div>
 
               {/* Creator */}
-              <div className="flex  items-center gap-6">
+              <div className="flex items-center gap-6">
                 <Avatar>
                   <AvatarImage
                     src="https://github.com/shadcn.png"

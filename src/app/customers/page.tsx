@@ -122,6 +122,8 @@ const page = () => {
           totalSessions: 10,
           remainingSessions: 6,
           price: 450,
+          duration: 60,
+          bufferTime:30,
 
           purchaseDate: new Date("2025-08-15T10:30:00"),
           expiryDate: new Date("2025-11-19T10:30:00"),
@@ -137,7 +139,8 @@ const page = () => {
           remainingSessions: 3,
           purchaseDate: new Date("2025-09-01T10:30:00"),
           expiryDate: new Date("2025-11-30T10:30:00"),
-
+          duration: 120,
+          bufferTime:30,
           price: 380,
           status: "active",
           description: "90-minute full body relaxation sessions",
@@ -151,6 +154,9 @@ const page = () => {
           purchaseDate: new Date("2025-11-13T10:30:00"),
           expiryDate: new Date("2025-02-13T10:30:00"),
 
+          duration: 30,
+          bufferTime:15,
+
           price: 599,
           status: "active",
           description: "Mix of massages, facials, and spa treatments",
@@ -163,6 +169,8 @@ const page = () => {
           remainingSessions: 0,
           purchaseDate: new Date("2024-08-01T10:30:00"),
           expiryDate: new Date("2024-11-01T10:30:00"),
+          duration: 60,
+          bufferTime:15,
 
           price: 270,
           status: "expired",
@@ -176,6 +184,8 @@ const page = () => {
           remainingSessions: 2,
           purchaseDate: new Date("2024-10-15T10:30:00"),
           expiryDate: new Date("2025-01-15T10:30:00"),
+          duration: 90,
+          bufferTime:15,
 
           price: 299,
           status: "active",

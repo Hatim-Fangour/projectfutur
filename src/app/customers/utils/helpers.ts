@@ -93,8 +93,8 @@ export const generateTimeSlots = (
     start: string;
     end: string;
   } = {
-    start: "08:00 AM",
-    end: "08:00 PM",
+    start: BUSINESS_HOURS.start,
+    end: BUSINESS_HOURS.end,
   }
 ) => {
   const slots: string[] = [];
