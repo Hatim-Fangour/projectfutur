@@ -17,6 +17,7 @@ const BufferEventComponent: React.FC<EventProps<CalendarEventType>> = ({
   });
 
   // ✅ If no buffer, render simple event
+
   if (!hasBuffer) {
     return (
       <div
@@ -132,7 +133,7 @@ const BufferEventComponent: React.FC<EventProps<CalendarEventType>> = ({
               marginTop: "2px",
             }}
           >
-            Preview
+            {event.title}
           </div>
         )}
       </div>

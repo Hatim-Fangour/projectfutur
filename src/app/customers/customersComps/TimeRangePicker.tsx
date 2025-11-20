@@ -188,7 +188,6 @@ const TimeRangePicker = ({
           <Select
             value={endTime}
             onValueChange={handleEndTimeChange}
-            // disabled={validEndTimes.length === 0}
              disabled={isEndTimeDisabled || validEndTimes.length === 0} // ✅ Disable if needed
           >
             <SelectTrigger id="end-time" className="font-mono">

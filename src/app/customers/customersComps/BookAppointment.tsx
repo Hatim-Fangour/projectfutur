@@ -7,6 +7,7 @@ import {
   Event as CalendarEvent,
 } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import "./../style/CalendarStyle.scss";
 import {
   CalendarIcon,
   Check,
@@ -417,7 +418,7 @@ const BookAppointment = ({
           <div className="flex w-full gap-8 h-[80%] ">
             {/* Big Calendar */}
             <div className="flex-2">
-              <div className={`calendar-container h-full month-view`}>
+              <div className={`customer-calendar-container h-full day-view`}>
                 <BigCalendar
                   defaultView={Views.DAY}
                   view={Views.DAY}
@@ -447,163 +448,166 @@ const BookAppointment = ({
               </div>
             </div>
 
-            <div className="grid gap-8 flex-1 h-fit">
-              {/* Service selector */}
-              <div className="flex  items-start flex-col gap-4 w-full">
-                <div className="flex  items-center gap-6 w-full">
-                  <div>
-                    <ColorPicker
-                      eventColors={existingColors}
-                      selectedColor={existingColors[0]}
-                      onColorChange={setSelectedColor}
-                    />
-                  </div>
+            {true && (
+              <div className="grid gap-8 flex-1 h-fit">
+                {/* Service selector */}
+                <div className="flex  items-start flex-col gap-4 w-full">
+                  <div className="flex  items-center gap-6 w-full">
+                    <div>
+                      <ColorPicker
+                        eventColors={existingColors}
+                        selectedColor={existingColors[0]}
+                        onColorChange={setSelectedColor}
+                      />
+                    </div>
 
-                  <div className="flex-1 min-w-0 w-full">
-                    <Select
-                      value={selectedService}
-                      onValueChange={setSelectedService}
-                    >
-                      <SelectTrigger className="flex-1 w-full!">
-                        <SelectValue placeholder="Select service..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(customer.services || []).map((service) => (
-                          <SelectItem key={service.id} value={service.id}>
-                            {service.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-
-                    {false && (
-                      <Popover
-                        open={openCombobox}
-                        onOpenChange={setOpenCombobox}
+                    <div className="flex-1 min-w-0 w-full">
+                      <Select
+                        value={selectedService}
+                        onValueChange={setSelectedService}
                       >
-                        <PopoverTrigger asChild className="flex">
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            aria-expanded={openCombobox}
-                            className="w-full justify-between"
-                          >
-                            {valueCombobox
-                              ? (customer.services || []).find(
-                                  (service) => service.name === valueCombobox
-                                )?.name
-                              : "Select service..."}
-                            <ChevronsUpDown className="opacity-50" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent
-                          className="p-0" // ✅ Add these props to fix z-index issue
-                          // modal={true}
-                          style={{ zIndex: 9999 }}
+                        <SelectTrigger className="flex-1 w-full!">
+                          <SelectValue placeholder="Select service..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {(customer.services || []).map((service) => (
+                            <SelectItem key={service.id} value={service.id}>
+                              {service.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      {false && (
+                        <Popover
+                          open={openCombobox}
+                          onOpenChange={setOpenCombobox}
                         >
-                          <Command>
-                            <CommandInput
-                              placeholder="Search service..."
-                              className="h-9"
-                            />
-                            <CommandList>
-                              <CommandEmpty>No framework found.</CommandEmpty>
-                              <CommandGroup>
-                                {(customer.services || []).map((service) => (
-                                  <CommandItem
-                                    key={service.id}
-                                    value={service.name}
-                                    onSelect={(currentValue) => {
-                                      console.log({ currentValue });
-                                      console.log({ valueCombobox });
-                                      setValueCombobox(
-                                        currentValue === valueCombobox
-                                          ? ""
-                                          : currentValue
-                                      );
-                                      setOpenCombobox(false);
-                                    }}
-                                  >
-                                    {service.name}
-                                    <Check
-                                      className={cn(
-                                        "ml-auto",
-                                        valueCombobox === service.name
-                                          ? "opacity-100"
-                                          : "opacity-0"
-                                      )}
-                                    />
-                                  </CommandItem>
-                                ))}
-                              </CommandGroup>
-                            </CommandList>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                    )}
+                          <PopoverTrigger asChild className="flex">
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              aria-expanded={openCombobox}
+                              className="w-full justify-between"
+                            >
+                              {valueCombobox
+                                ? (customer.services || []).find(
+                                    (service) => service.name === valueCombobox
+                                  )?.name
+                                : "Select service..."}
+                              <ChevronsUpDown className="opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent
+                            className="p-0" // ✅ Add these props to fix z-index issue
+                            // modal={true}
+                            style={{ zIndex: 9999 }}
+                          >
+                            <Command>
+                              <CommandInput
+                                placeholder="Search service..."
+                                className="h-9"
+                              />
+                              <CommandList>
+                                <CommandEmpty>No framework found.</CommandEmpty>
+                                <CommandGroup>
+                                  {(customer.services || []).map((service) => (
+                                    <CommandItem
+                                      key={service.id}
+                                      value={service.name}
+                                      onSelect={(currentValue) => {
+                                        console.log({ currentValue });
+                                        console.log({ valueCombobox });
+                                        setValueCombobox(
+                                          currentValue === valueCombobox
+                                            ? ""
+                                            : currentValue
+                                        );
+                                        setOpenCombobox(false);
+                                      }}
+                                    >
+                                      {service.name}
+                                      <Check
+                                        className={cn(
+                                          "ml-auto",
+                                          valueCombobox === service.name
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        )}
+                                      />
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                {false && (
-                  <div className="info ml-14 w-full">
-                    {(() => {
-                      const service = (customer.services || []).find(
-                        (svc) => svc.id === selectedService
-                      );
+                  {false && (
+                    <div className="info ml-14 w-full">
+                      {(() => {
+                        const service = (customer.services || []).find(
+                          (svc) => svc.id === selectedService
+                        );
 
-                      // if (!service) {
-                      //   return (
-                      //     <p className="text-sm text-muted-foreground">
-                      //       No service selected
-                      //     </p>
-                      //   );
-                      // }
-                      return (
-                        <div className="space-y-1 flex items-center w-full gap-7 text-lg">
-                          <div className="flex items-center min-w-0 gap-7">
-                            {service && service.price && (
-                              <p className="text-muted-foreground">
-                                Cost: $ {service.price}
-                              </p>
-                            )}
-                            {service && service.duration && (
-                              <p className="text-muted-foreground">
-                                Duration: {service.duration} min
-                              </p>
-                            )}
-                          </div>
+                        // if (!service) {
+                        //   return (
+                        //     <p className="text-sm text-muted-foreground">
+                        //       No service selected
+                        //     </p>
+                        //   );
+                        // }
+                        return (
+                          <div className="space-y-1 flex items-center w-full gap-7 text-lg">
+                            <div className="flex items-center min-w-0 gap-7">
+                              {service && service.price && (
+                                <p className="text-muted-foreground">
+                                  Cost: $ {service.price}
+                                </p>
+                              )}
+                              {service && service.duration && (
+                                <p className="text-muted-foreground">
+                                  Duration: {service.duration} min
+                                </p>
+                              )}
+                            </div>
 
-                          {/* ✅ Buffer Time */}
-                          {!!bufferTime && (
-                            <div className="flex items-center gap-6">
-                              <p className="text-muted-foreground">Buffer:</p>
-                              <div className="flex flex-col min-w-0 gap-2">
-                                <Select
-                                  value={bufferTime.toString()}
-                                  onValueChange={(value) =>
-                                    setBufferTime(parseInt(value))
-                                  }
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="0">No buffer</SelectItem>
-                                    <SelectItem value="15">
-                                      15 minutes
-                                    </SelectItem>
-                                    <SelectItem value="30">
-                                      30 minutes
-                                    </SelectItem>
-                                    <SelectItem value="45">
-                                      45 minutes
-                                    </SelectItem>
-                                    <SelectItem value="60">
-                                      60 minutes
-                                    </SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                {/* {bufferTime > 0 && (
+                            {/* ✅ Buffer Time */}
+                            {!!bufferTime && (
+                              <div className="flex items-center gap-6">
+                                <p className="text-muted-foreground">Buffer:</p>
+                                <div className="flex flex-col min-w-0 gap-2">
+                                  <Select
+                                    value={bufferTime.toString()}
+                                    onValueChange={(value) =>
+                                      setBufferTime(parseInt(value))
+                                    }
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="0">
+                                        No buffer
+                                      </SelectItem>
+                                      <SelectItem value="15">
+                                        15 minutes
+                                      </SelectItem>
+                                      <SelectItem value="30">
+                                        30 minutes
+                                      </SelectItem>
+                                      <SelectItem value="45">
+                                        45 minutes
+                                      </SelectItem>
+                                      <SelectItem value="60">
+                                        60 minutes
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  {/* {bufferTime > 0 && (
                                 <p className="text-xs text-muted-foreground">
                                   Total time:{" "}
                                   {timeToMinutes(endTime) -
@@ -612,160 +616,209 @@ const BookAppointment = ({
                                   minutes (includes {bufferTime}min buffer)
                                 </p>
                               )} */}
+                                </div>
                               </div>
-                            </div>
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
+
+                  {/* Service Info */}
+                  <div className="info ml-14 w-full">
+                    {selectedServiceInfo ? (
+                      <div className="space-y-1 flex items-center w-full gap-7 text-sm">
+                        <div className="flex items-center gap-7">
+                          {selectedServiceInfo.price && (
+                            <p className="text-muted-foreground">
+                              Cost: ${selectedServiceInfo.price}
+                            </p>
+                          )}
+                          {selectedServiceInfo.duration && (
+                            <p className="text-muted-foreground flex items-center gap-1">
+                              <Clock className="h-4 w-4" />
+                              Duration: {selectedServiceInfo.duration} min
+                            </p>
                           )}
                         </div>
-                      );
-                    })()}
+
+                        {/* Buffer Time */}
+                        {bufferTime > 0 && (
+                          <div className="flex items-center gap-3">
+                            <p className="text-muted-foreground flex items-center gap-1">
+                              <Timer className="h-4 w-4" />
+                              Buffer:
+                            </p>
+                            <Select
+                              value={bufferTime.toString()}
+                              onValueChange={(value) =>
+                                setBufferTime(parseInt(value))
+                              }
+                            >
+                              <SelectTrigger className="w-32">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="0">No buffer</SelectItem>
+                                <SelectItem value="15">15 min</SelectItem>
+                                <SelectItem value="30">30 min</SelectItem>
+                                <SelectItem value="45">45 min</SelectItem>
+                                <SelectItem value="60">60 min</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground italic ml-0">
+                        Select a service to see details
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Date and Time */}
+                <div className="flex items-center gap-6 w-full">
+                  <Clock />
+                  {/* date */}
+                  <div className="flex-1 min-w-0">
+                    <div className="relative flex gap-2 w-[200px]">
+                      <Input
+                        id="date"
+                        value={value}
+                        placeholder="June 01, 2025"
+                        className="bg-background pr-10"
+                        onChange={(e) => {
+                          setValue(e.target.value);
+                          const newDate = new Date(e.target.value);
+                          if (isValidDate(newDate)) {
+                            handleDateChange(newDate);
+                          }
+                        }}
+                      />
+                      <Popover
+                        open={openCalendar}
+                        onOpenChange={setOpenCalendar}
+                      >
+                        <PopoverTrigger asChild>
+                          <Button
+                            id="date-picker"
+                            variant="ghost"
+                            className="absolute top-1/2 right-2 size-6 -translate-y-1/2"
+                          >
+                            <CalendarIcon className="size-3.5" />
+                            <span className="sr-only">Select date</span>
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          className="w-auto overflow-hidden p-0"
+                          align="end"
+                          alignOffset={-8}
+                          sideOffset={10}
+                        >
+                          <Calendar
+                            mode="single"
+                            selected={date}
+                            captionLayout="dropdown"
+                            disabled={{ before: new Date() }}
+                            month={month}
+                            onMonthChange={setMonth}
+                            onSelect={(newDate) => {
+                              handleDateChange(newDate);
+                              setOpenCalendar(false);
+                            }}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  </div>
+
+                  {/* Time */}
+                  <div className="ml-6">
+                    <TimeRangePicker
+                      startTime={startTime}
+                      endTime={endTime}
+                      selectedDate={formatDateToString(date)}
+                      appointments={existingAppointments}
+                      onStartTimeChange={handleStartTimeChange}
+                      onEndTimeChange={handleEndTimeChange}
+                      onValidationChange={setIsTimeValid}
+                      isEndTimeDisabled={!!selectedServiceInfo}
+                    />
+                  </div>
+                </div>
+
+                {/* ✅ Show duration info */}
+                {selectedServiceInfo && (
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/30 p-3 rounded-md">
+                    <Clock className="h-3 w-3" />
+                    <span>
+                      Appointment duration is fixed at{" "}
+                      <strong>{selectedServiceInfo.duration} minutes</strong>
+                      {bufferTime > 0 && (
+                        <>
+                          {" "}
+                          + <strong>{bufferTime} min buffer</strong> ={" "}
+                          <strong>
+                            {selectedServiceInfo.duration + bufferTime} min
+                            total
+                          </strong>
+                        </>
+                      )}
+                    </span>
                   </div>
                 )}
 
-                {/* Service Info */}
-                <div className="info ml-14 w-full">
-                  {selectedServiceInfo ? (
-                    <div className="space-y-1 flex items-center w-full gap-7 text-sm">
-                      <div className="flex items-center gap-7">
-                        {selectedServiceInfo.price && (
-                          <p className="text-muted-foreground">
-                            Cost: ${selectedServiceInfo.price}
-                          </p>
-                        )}
-                        {selectedServiceInfo.duration && (
-                          <p className="text-muted-foreground flex items-center gap-1">
-                            <Clock className="h-4 w-4" />
-                            Duration: {selectedServiceInfo.duration} min
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Buffer Time */}
-                      {bufferTime > 0 && (
-                        <div className="flex items-center gap-3">
-                          <p className="text-muted-foreground flex items-center gap-1">
-                            <Timer className="h-4 w-4" />
-                            Buffer:
-                          </p>
-                          <Select
-                            value={bufferTime.toString()}
-                            onValueChange={(value) =>
-                              setBufferTime(parseInt(value))
-                            }
-                          >
-                            <SelectTrigger className="w-32">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="0">No buffer</SelectItem>
-                              <SelectItem value="15">15 min</SelectItem>
-                              <SelectItem value="30">30 min</SelectItem>
-                              <SelectItem value="45">45 min</SelectItem>
-                              <SelectItem value="60">60 min</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground italic ml-0">
-                      Select a service to see details
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Date and Time */}
-              <div className="flex items-center gap-6 w-full">
-                <Clock />
-                {/* date */}
-                <div className="flex-1 min-w-0">
-                  <div className="relative flex gap-2 w-[200px]">
-                    <Input
-                      id="date"
-                      value={value}
-                      placeholder="June 01, 2025"
-                      className="bg-background pr-10"
-                      onChange={(e) => {
-                        setValue(e.target.value);
-                        const newDate = new Date(e.target.value);
-                        if (isValidDate(newDate)) {
-                          handleDateChange(newDate);
-                        }
-                      }}
-                    />
-                    <Popover open={openCalendar} onOpenChange={setOpenCalendar}>
-                      <PopoverTrigger asChild>
-                        <Button
-                          id="date-picker"
-                          variant="ghost"
-                          className="absolute top-1/2 right-2 size-6 -translate-y-1/2"
-                        >
-                          <CalendarIcon className="size-3.5" />
-                          <span className="sr-only">Select date</span>
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent
-                        className="w-auto overflow-hidden p-0"
-                        align="end"
-                        alignOffset={-8}
-                        sideOffset={10}
-                      >
-                        <Calendar
-                          mode="single"
-                          selected={date}
-                          captionLayout="dropdown"
-                          disabled={{ before: new Date() }}
-                          month={month}
-                          onMonthChange={setMonth}
-                          onSelect={(newDate) => {
-                            handleDateChange(newDate);
-                            setOpenCalendar(false);
-                          }}
-                        />
-                      </PopoverContent>
-                    </Popover>
+                {/* Guest */}
+                <div className="flex items-center gap-6">
+                  <UserStar />
+                  <div className="flex  items-center gap-2">
+                    <Avatar>
+                      <AvatarImage
+                        src="https://github.com/shadcn.png"
+                        alt="@shadcn"
+                      />
+                      <AvatarFallback>CN</AvatarFallback>
+                    </Avatar>
+                    <span>{customer.fullName}</span>
                   </div>
                 </div>
 
-                {/* Time */}
-                <div className="ml-6">
-                  <TimeRangePicker
-                    startTime={startTime}
-                    endTime={endTime}
-                    selectedDate={formatDateToString(date)}
-                    appointments={existingAppointments}
-                    onStartTimeChange={handleStartTimeChange}
-                    onEndTimeChange={handleEndTimeChange}
-                    onValidationChange={setIsTimeValid}
-                    isEndTimeDisabled={!!selectedServiceInfo}
+                {/* Room */}
+                <div className="flex items-center gap-6">
+                  <House />
+                  <div className="flex  items-center gap-2 w-full">
+                    <Select
+                      value={selectedRoom}
+                      onValueChange={setSelectedRoom}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a room" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="a">A</SelectItem>
+                          <SelectItem value="b">B</SelectItem>
+                          <SelectItem value="c">C</SelectItem>
+                          <SelectItem value="d">D</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Note */}
+                <div className="flex items-center gap-6 w-full">
+                  <NotebookPen />
+                  <Textarea
+                    placeholder="Notes to provider and guest(s)"
+                    className="w-full"
                   />
                 </div>
-              </div>
 
-               {/* ✅ Show duration info */}
-              {selectedServiceInfo && (
-                <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/30 p-3 rounded-md">
-                  <Clock className="h-3 w-3" />
-                  <span>
-                    Appointment duration is fixed at{" "}
-                    <strong>{selectedServiceInfo.duration} minutes</strong>
-                    {bufferTime > 0 && (
-                      <>
-                        {" "}
-                        + <strong>{bufferTime} min buffer</strong> ={" "}
-                        <strong>
-                          {selectedServiceInfo.duration + bufferTime} min total
-                        </strong>
-                      </>
-                    )}
-                  </span>
-                </div>
-              )}
-
-              {/* Guest */}
-              <div className="flex items-center gap-6">
-                <UserStar />
-                <div className="flex  items-center gap-2">
+                {/* Creator */}
+                <div className="flex items-center gap-6">
                   <Avatar>
                     <AvatarImage
                       src="https://github.com/shadcn.png"
@@ -773,51 +826,10 @@ const BookAppointment = ({
                     />
                     <AvatarFallback>CN</AvatarFallback>
                   </Avatar>
-                  <span>{customer.fullName}</span>
+                  <span>Hatim Fangour</span>
                 </div>
               </div>
-
-              {/* Room */}
-              <div className="flex items-center gap-6">
-                <House />
-                <div className="flex  items-center gap-2 w-full">
-                  <Select value={selectedRoom} onValueChange={setSelectedRoom}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select a room" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="a">A</SelectItem>
-                        <SelectItem value="b">B</SelectItem>
-                        <SelectItem value="c">C</SelectItem>
-                        <SelectItem value="d">D</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {/* Note */}
-              <div className="flex items-center gap-6 w-full">
-                <NotebookPen />
-                <Textarea
-                  placeholder="Notes to provider and guest(s)"
-                  className="w-full"
-                />
-              </div>
-
-              {/* Creator */}
-              <div className="flex items-center gap-6">
-                <Avatar>
-                  <AvatarImage
-                    src="https://github.com/shadcn.png"
-                    alt="@shadcn"
-                  />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-                <span>Hatim Fangour</span>
-              </div>
-            </div>
+            )}
           </div>
           <DialogFooter>
             <DialogClose asChild>

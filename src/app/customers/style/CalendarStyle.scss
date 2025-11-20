@@ -1,0 +1,339 @@
+@import "./../../calendar/style/variables";
+
+.customer-calendar-container {
+  height: 100%;
+  //   padding: 20px;
+  box-sizing: border-box;
+}
+
+.customer-calendar-container {
+  .rbc-toolbar {
+    .rbc-btn-group {
+      display: none;
+    }
+    .rbc-toolbar-label {
+      font-size: 25px;
+    }
+  }
+
+  .rbc-time-view {
+    border: none;
+    .rbc-time-header {
+      margin-right: 0 !important;
+      .rbc-time-header-gutter {
+        border: none;
+        // background-color: red;
+        width: 51.4125px;
+        min-width: 51.4125px;
+        max-width: 51.4125px;
+      }
+      .rbc-time-header-content {
+        border-color: rgba(134, 134, 134, 0.11);
+
+        // background-color: red;
+
+        .rbc-time-header-cell {
+          .rbc-header {
+            // border: none;
+
+            .rbc-button-link {
+              font-size: 90%x;
+              // color: red;
+              font-weight: bold;
+            }
+            // &.rbc-today {
+            //   // background-color: blue;
+            // }
+          }
+        }
+
+        .rbc-allday-cell {
+          .rbc-day-bg.rbc-today {
+            background-color: rgba(95, 95, 95, 0.16);
+          }
+          .rbc-row-content {
+            .rbc-row {
+              .rbc-row-segment {
+                .rbc-event.timeOffEvent.rbc-event-allday {
+                  &.timeOffEvent {
+                    background-color: $rbc-event-bgc-1;
+                    position: relative;
+                    overflow: hidden;
+
+                    &::before {
+                      position: absolute;
+                      left: 0;
+                      top: 0;
+                      content: "";
+                      background-color: $rbc-event-brdr-color-1;
+                      width: 10px;
+                      height: 100%;
+                      // z-index: 999;
+                    }
+
+                    .rbc-event-content {
+                      color: black;
+                      background-color: transparent;
+                      padding-left: 10px;
+                    }
+
+                    &.rbc-selected {
+                      background-color: $rbc-event-content-selected-bgc-1;
+                      z-index: 999;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      .rbc-label.rbc-time-header-gutter {
+        width: 58.9444px;
+        min-width: 46.9444px;
+        max-width: 74.9444px;
+      }
+
+      &.rbc-overflowing {
+        border-right: 1px solid #dddddd52;
+      }
+    }
+
+    .rbc-time-content {
+      // border: none;
+      // padding-right: 10px;
+      border-top: 1px solid #dddddd4e;
+      border-bottom: 1px solid #dddddd4e;
+      &::-webkit-scrollbar {
+        width: 5px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: #acabab;
+        border-radius: 4px;
+      }
+
+      &::-webkit-scrollbar-thumb:hover {
+        background: #797979d3;
+      }
+
+      .rbc-time-gutter {
+        border-top: 1px solid transparent;
+
+        .rbc-timeslot-group {
+          border: 1px solid rgba(181, 181, 181, 0.36);
+          //   border-top: none;
+          min-height: 100px;
+
+          &:last-child {
+            border-bottom: none;
+          }
+          &:first-child {
+            border-top: 1px solid rgba(181, 181, 181, 0.36);
+            margin-top: 0px;
+          }
+          .rbc-time-slot {
+            margin-top: 5px;
+          }
+        }
+      }
+
+      .rbc-day-slot {
+        border: none;
+        margin-top: 1;
+        // background-color: transparent;
+        &.rbc-now.rbc-today {
+          background-color: rgba(95, 95, 95, 0.16);
+        }
+
+        .rbc-timeslot-group {
+          border: none;
+
+          min-height: 100px;
+          .rbc-time-slot {
+            border-color: #54545419;
+          }
+        }
+
+        .rbc-current-time-indicator {
+          background-color: #8f0202;
+        }
+
+        .rbc-events-container {
+          border-left: none;
+          border-top: none;
+        }
+      }
+    }
+  }
+}
+
+.dark .customer-calendar-container {
+  .rbc-toolbar {
+    .rbc-btn-group {
+      display: none;
+    }
+    .rbc-toolbar-label {
+      font-size: 25px;
+    }
+  }
+
+  .rbc-time-view {
+    border: none;
+    .rbc-time-header {
+      margin-right: 0 !important;
+      .rbc-time-header-gutter {
+        border: none;
+        // background-color: red;
+        width: 51.4125px;
+        min-width: 51.4125px;
+        max-width: 51.4125px;
+      }
+      .rbc-time-header-content {
+        border-color: rgba(134, 134, 134, 0.11);
+
+        // background-color: red;
+
+        .rbc-time-header-cell {
+          .rbc-header {
+            // border: none;
+
+            .rbc-button-link {
+              font-size: 90%x;
+              // color: red;
+              font-weight: bold;
+            }
+            // &.rbc-today {
+            //   // background-color: blue;
+            // }
+          }
+        }
+
+        .rbc-allday-cell {
+          .rbc-day-bg.rbc-today {
+            background-color: rgba(95, 95, 95, 0.16);
+          }
+          .rbc-row-content {
+            .rbc-row {
+              .rbc-row-segment {
+                .rbc-event.timeOffEvent.rbc-event-allday {
+                  &.timeOffEvent {
+                    background-color: $rbc-event-bgc-1;
+                    position: relative;
+                    overflow: hidden;
+
+                    &::before {
+                      position: absolute;
+                      left: 0;
+                      top: 0;
+                      content: "";
+                      background-color: $rbc-event-brdr-color-1;
+                      width: 10px;
+                      height: 100%;
+                      // z-index: 999;
+                    }
+
+                    .rbc-event-content {
+                      color: black;
+                      background-color: transparent;
+                      padding-left: 10px;
+                    }
+
+                    &.rbc-selected {
+                      background-color: $rbc-event-content-selected-bgc-1;
+                      z-index: 999;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      .rbc-label.rbc-time-header-gutter {
+        width: 58.9444px;
+        min-width: 46.9444px;
+        max-width: 74.9444px;
+      }
+
+      &.rbc-overflowing {
+        border-right: 1px solid #dddddd52;
+      }
+    }
+
+    .rbc-time-content {
+      // border: none;
+      // padding-right: 10px;
+      border-top: 1px solid #dddddd4e;
+      border-bottom: 1px solid #dddddd4e;
+      &::-webkit-scrollbar {
+        width: 5px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: #acabab;
+        border-radius: 4px;
+      }
+
+      &::-webkit-scrollbar-thumb:hover {
+        background: #797979d3;
+      }
+
+      .rbc-time-gutter {
+        border-top: none;
+
+        .rbc-timeslot-group {
+          border: 1px solid rgba(181, 181, 181, 0.36);
+          //   border-top: none;
+          min-height: 100px;
+
+          &:last-child {
+            border-bottom: none;
+          }
+          &:first-child {
+            border-top: 1px solid rgba(181, 181, 181, 0.36);
+            margin-top: 1px;
+          }
+          .rbc-time-slot {
+            margin-top: 5px;
+          }
+        }
+      }
+
+      .rbc-day-slot.rbc-now.rbc-today {
+        border: none;
+        // background-color: transparent;
+        background-color: rgba(95, 95, 95, 0.16);
+
+        .rbc-timeslot-group {
+          border: none;
+
+          min-height: 100px;
+          .rbc-time-slot {
+            border-color: #f7f7f70b;
+          }
+        }
+
+        .rbc-current-time-indicator {
+          background-color: #8f0202;
+        }
+
+        .rbc-events-container {
+          border-left: none;
+        }
+      }
+    }
+  }
+}
