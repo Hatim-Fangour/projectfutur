@@ -1,23 +1,15 @@
 // components/BufferEventComponent.tsx
 import { CalendarEventType } from "@/app/customers/Interfaces/customerInterfaces";
+import { formatToSlot } from "@/app/customers/utils/helpers";
 import React from "react";
 import { EventProps } from "react-big-calendar";
 
 const BufferEventComponent: React.FC<EventProps<CalendarEventType>> = ({
   event,
 }) => {
-  console.log("🔍 Event data:", event);
-  
   const hasBuffer = event.bufferTime && event.bufferTime > 0 && event.actualEnd;
-
-  console.log("🎨 Rendering event:", event.title, {
-    hasBuffer,
-    bufferTime: event.bufferTime,
-    actualEnd: event.actualEnd,
-  });
-
+  console.log({ event });
   // ✅ If no buffer, render simple event
-
   if (!hasBuffer) {
     return (
       <div
@@ -34,7 +26,7 @@ const BufferEventComponent: React.FC<EventProps<CalendarEventType>> = ({
           style={{
             fontWeight: 600,
             fontSize: "13px",
-            color: "white", // ✅ Explicit color
+            color: "white",
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -47,7 +39,7 @@ const BufferEventComponent: React.FC<EventProps<CalendarEventType>> = ({
           <div
             style={{
               fontSize: "11px",
-              color: "rgba(255, 255, 255, 0.9)", // ✅ Explicit color
+              color: "rgba(255, 255, 255, 0.9)",
               marginTop: "2px",
             }}
           >
@@ -58,33 +50,34 @@ const BufferEventComponent: React.FC<EventProps<CalendarEventType>> = ({
     );
   }
 
-  // ✅ Calculate buffer percentage
-  const totalMs = event.end.getTime() - event.start.getTime();
-  const actualMs = event.actualEnd!.getTime() - event.start.getTime();
-  const bufferPercent = ((totalMs - actualMs) / totalMs) * 100;
+  // ✅ Calculate percentages based on actual time durations (most accurate)
+  const totalMinutes =
+    (event.end.getTime() - event.start.getTime()) / (1000 * 60);
+  const actualMinutes =
+    (event.actualEnd!.getTime() - event.start.getTime()) / (1000 * 60);
+  const bufferMinutes = event.bufferTime || 0;
+
+  // ✅ Calculate percentages
+  const appointmentPercent = (actualMinutes / totalMinutes) * 100;
+  const bufferPercent = (bufferMinutes / totalMinutes) * 100;
 
   console.log("📊 Buffer calculation:", {
-    start: event.start.toLocaleTimeString(),
-    actualEnd: event.actualEnd!.toLocaleTimeString(),
-    end: event.end.toLocaleTimeString(),
-    totalMs,
-    actualMs,
-    bufferPercent: bufferPercent.toFixed(1) + "%",
-    mainPercent: (100 - bufferPercent).toFixed(1) + "%",
+    totalMinutes,
+    actualMinutes,
+    bufferMinutes,
+    appointmentPercent: appointmentPercent.toFixed(2) + "%",
+    bufferPercent: bufferPercent.toFixed(2) + "%",
+    sum: (appointmentPercent + bufferPercent).toFixed(2) + "% (should be 100%)",
   });
 
-  // ✅ If buffer percentage is too high, show warning
-  if (bufferPercent >= 100 || bufferPercent < 0) {
-    console.error("⚠️ Invalid buffer percentage:", bufferPercent);
+  // ✅ Validation check
+  if (appointmentPercent <= 0 || bufferPercent <= 0 || bufferPercent >= 100) {
+    console.error("⚠️ Invalid percentages:", {
+      appointmentPercent,
+      bufferPercent,
+    });
     return (
-      <div
-        style={{
-          padding: "6px 8px",
-          height: "100%",
-          color: "white",
-          fontSize: "12px",
-        }}
-      >
+      <div style={{ padding: "6px 8px", height: "100%", color: "white" }}>
         {event.title}
       </div>
     );
@@ -92,57 +85,59 @@ const BufferEventComponent: React.FC<EventProps<CalendarEventType>> = ({
 
   return (
     <div
-    className="mainContent"
       style={{
         height: "100%",
         width: "100%",
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
+        backgroundColor: `${event.color}`,
       }}
     >
       {/* Main appointment section */}
       <div
         style={{
-          flex: `0 0 ${95 - bufferPercent}%`,
-          padding: "4px 8px",
+          flex: `0 0 ${appointmentPercent}%`, // ✅ Use calculated percentage
+          padding: "6px 8px",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
+          justifyContent: "start",
           overflow: "hidden",
-          minHeight: "20px", // ✅ Minimum height to ensure visibility
         }}
       >
         <div
           style={{
             fontWeight: 600,
             fontSize: "13px",
-            color: "white", // ✅ Explicit white color
+            color: "white",
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis",
             lineHeight: 1.3,
           }}
         >
-          {event.title.replace(` (+${event.bufferTime}min buffer)`, "")}
+          <div className="mb-2">
+            {formatToSlot(event.start)} - {formatToSlot(event.end)}
+          </div>
+          <div>{event.title.replace(` (+${bufferMinutes}min buffer)`, "")}</div>
         </div>
-        {event.isDraft && (
+        {/* {event.isDraft && (
           <div
             style={{
               fontSize: "11px",
-              color: "rgba(255, 255, 255, 0.9)", // ✅ Explicit color
+              color: "rgba(255, 255, 255, 0.9)",
               marginTop: "2px",
             }}
           >
-            {/* {event.title} */}
+            Preview
           </div>
-        )}
+        )} */}
       </div>
 
-      {/* Buffer section - VERY VISIBLE */}
+      {/* Buffer section */}
       <div
         style={{
-          flex: `1 0 ${bufferPercent+5}%`,
+          flex: `0 0 ${bufferPercent}%`, // ✅ Use calculated percentage
           background: `repeating-linear-gradient(
             45deg,
             rgba(0, 0, 0, 0.2),
@@ -158,30 +153,12 @@ const BufferEventComponent: React.FC<EventProps<CalendarEventType>> = ({
           fontWeight: 700,
           color: "white",
           textShadow: "0 1px 3px rgba(0, 0, 0, 0.5)",
-          minHeight: "15px", // ✅ Minimum height
         }}
       >
-        +{event.bufferTime}min buffer
+        +{bufferMinutes}min buffer
       </div>
     </div>
   );
 };
 
 export default BufferEventComponent;
-
-
-// ## 🔍 What to Check in Console
-
-// Look at the console output:
-// ```
-// 🔍 Event data: { title: "...", start: ..., end: ..., actualEnd: ..., bufferTime: 30 }
-// 🎨 Rendering event: Swedish Massage (+30min buffer) { hasBuffer: true, bufferTime: 30, actualEnd: ... }
-// 📊 Buffer calculation: {
-//   start: "10:00:00 AM",
-//   actualEnd: "11:00:00 AM",
-//   end: "11:30:00 AM",
-//   totalMs: 5400000,
-//   actualMs: 3600000,
-//   bufferPercent: "33.3%",
-//   mainPercent: "66.7%"
-// }

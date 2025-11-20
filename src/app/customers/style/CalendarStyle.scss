@@ -175,6 +175,9 @@
             border-radius: 0!important;
             border: none!important;
             // border: 1px solid rgba(255, 255, 255, 0.9)!important;
+            .rbc-event-label{
+                display: none!important;
+            }
           }
         }
       }
