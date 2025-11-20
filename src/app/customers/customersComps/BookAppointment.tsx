@@ -427,13 +427,13 @@ const BookAppointment = ({
                   date={calendarDate}
                   localizer={localizer}
                   onNavigate={handleCalendarNavigate}
-                  popup
+                  // popup
                   style={{ height: "100%" }}
                   startAccessor="start"
                   endAccessor="end"
                   step={15} // each slot = 15 minutes
                   timeslots={4} // 4 slots per hour → 15 × 4 = 60 min
-                  selectable
+                  // selectable
                   eventPropGetter={eventPropGetter}
                   formats={{
                     timeGutterFormat: (date, culture, localizer: any) =>
@@ -644,7 +644,9 @@ const BookAppointment = ({
                         </div>
 
                         {/* Buffer Time */}
-                        {bufferTime > 0 && (
+                        {
+                        // bufferTime > 0 &&
+                         (
                           <div className="flex items-center gap-3">
                             <p className="text-muted-foreground flex items-center gap-1">
                               <Timer className="h-4 w-4" />
@@ -665,6 +667,10 @@ const BookAppointment = ({
                                 <SelectItem value="30">30 min</SelectItem>
                                 <SelectItem value="45">45 min</SelectItem>
                                 <SelectItem value="60">60 min</SelectItem>
+                                <SelectItem value="90">90 min</SelectItem>
+                                <SelectItem value="120">120 min</SelectItem>
+                                <SelectItem value="150">150 min</SelectItem>
+                                <SelectItem value="180">180 min</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>

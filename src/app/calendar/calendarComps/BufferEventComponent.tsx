@@ -18,8 +18,9 @@ const BufferEventComponent: React.FC<EventProps<CalendarEventType>> = ({
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
+          justifyContent: "start",
           overflow: "hidden",
+          backgroundColor: `${event.color}`,
         }}
       >
         <div
@@ -33,7 +34,10 @@ const BufferEventComponent: React.FC<EventProps<CalendarEventType>> = ({
             lineHeight: 1.3,
           }}
         >
-          {event.title}
+           <div className="mb-2">
+            {formatToSlot(event.start)} - {formatToSlot(event.end)}
+          </div>
+          <div>{event.title}</div>
         </div>
         {event.isDraft && (
           <div
@@ -43,7 +47,7 @@ const BufferEventComponent: React.FC<EventProps<CalendarEventType>> = ({
               marginTop: "2px",
             }}
           >
-            Preview
+            No buffer Time
           </div>
         )}
       </div>
@@ -86,19 +90,29 @@ const BufferEventComponent: React.FC<EventProps<CalendarEventType>> = ({
   return (
     <div
       style={{
+        position:"relative",
         height: "100%",
         width: "100%",
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
-        backgroundColor: `${event.color}`,
+        backgroundColor: `${event.color}a3`,
+        // backgroundColor: "#860086a3",
       }}
     >
+
+      <div className={`absolute top-0 left-0 w-2 h-full`} 
+      
+      style={{
+        backgroundColor :`${event.color}`
+      }}
+      
+      />
       {/* Main appointment section */}
       <div
         style={{
           flex: `0 0 ${appointmentPercent}%`, // ✅ Use calculated percentage
-          padding: "6px 8px",
+          padding: "6px 16px",
           display: "flex",
           flexDirection: "column",
           justifyContent: "start",
