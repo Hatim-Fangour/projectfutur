@@ -92,6 +92,7 @@ const BufferEventComponent: React.FC<EventProps<CalendarEventType>> = ({
 
   return (
     <div
+    className="mainContent"
       style={{
         height: "100%",
         width: "100%",
@@ -103,8 +104,8 @@ const BufferEventComponent: React.FC<EventProps<CalendarEventType>> = ({
       {/* Main appointment section */}
       <div
         style={{
-          flex: `0 0 ${100 - bufferPercent}%`,
-          padding: "6px 8px",
+          flex: `0 0 ${95 - bufferPercent}%`,
+          padding: "4px 8px",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
@@ -133,7 +134,7 @@ const BufferEventComponent: React.FC<EventProps<CalendarEventType>> = ({
               marginTop: "2px",
             }}
           >
-            {event.title}
+            {/* {event.title} */}
           </div>
         )}
       </div>
@@ -141,7 +142,7 @@ const BufferEventComponent: React.FC<EventProps<CalendarEventType>> = ({
       {/* Buffer section - VERY VISIBLE */}
       <div
         style={{
-          flex: `0 0 ${bufferPercent}%`,
+          flex: `1 0 ${bufferPercent+5}%`,
           background: `repeating-linear-gradient(
             45deg,
             rgba(0, 0, 0, 0.2),
