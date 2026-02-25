@@ -1,10 +1,8 @@
-import React from "react";
 import NoteCard from "./NoteCard";
 import { Button } from "../../../components/ui/button";
 import { Plus } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "../../../components/ui/popover";
 import { Textarea } from "../../../components/ui/textarea";
-import { Customer } from "@/app/customers/types/customers";
 import { TabContentProps } from "@/app/customers/Interfaces/customerInterfaces";
 
 
@@ -16,9 +14,9 @@ const NoteTabContent = ({ customer }: TabContentProps) => {
         <span>Notes</span>
         <Popover>
           <PopoverTrigger>
-            <Button>
+            {/* <Button> */}
               <Plus />
-            </Button>
+            {/* </Button> */}
           </PopoverTrigger>
           <PopoverContent
             side="left"

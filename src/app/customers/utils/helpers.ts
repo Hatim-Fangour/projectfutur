@@ -1,9 +1,12 @@
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 dayjs.extend(duration);
-import { DateFormatType } from "../types/customers";
+import { Customer, DateFormatType } from "../types/customers";
 import { AlertCircle, CheckCircle2, Clock } from "lucide-react";
 import { BaseAppointment } from "@/app/calendar/types/reservations";
+import { SetStateAction } from "react";
+import { CustomerFormData } from "../schemas/CustomerSchema";
+import { toast } from "sonner";
 
 export const BUSINESS_HOURS = {
   start: "08:00 AM",
@@ -290,3 +293,49 @@ export const getValidEndTimes = (
     return slotMinutes >= minEndMinutes;
   });
 };
+
+export const handleFormSubmit = (
+  customer: Customer,
+  data: CustomerFormData,
+  onSubmit: (appointment: any) => void,
+  setDialogOpen: (value: SetStateAction<boolean>) => void
+) => {
+ 
+console.log({data})
+
+  // const appointment = {
+  //   date: formatDateToString(data.date),
+  //   startTime: data.startTime,
+  //   endTime: data.endTime,
+  //   bufferEndTime: endWithBuffer,
+  //   bufferMinutes: data.bufferTime,
+  //   serviceId: data.serviceId,
+  //   serviceName,
+  //   customerId: customer.id,
+  //   customerName: customer.fullName,
+  //   room: data.room,
+  //   note: data.notes,
+  //   color: data.color,
+  //   status: "pending" as const,
+  // };
+  // console.log({ appointment });
+  // onSubmit(appointment);
+  toast.success("Customer added successfully!");
+
+  // ✅ Close dialog FIRST
+  setDialogOpen(false);
+};
+
+// ✅ Create a function to get fresh default values
+// export const getDefaultFormCustomerValues = () => {
+//   return {
+//     fullName: "",
+//     date: new Date(),
+//     startTime,
+//     endTime: addOneHour(startTime),
+//     bufferTime: 0,
+//     room: "",
+//     notes: "",
+//     color: existingColors[0],
+//   };
+// };

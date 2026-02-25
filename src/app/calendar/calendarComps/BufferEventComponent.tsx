@@ -1,6 +1,7 @@
 // components/BufferEventComponent.tsx
 import { CalendarEventType } from "@/app/customers/Interfaces/customerInterfaces";
 import { formatToSlot } from "@/app/customers/utils/helpers";
+import { adjustColorBrightness } from "@/app/Helpers";
 import React from "react";
 import { EventProps } from "react-big-calendar";
 
@@ -14,15 +15,25 @@ const BufferEventComponent: React.FC<EventProps<CalendarEventType>> = ({
     return (
       <div
         style={{
+          position: "relative",
           padding: "6px 8px",
           height: "100%",
           display: "flex",
           flexDirection: "column",
           justifyContent: "start",
           overflow: "hidden",
-          backgroundColor: `${event.color}`,
+          backgroundColor: `${event.color}aa`,
         }}
       >
+        <div
+          className={`absolute top-0 left-0 w-2 h-full`}
+          style={{
+            backgroundColor: `${adjustColorBrightness(
+              event.color || "#515151",
+              1
+            )}`,
+          }}
+        />
         <div
           style={{
             fontWeight: 600,
@@ -34,7 +45,7 @@ const BufferEventComponent: React.FC<EventProps<CalendarEventType>> = ({
             lineHeight: 1.3,
           }}
         >
-           <div className="mb-2">
+          <div className="mb-2">
             {formatToSlot(event.start)} - {formatToSlot(event.end)}
           </div>
           <div>{event.title}</div>
@@ -90,23 +101,23 @@ const BufferEventComponent: React.FC<EventProps<CalendarEventType>> = ({
   return (
     <div
       style={{
-        position:"relative",
+        position: "relative",
         height: "100%",
         width: "100%",
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
-        backgroundColor: `${event.color}a3`,
-        // backgroundColor: "#860086a3",
+        backgroundColor: `${event.color}aa`,
       }}
     >
-
-      <div className={`absolute top-0 left-0 w-2 h-full`} 
-      
-      style={{
-        backgroundColor :`${event.color}`
-      }}
-      
+      <div
+        className={`absolute top-0 left-0 w-2 h-full`}
+        style={{
+          backgroundColor: `${adjustColorBrightness(
+            event.color || "#515151",
+            1
+          )}`,
+        }}
       />
       {/* Main appointment section */}
       <div

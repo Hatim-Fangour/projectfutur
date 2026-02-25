@@ -1,5 +1,5 @@
 import { BaseAppointment } from "@/app/calendar/types/reservations";
-import { Customer } from "@/app/customers/types/customers";
+import { Customer, CustomerAppointmentType } from "@/app/customers/types/customers";
 import { PricingPlan } from "@/app/services/types/services";
 import {
 
@@ -31,8 +31,15 @@ export interface TimeRangePickerProps {
 
 export interface BookAppointmentProps {
   customer: Customer;
-  existingAppointments: BaseAppointment[];
+  existingAppointments: CustomerAppointmentType[];
   onSubmit: (appointment: any) => void;
+}
+
+export interface CustomerFormProps {
+  customer?: Customer | undefined ;
+  onSubmit: (appointment: any) => void;
+  open: boolean; // ✅ Controlled by parent
+  onOpenChange: (open: boolean) => void; // ✅ Controlled by parent
 }
 
 
@@ -45,6 +52,16 @@ export interface CalendarEventType extends CalendarEvent {
   bufferTime?: number; // Buffer time in minutes
   color?: string;
   isDraft?: boolean; // For preview appointment
+}
+
+
+export interface State {
+  isoCode: string;
+  name: string;
+}
+export interface City {
+  isoCode: string;
+  name: string;
 }
 
 

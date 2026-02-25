@@ -25,15 +25,18 @@ export type CustomerNoteType = {
 };
 
 export type CustomerAppointmentType = BaseAppointment & {
-  therapist: string;
+  appointmentType?: "service";
+  therapist?: string;
   customerId?: string;
   serviceId?: string;
   service?: string;
   staffId?: string;
-  reason: string;
+  reason?: string;
+  // Status
   status: "scheduled" | "completed" | "cancelled" | "upcoming";
   location?: string;
   notes?: string;
+
 };
 
 export type CustomerProgressSessionType = {
@@ -56,7 +59,11 @@ export type Customer = {
   fullName: string;
   email: string;
   phone?: string;
-  pictureURL: string; // in minutes
+  company?: string;
+  country?: string;
+  state?: string;
+  city?: string;
+  pictureURL: string; 
   address?: string;
   notes?: CustomerNoteType[];
   appointments?: CustomerAppointmentType[];

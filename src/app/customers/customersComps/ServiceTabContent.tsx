@@ -18,6 +18,7 @@ import { Dialog, DialogContent, DialogTrigger } from "../../../components/ui/dia
 import ShoppingCart from "./ShoppingCart";
 import ServiceCard from "./ServiceCard";
 import { TabContentProps } from "@/app/customers/Interfaces/customerInterfaces";
+import { DialogTitle } from "@radix-ui/react-dialog";
 
 const ServiceTabContent = ({ customer }: TabContentProps) => {
   const [filter, setFilter] = useState<
@@ -73,7 +74,8 @@ const ServiceTabContent = ({ customer }: TabContentProps) => {
                 </Button>
               </div>
             </DialogTrigger>
-            <DialogContent className="w-[95%]! h-[95%]! max-w-full! p-8">
+            <DialogContent className="w-[95%]! h-[95%]! max-w-full! p-8" aria-describedby="cart-dialog-title">
+              <DialogTitle>Add Services to Cart</DialogTitle>
               <ShoppingCart />
              
             </DialogContent>

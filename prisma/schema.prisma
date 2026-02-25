@@ -1,0 +1,225 @@
+// ===================================================
+// COMPLETE SPA CENTER DATABASE ARCHITECTURE
+// prisma/schema.prisma
+// ===================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ===================================================
+// 1. USER MANAGEMENT
+// ===================================================
+
+enum UserRole {
+  OWNER
+  MANAGER
+  STAFF
+  RECEPTIONIST
+  THERAPIST
+}
+
+model Customer {
+  id           String   @id @default(cuid())
+  fullName     String
+  email        String   @unique
+  phone        String?
+  company      String?
+  
+  // Location
+  country      String?
+  state        String?
+  city         String?
+  address      String?
+  
+  // Profile
+  pictureURL   String?
+  
+  // Timestamps
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // ✅ RELATIONSHIPS (one customer has many...)
+  appointments Appointment[]      // ← Customer has many appointments
+  notes        CustomerNote[]     // ← Customer has many notes
+  services     CustomerService[]  // ← Customer has many services
+  progress     ProgressSession[]  // ← Customer has many progress sessions
+  
+
+  
+  @@index([email])
+  @@index([fullName])
+  @@index([phone])
+  @@map("customers")
+}
+
+
+// ===================================================
+// 2. APPOINTMENTS TABLE (Related to Customer)
+// ===================================================
+model Appointment {
+  id           String            @id @default(cuid())
+  
+  // ✅ FOREIGN KEY - Links to Customer
+  customerId   String            // ← This links to Customer.id
+  
+  // Appointment details
+  type         AppointmentType   @default(SERVICE)
+  startTime    DateTime
+  endTime      DateTime
+  status       AppointmentStatus @default(SCHEDULED)
+  
+  // Details
+  service      String?
+  therapist    String?
+  reason       String?
+  location     String?
+  notes        String?           @db.Text
+  
+  // Timestamps
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  
+  // ✅ RELATIONSHIP - This appointment belongs to one customer
+  customer     Customer          @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  
+  @@index([customerId])
+  @@index([startTime])
+  @@map("appointments")
+}
+
+enum AppointmentType {
+  SERVICE
+  CLASS
+  EVENT
+  REMINDER
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+
+// ===================================================
+// 3. NOTES TABLE (Related to Customer)
+// ===================================================
+model CustomerNote {
+  id         String   @id @default(cuid())
+  
+  // ✅ FOREIGN KEY - Links to Customer
+  customerId String   // ← This links to Customer.id
+  
+  // Note content
+  title      String?
+  content    String   @db.Text
+  writer     String?
+  
+  // Timestamps
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  // ✅ RELATIONSHIP - This note belongs to one customer
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  
+  @@index([customerId])
+  @@map("customer_notes")
+}
+
+
+// ===================================================
+// 4. SERVICES TABLE (Related to Customer)
+// ===================================================
+model PricingPlan {
+  id          String   @id @default(cuid())
+  name        String
+  description String?  @db.Text
+  type        String?
+  price       Decimal  @db.Decimal(10, 2)
+  duration    Int?     // in minutes
+  
+  isActive    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // ✅ RELATIONSHIP
+  customers   CustomerService[]
+  
+  @@map("pricing_plans")
+}
+
+// Many-to-many: Customer <-> Service
+model CustomerService {
+  id             String      @id @default(cuid())
+  
+  // ✅ FOREIGN KEYS
+  customerId     String      // ← Links to Customer.id
+  pricingPlanId  String      // ← Links to PricingPlan.id
+  
+  // Service details for this customer
+  totalSessions  Int?
+  remainingSessions Int?
+  purchaseDate   DateTime
+  expiryDate     DateTime?
+  status         String?      // "active", "expired", "expiring-soon"
+  
+  // ✅ RELATIONSHIPS
+  customer       Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  pricingPlan    PricingPlan @relation(fields: [pricingPlanId], references: [id])
+  
+  @@index([customerId])
+  @@map("customer_services")
+}
+
+
+// ===================================================
+// 5. PROGRESS TABLE (Related to Customer)
+// ===================================================
+model ProgressSession {
+  id            String   @id @default(cuid())
+  
+  // ✅ FOREIGN KEY - Links to Customer
+  customerId    String   // ← This links to Customer.id
+  
+  // Session details
+  date          DateTime
+  type          String?
+  status        String?
+  
+  // Images (store URLs as JSON)
+  beforeImage   String?
+  afterImage    String?
+  duringImages  String?  @db.Text // JSON: [{"url": "...", "caption": "..."}]
+  
+  // Products used (store as JSON array)
+  products      String?  @db.Text // JSON: ["Product 1", "Product 2"]
+  
+  // Notes & progress
+  notes         String?  @db.Text
+  progress      Int?     // 0-100
+  therapist     String?
+  
+  // Timestamps
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // ✅ RELATIONSHIP - This session belongs to one customer
+  customer      Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  
+  @@index([customerId])
+  @@index([date])
+  @@map("progress_sessions")
+}
+
+
+
