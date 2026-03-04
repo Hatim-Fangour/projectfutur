@@ -7,18 +7,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/client'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import { Loader2, CheckCircle } from 'lucide-react'
+import { Loader2, User, Mail, Lock, Eye, EyeOff, CheckCircle } from 'lucide-react'
 
 const registerSchema = z
   .object({
@@ -36,7 +25,7 @@ const registerSchema = z
       .min(8, 'Password must be at least 8 characters')
       .regex(
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        'Password must contain uppercase, lowercase, and a number'
+        'Must contain uppercase, lowercase, and a number'
       ),
     confirmPassword: z.string().min(1, 'Please confirm your password'),
   })
@@ -47,10 +36,14 @@ const registerSchema = z
 
 type RegisterFormData = z.infer<typeof registerSchema>
 
+const inputClasses = 'w-full rounded-xl bg-white/[0.03] py-3.5 text-sm text-[#f0ece4] outline-none transition-all duration-300 placeholder:text-white/15 disabled:opacity-40 border border-white/[0.06] focus:border-[#C9A84C]/40 focus:shadow-[0_0_0_3px_rgba(201,168,76,0.08)]'
+
 export default function RegisterPage() {
   const router = useRouter()
   const [serverError, setServerError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const {
     register,
@@ -58,49 +51,32 @@ export default function RegisterPage() {
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
-    defaultValues: {
-      fullName: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-    },
+    defaultValues: { fullName: '', email: '', password: '', confirmPassword: '' },
   })
 
   const onSubmit = async (data: RegisterFormData) => {
     setServerError(null)
-
     const supabase = createClient()
 
-    // Create the Supabase auth user
     const { error: signUpError } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
-      options: {
-        data: {
-          full_name: data.fullName,
-        },
-      },
+      options: { data: { full_name: data.fullName } },
     })
 
     if (signUpError) {
-      if (signUpError.message.includes('already registered')) {
-        setServerError(
-          'An account with this email already exists. Please sign in instead.'
-        )
-      } else {
-        setServerError(signUpError.message)
-      }
+      setServerError(
+        signUpError.message.includes('already registered')
+          ? 'An account with this email already exists. Please sign in instead.'
+          : signUpError.message
+      )
       return
     }
 
-    // Create a StaffMember record for the owner via API
     const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        fullName: data.fullName,
-        email: data.email,
-      }),
+      body: JSON.stringify({ fullName: data.fullName, email: data.email }),
     })
 
     const result = await res.json()
@@ -114,135 +90,239 @@ export default function RegisterPage() {
 
   if (success) {
     return (
-      <Card>
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-            <CheckCircle className="h-6 w-6 text-primary" />
+      <div className="animate-fade-in-up" style={{ animationDelay: '0.15s', animationFillMode: 'both' }}>
+        <div
+          className="rounded-2xl p-8 sm:p-10 text-center"
+          style={{
+            background: 'linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))',
+            backdropFilter: 'blur(40px)',
+            border: '1px solid rgba(255, 255, 255, 0.05)',
+            boxShadow: '0 24px 80px rgba(0, 0, 0, 0.5)',
+          }}
+        >
+          <div
+            className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full"
+            style={{
+              background: 'rgba(201, 168, 76, 0.08)',
+              border: '1px solid rgba(201, 168, 76, 0.2)',
+              boxShadow: '0 0 40px rgba(201, 168, 76, 0.1)',
+            }}
+          >
+            <CheckCircle className="h-7 w-7" style={{ color: '#C9A84C' }} />
           </div>
-          <CardTitle className="text-2xl font-bold">Check your email</CardTitle>
-          <CardDescription>
-            We&apos;ve sent a confirmation link to your email address. Please
-            click the link to verify your account.
-          </CardDescription>
-        </CardHeader>
-        <CardFooter className="flex justify-center">
-          <Button variant="outline" onClick={() => router.push('/login')}>
+          <h2 className="text-2xl font-semibold mb-3" style={{ color: '#f0ece4' }}>
+            Check your email
+          </h2>
+          <p className="text-sm mb-6 leading-relaxed" style={{ color: 'rgba(240, 236, 228, 0.4)' }}>
+            We&apos;ve sent a confirmation link to your email.
+            Click it to verify your account.
+          </p>
+          <button
+            onClick={() => router.push('/login')}
+            className="rounded-xl px-6 py-2.5 text-sm font-medium transition-all duration-200 hover:bg-[#C9A84C]/15"
+            style={{
+              background: 'rgba(201, 168, 76, 0.08)',
+              border: '1px solid rgba(201, 168, 76, 0.2)',
+              color: '#C9A84C',
+            }}
+          >
             Back to sign in
-          </Button>
-        </CardFooter>
-      </Card>
+          </button>
+        </div>
+      </div>
     )
   }
 
   return (
-    <Card>
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold">Create your account</CardTitle>
-        <CardDescription>
-          Register as a spa center owner to get started
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <div className="animate-fade-in-up" style={{ animationDelay: '0.15s', animationFillMode: 'both' }}>
+      <div
+        className="rounded-2xl p-8 sm:p-10"
+        style={{
+          background: 'linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))',
+          backdropFilter: 'blur(40px)',
+          WebkitBackdropFilter: 'blur(40px)',
+          border: '1px solid rgba(255, 255, 255, 0.05)',
+          boxShadow: '0 24px 80px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.03)',
+        }}
+      >
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl" style={{ color: '#f0ece4' }}>
+            Create your account
+          </h2>
+          <p className="mt-2 text-sm" style={{ color: 'rgba(201, 168, 76, 0.45)' }}>
+            Register as a spa center owner
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {serverError && (
-            <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+            <div
+              className="rounded-xl px-4 py-3 text-sm"
+              style={{
+                background: 'rgba(239, 68, 68, 0.08)',
+                border: '1px solid rgba(239, 68, 68, 0.15)',
+                color: '#f87171',
+              }}
+            >
               {serverError}
             </div>
           )}
 
+          {/* Full Name */}
           <div className="space-y-2">
-            <Label htmlFor="fullName">Full Name</Label>
-            <Input
-              id="fullName"
-              type="text"
-              placeholder="Jane Smith"
-              autoComplete="name"
-              disabled={isSubmitting}
-              aria-invalid={!!errors.fullName}
-              {...register('fullName')}
-            />
+            <label htmlFor="fullName" className="text-xs font-medium uppercase tracking-wider" style={{ color: 'rgba(201, 168, 76, 0.5)' }}>
+              Full Name
+            </label>
+            <div className="relative">
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 h-[15px] w-[15px]" style={{ color: 'rgba(201, 168, 76, 0.3)' }} />
+              <input
+                id="fullName"
+                placeholder="Jane Smith"
+                autoComplete="name"
+                disabled={isSubmitting}
+                className={`${inputClasses} pl-11 pr-4`}
+                {...register('fullName')}
+              />
+            </div>
             {errors.fullName && (
-              <p className="text-sm text-destructive">
-                {errors.fullName.message}
-              </p>
+              <p className="text-xs" style={{ color: '#f87171' }}>{errors.fullName.message}</p>
             )}
           </div>
 
+          {/* Email */}
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="you@example.com"
-              autoComplete="email"
-              disabled={isSubmitting}
-              aria-invalid={!!errors.email}
-              {...register('email')}
-            />
+            <label htmlFor="email" className="text-xs font-medium uppercase tracking-wider" style={{ color: 'rgba(201, 168, 76, 0.5)' }}>
+              Email
+            </label>
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-[15px] w-[15px]" style={{ color: 'rgba(201, 168, 76, 0.3)' }} />
+              <input
+                id="email"
+                type="email"
+                placeholder="you@example.com"
+                autoComplete="email"
+                disabled={isSubmitting}
+                className={`${inputClasses} pl-11 pr-4`}
+                {...register('email')}
+              />
+            </div>
             {errors.email && (
-              <p className="text-sm text-destructive">{errors.email.message}</p>
+              <p className="text-xs" style={{ color: '#f87171' }}>{errors.email.message}</p>
             )}
           </div>
 
+          {/* Password */}
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="Min 8 characters, mixed case + number"
-              autoComplete="new-password"
-              disabled={isSubmitting}
-              aria-invalid={!!errors.password}
-              {...register('password')}
-            />
+            <label htmlFor="password" className="text-xs font-medium uppercase tracking-wider" style={{ color: 'rgba(201, 168, 76, 0.5)' }}>
+              Password
+            </label>
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-[15px] w-[15px]" style={{ color: 'rgba(201, 168, 76, 0.3)' }} />
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Min 8 chars, mixed case + number"
+                autoComplete="new-password"
+                disabled={isSubmitting}
+                className={`${inputClasses} pl-11 pr-11`}
+                {...register('password')}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors duration-200 hover:text-[#C9A84C]/60"
+                style={{ color: 'rgba(240, 236, 228, 0.2)' }}
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
             {errors.password && (
-              <p className="text-sm text-destructive">
-                {errors.password.message}
-              </p>
+              <p className="text-xs" style={{ color: '#f87171' }}>{errors.password.message}</p>
             )}
           </div>
 
+          {/* Confirm Password */}
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              placeholder="Repeat your password"
-              autoComplete="new-password"
-              disabled={isSubmitting}
-              aria-invalid={!!errors.confirmPassword}
-              {...register('confirmPassword')}
-            />
+            <label htmlFor="confirmPassword" className="text-xs font-medium uppercase tracking-wider" style={{ color: 'rgba(201, 168, 76, 0.5)' }}>
+              Confirm Password
+            </label>
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-[15px] w-[15px]" style={{ color: 'rgba(201, 168, 76, 0.3)' }} />
+              <input
+                id="confirmPassword"
+                type={showConfirmPassword ? 'text' : 'password'}
+                placeholder="Repeat your password"
+                autoComplete="new-password"
+                disabled={isSubmitting}
+                className={`${inputClasses} pl-11 pr-11`}
+                {...register('confirmPassword')}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors duration-200 hover:text-[#C9A84C]/60"
+                style={{ color: 'rgba(240, 236, 228, 0.2)' }}
+                tabIndex={-1}
+              >
+                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
             {errors.confirmPassword && (
-              <p className="text-sm text-destructive">
-                {errors.confirmPassword.message}
-              </p>
+              <p className="text-xs" style={{ color: '#f87171' }}>{errors.confirmPassword.message}</p>
             )}
           </div>
 
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="group relative mt-2 w-full overflow-hidden rounded-xl py-3.5 text-sm font-semibold transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{
+              background: 'linear-gradient(135deg, #C9A84C, #dbb960)',
+              color: '#0a0a0f',
+              boxShadow: '0 4px 24px rgba(201, 168, 76, 0.2)',
+            }}
+            onMouseEnter={(e) => {
+              if (!isSubmitting) {
+                e.currentTarget.style.boxShadow = '0 8px 40px rgba(201, 168, 76, 0.35)'
+                e.currentTarget.style.transform = 'translateY(-1px)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 4px 24px rgba(201, 168, 76, 0.2)'
+              e.currentTarget.style.transform = 'translateY(0)'
+            }}
+          >
+            <div
+              className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              style={{
+                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)',
+                animation: 'shimmer 2s infinite',
+              }}
+            />
             {isSubmitting ? (
-              <>
+              <span className="relative inline-flex items-center">
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Creating account...
-              </>
+              </span>
             ) : (
-              'Create account'
+              <span className="relative">Create account</span>
             )}
-          </Button>
+          </button>
         </form>
-      </CardContent>
-      <CardFooter className="flex justify-center">
-        <p className="text-sm text-muted-foreground">
+
+        <p className="mt-8 text-center text-sm" style={{ color: 'rgba(240, 236, 228, 0.3)' }}>
           Already have an account?{' '}
           <Link
             href="/login"
-            className="font-medium text-primary hover:underline"
+            className="font-medium transition-colors duration-200 hover:text-[#E8C97A]"
+            style={{ color: '#C9A84C' }}
           >
             Sign in
           </Link>
         </p>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   )
 }
