@@ -1,66 +1,71 @@
-import { prisma } from "@/lib/prisma";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server'
+import { withAuth } from '@/lib/api/withAuth'
+import {
+  getAppointmentById,
+  updateAppointment,
+  deleteAppointment,
+  updateAppointmentSchema,
+  ServiceError,
+} from '@/lib/services/appointment.service'
 
-// GET - Fetch all customers (with optional search and pagination)
-export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const search = searchParams.get('search') || '';
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
-    const skip = (page - 1) * limit;
+export const GET = withAuth(
+  async (_request: NextRequest, { params }) => {
+    try {
+      const { id } = await params!
+      const appointment = await getAppointmentById(id)
+      if (!appointment) {
+        return NextResponse.json({ success: false, error: 'Appointment not found' }, { status: 404 })
+      }
+      return NextResponse.json({ success: true, data: appointment })
+    } catch (error) {
+      if (error instanceof ServiceError) {
+        return NextResponse.json({ success: false, error: error.message }, { status: error.statusCode })
+      }
+      console.error('GET /api/appointments/[id] error:', error)
+      return NextResponse.json({ success: false, error: 'Failed to fetch appointment' }, { status: 500 })
+    }
+  },
+  { permission: 'read:appointments' }
+)
 
-    // Build where clause for search
-    const where = search
-      ? {
-          OR: [
-            { fullName: { contains: search, mode: 'insensitive' as const } },
-            { email: { contains: search, mode: 'insensitive' as const } },
-            { phone: { contains: search, mode: 'insensitive' as const } },
-          ],
-        }
-      : {};
+export const PUT = withAuth(
+  async (request: NextRequest, { params }) => {
+    try {
+      const { id } = await params!
+      const body = await request.json()
+      const input = updateAppointmentSchema.safeParse(body)
+      if (!input.success) {
+        return NextResponse.json(
+          { success: false, error: input.error.issues[0]?.message ?? 'Invalid input' },
+          { status: 400 }
+        )
+      }
+      const appointment = await updateAppointment(id, input.data)
+      return NextResponse.json({ success: true, data: appointment })
+    } catch (error) {
+      if (error instanceof ServiceError) {
+        return NextResponse.json({ success: false, error: error.message }, { status: error.statusCode })
+      }
+      console.error('PUT /api/appointments/[id] error:', error)
+      return NextResponse.json({ success: false, error: 'Failed to update appointment' }, { status: 500 })
+    }
+  },
+  { permission: 'write:appointments' }
+)
 
-    // Fetch customers with pagination
-    const [customers, total] = await Promise.all([
-      prisma.customer.findMany({
-        where,
-        // include: {
-        //   appointments: {
-        //     take: 5,
-        //     orderBy: { startTime: 'desc' },
-        //   },
-        //   notes: {
-        //     take: 3,
-        //     orderBy: { createdAt: 'desc' },
-        //   },
-        // },
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-      }),
-      prisma.customer.count({ where }),
-    ]);
-
-    return NextResponse.json({
-      success: true,
-      data: customers,
-      pagination: {
-        total,
-        page,
-        limit,
-        pages: Math.ceil(total / limit),
-      },
-    });
-  } catch (error) {
-    console.error('GET /api/customers error:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch customers',
-        details: error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 500 }
-    );
-  }
-}
+export const DELETE = withAuth(
+  async (_request: NextRequest, { params }) => {
+    try {
+      const { id } = await params!
+      await deleteAppointment(id)
+      return NextResponse.json({ success: true, message: 'Appointment deleted successfully' })
+    } catch (error) {
+      if (error instanceof ServiceError) {
+        return NextResponse.json({ success: false, error: error.message }, { status: error.statusCode })
+      }
+      console.error('DELETE /api/appointments/[id] error:', error)
+      return NextResponse.json({ success: false, error: 'Failed to delete appointment' }, { status: 500 })
+    }
+  },
+  { permission: 'delete:appointments' }
+)

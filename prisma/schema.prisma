@@ -1,6 +1,7 @@
 // ===================================================
 // COMPLETE SPA CENTER DATABASE ARCHITECTURE
 // prisma/schema.prisma
+// Migrated to PostgreSQL/Supabase
 // ===================================================
 
 generator client {
@@ -8,12 +9,13 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ===================================================
-// 1. USER MANAGEMENT
+// 1. USER / ROLE MANAGEMENT
 // ===================================================
 
 enum UserRole {
@@ -24,74 +26,143 @@ enum UserRole {
   THERAPIST
 }
 
+// ===================================================
+// 2. CUSTOMERS
+// ===================================================
+
 model Customer {
-  id           String   @id @default(cuid())
-  fullName     String
-  email        String   @unique
-  phone        String?
-  company      String?
-  
+  id        String  @id @default(cuid())
+  fullName  String
+  email     String  @unique
+  phone     String?
+  company   String?
+
   // Location
-  country      String?
-  state        String?
-  city         String?
-  address      String?
-  
+  country String?
+  state   String?
+  city    String?
+  address String?
+
   // Profile
-  pictureURL   String?
-  
+  pictureURL String?
+
+  // Soft delete
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+
   // Timestamps
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  // ✅ RELATIONSHIPS (one customer has many...)
-  appointments Appointment[]      // ← Customer has many appointments
-  notes        CustomerNote[]     // ← Customer has many notes
-  services     CustomerService[]  // ← Customer has many services
-  progress     ProgressSession[]  // ← Customer has many progress sessions
-  
+  // Relationships
+  appointments Appointment[]
+  notes        CustomerNote[]
+  services     CustomerService[]
+  progress     ProgressSession[]
 
-  
   @@index([email])
   @@index([fullName])
   @@index([phone])
+  @@index([isDeleted])
   @@map("customers")
 }
 
+// ===================================================
+// 3. STAFF MEMBERS
+// ===================================================
+
+enum StaffStatus {
+  ACTIVE
+  INACTIVE
+  ON_LEAVE
+  TERMINATED
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  FREELANCE
+}
+
+model StaffMember {
+  id        String  @id @default(cuid())
+  authUserId String? @unique // Links to Supabase Auth user
+
+  fullName       String
+  email          String  @unique
+  phone          String?
+  dateOfBirth    DateTime?
+  address        String?
+  pictureURL     String?
+
+  role           UserRole    @default(THERAPIST)
+  department     String?
+  status         StaffStatus @default(ACTIVE)
+  employmentType EmploymentType @default(FULL_TIME)
+  startDate      DateTime?
+  endDate        DateTime?
+
+  // Specializations stored as JSON array of strings
+  specializations String[]
+  certifications  String[]
+
+  // Soft delete
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  schedules    StaffSchedule[]
+  appointments Appointment[]
+
+  @@index([email])
+  @@index([role])
+  @@index([status])
+  @@index([isDeleted])
+  @@map("staff_members")
+}
 
 // ===================================================
-// 2. APPOINTMENTS TABLE (Related to Customer)
+// 4. STAFF SCHEDULES
 // ===================================================
-model Appointment {
-  id           String            @id @default(cuid())
-  
-  // ✅ FOREIGN KEY - Links to Customer
-  customerId   String            // ← This links to Customer.id
-  
-  // Appointment details
-  type         AppointmentType   @default(SERVICE)
-  startTime    DateTime
-  endTime      DateTime
-  status       AppointmentStatus @default(SCHEDULED)
-  
-  // Details
-  service      String?
-  therapist    String?
-  reason       String?
-  location     String?
-  notes        String?           @db.Text
-  
-  // Timestamps
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
-  
-  // ✅ RELATIONSHIP - This appointment belongs to one customer
-  customer     Customer          @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  
-  @@index([customerId])
-  @@index([startTime])
-  @@map("appointments")
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
 }
+
+model StaffSchedule {
+  id         String    @id @default(cuid())
+  staffId    String
+  dayOfWeek  DayOfWeek
+  startTime  String    // HH:mm format
+  endTime    String    // HH:mm format
+  isWorking  Boolean   @default(true)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  staff StaffMember @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  @@unique([staffId, dayOfWeek])
+  @@index([staffId])
+  @@map("staff_schedules")
+}
+
+// ===================================================
+// 5. APPOINTMENTS
+// ===================================================
 
 enum AppointmentType {
   SERVICE
@@ -109,117 +180,469 @@ enum AppointmentStatus {
   NO_SHOW
 }
 
+model Appointment {
+  id String @id @default(cuid())
+
+  // Foreign Keys
+  customerId  String
+  therapistId String?
+
+  // Appointment details
+  type      AppointmentType   @default(SERVICE)
+  startTime DateTime
+  endTime   DateTime
+  status    AppointmentStatus @default(SCHEDULED)
+
+  // Details
+  service  String?
+  reason   String?
+  location String?
+  notes    String?
+
+  // Payment
+  paymentStatus String? // pending, paid, refunded
+  paymentAmount Decimal? @db.Decimal(10, 2)
+
+  // Soft delete
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  customer  Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  therapist StaffMember? @relation(fields: [therapistId], references: [id], onDelete: SetNull)
+
+  @@index([customerId])
+  @@index([therapistId])
+  @@index([startTime])
+  @@index([status])
+  @@index([isDeleted])
+  @@map("appointments")
+}
 
 // ===================================================
-// 3. NOTES TABLE (Related to Customer)
+// 6. CUSTOMER NOTES
 // ===================================================
+
 model CustomerNote {
-  id         String   @id @default(cuid())
-  
-  // ✅ FOREIGN KEY - Links to Customer
-  customerId String   // ← This links to Customer.id
-  
+  id String @id @default(cuid())
+
+  // Foreign Key
+  customerId String
+
   // Note content
-  title      String?
-  content    String   @db.Text
-  writer     String?
-  
+  title   String?
+  content String
+  writer  String?
+  tags    String[]
+
+  // Privacy
+  isPrivate Boolean @default(false)
+
+  // Soft delete
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+
   // Timestamps
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  
-  // ✅ RELATIONSHIP - This note belongs to one customer
-  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
   @@index([customerId])
+  @@index([isDeleted])
   @@map("customer_notes")
 }
 
+// ===================================================
+// 7. SERVICE CATEGORIES
+// ===================================================
+
+model ServiceCategory {
+  id          String @id @default(cuid())
+  name        String
+  description String?
+  color       String?
+  icon        String?
+  sortOrder   Int    @default(0)
+
+  isActive Boolean @default(true)
+
+  // Soft delete
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  items ServiceItem[]
+
+  @@index([isDeleted])
+  @@map("service_categories")
+}
 
 // ===================================================
-// 4. SERVICES TABLE (Related to Customer)
+// 8. SERVICE ITEMS
 // ===================================================
+
+model ServiceItem {
+  id              String @id @default(cuid())
+  categoryId      String
+  title           String
+  description     String?
+  duration        Int?    // in minutes
+  preparationTime Int?    // in minutes
+  recoveryTime    Int?    // in minutes
+  contraindications String?
+
+  isActive Boolean @default(true)
+
+  // Soft delete
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  category     ServiceCategory @relation(fields: [categoryId], references: [id])
+  pricingPlans PricingPlan[]
+
+  @@index([categoryId])
+  @@index([isDeleted])
+  @@map("service_items")
+}
+
+// ===================================================
+// 9. PRICING PLANS
+// ===================================================
+
+enum BillingType {
+  SINGLE
+  PACKAGE
+  SUBSCRIPTION
+}
+
 model PricingPlan {
-  id          String   @id @default(cuid())
-  name        String
-  description String?  @db.Text
-  type        String?
-  price       Decimal  @db.Decimal(10, 2)
-  duration    Int?     // in minutes
-  
-  isActive    Boolean  @default(true)
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  // ✅ RELATIONSHIP
+  id            String  @id @default(cuid())
+  serviceItemId String?
+  name          String
+  description   String?
+  type          String? // legacy field for backward compatibility
+  price         Decimal @db.Decimal(10, 2)
+  currency      String  @default("USD")
+  duration      Int?    // in minutes
+  billingType   BillingType @default(SINGLE)
+  sessionsIncluded Int?
+  validityDays  Int?    // for packages/subscriptions
+
+  isActive Boolean @default(true)
+
+  // Soft delete
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  serviceItem ServiceItem?      @relation(fields: [serviceItemId], references: [id])
   customers   CustomerService[]
-  
+
+  @@index([serviceItemId])
+  @@index([isDeleted])
   @@map("pricing_plans")
 }
 
-// Many-to-many: Customer <-> Service
+// ===================================================
+// 10. CUSTOMER SERVICES (many-to-many pivot)
+// ===================================================
+
 model CustomerService {
-  id             String      @id @default(cuid())
-  
-  // ✅ FOREIGN KEYS
-  customerId     String      // ← Links to Customer.id
-  pricingPlanId  String      // ← Links to PricingPlan.id
-  
+  id String @id @default(cuid())
+
+  // Foreign Keys
+  customerId    String
+  pricingPlanId String
+
   // Service details for this customer
-  totalSessions  Int?
+  totalSessions     Int?
   remainingSessions Int?
-  purchaseDate   DateTime
-  expiryDate     DateTime?
-  status         String?      // "active", "expired", "expiring-soon"
-  
-  // ✅ RELATIONSHIPS
-  customer       Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  pricingPlan    PricingPlan @relation(fields: [pricingPlanId], references: [id])
-  
+  purchaseDate      DateTime
+  expiryDate        DateTime?
+  status            String? // "active", "expired", "expiring-soon"
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  customer    Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  pricingPlan PricingPlan @relation(fields: [pricingPlanId], references: [id])
+
   @@index([customerId])
+  @@index([pricingPlanId])
   @@map("customer_services")
 }
 
+// ===================================================
+// 11. PROGRESS SESSIONS
+// ===================================================
 
-// ===================================================
-// 5. PROGRESS TABLE (Related to Customer)
-// ===================================================
 model ProgressSession {
-  id            String   @id @default(cuid())
-  
-  // ✅ FOREIGN KEY - Links to Customer
-  customerId    String   // ← This links to Customer.id
-  
+  id String @id @default(cuid())
+
+  // Foreign Key
+  customerId String
+
   // Session details
-  date          DateTime
-  type          String?
-  status        String?
-  
-  // Images (store URLs as JSON)
-  beforeImage   String?
-  afterImage    String?
-  duringImages  String?  @db.Text // JSON: [{"url": "...", "caption": "..."}]
-  
-  // Products used (store as JSON array)
-  products      String?  @db.Text // JSON: ["Product 1", "Product 2"]
-  
+  date      DateTime
+  type      String?
+  status    String?
+
+  // Images (store URLs)
+  beforeImage  String?
+  afterImage   String?
+  duringImages Json? // Array of { url: string, caption: string }
+
+  // Products used
+  products Json? // Array of strings
+
   // Notes & progress
-  notes         String?  @db.Text
-  progress      Int?     // 0-100
-  therapist     String?
-  
+  notes     String?
+  progress  Int? // 0-100
+  therapist String?
+
+  // Soft delete
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+
   // Timestamps
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  // ✅ RELATIONSHIP - This session belongs to one customer
-  customer      Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
   @@index([customerId])
   @@index([date])
+  @@index([isDeleted])
   @@map("progress_sessions")
 }
 
+// ===================================================
+// 12. FINANCIAL TRANSACTIONS
+// ===================================================
 
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
 
+enum PaymentMethod {
+  CASH
+  CARD
+  BANK_TRANSFER
+  STRIPE
+  CHECK
+  OTHER
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+model Transaction {
+  id String @id @default(cuid())
+
+  type          TransactionType
+  category      String
+  amount        Decimal         @db.Decimal(10, 2)
+  currency      String          @default("USD")
+  description   String?
+  notes         String?
+  date          DateTime
+  paymentMethod PaymentMethod   @default(CASH)
+  status        TransactionStatus @default(COMPLETED)
+
+  // Optional links
+  appointmentId String?
+  customerId    String?
+  receiptURL    String?
+
+  // Stripe fields
+  stripePaymentIntentId String?
+  stripeSessionId       String?
+  idempotencyKey        String?  @unique
+
+  // Soft delete
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([type])
+  @@index([category])
+  @@index([date])
+  @@index([status])
+  @@index([customerId])
+  @@index([isDeleted])
+  @@map("transactions")
+}
+
+// ===================================================
+// 13. BUDGETS
+// ===================================================
+
+enum BudgetPeriod {
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+model Budget {
+  id       String       @id @default(cuid())
+  category String
+  amount   Decimal      @db.Decimal(10, 2)
+  spent    Decimal      @default(0) @db.Decimal(10, 2)
+  period   BudgetPeriod @default(MONTHLY)
+  notes    String?
+
+  // Period dates
+  startDate DateTime
+  endDate   DateTime
+
+  // Soft delete
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@index([period])
+  @@index([isDeleted])
+  @@map("budgets")
+}
+
+// ===================================================
+// 14. SAVINGS GOALS
+// ===================================================
+
+enum GoalStatus {
+  ACTIVE
+  COMPLETED
+  PAUSED
+  CANCELLED
+}
+
+model SavingsGoal {
+  id            String     @id @default(cuid())
+  name          String
+  description   String?
+  targetAmount  Decimal    @db.Decimal(10, 2)
+  currentAmount Decimal    @default(0) @db.Decimal(10, 2)
+  deadline      DateTime?
+  status        GoalStatus @default(ACTIVE)
+
+  // Soft delete
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([isDeleted])
+  @@map("savings_goals")
+}
+
+// ===================================================
+// 15. NOTIFICATIONS
+// ===================================================
+
+enum NotificationType {
+  APPOINTMENT_CREATED
+  APPOINTMENT_CANCELLED
+  APPOINTMENT_REMINDER
+  PAYMENT_RECEIVED
+  LOW_STOCK
+  STAFF_SCHEDULE_CHANGE
+  GENERAL
+}
+
+model Notification {
+  id     String           @id @default(cuid())
+  type   NotificationType @default(GENERAL)
+  title  String
+  message String
+  isRead Boolean          @default(false)
+
+  // Target user (Supabase auth user ID)
+  userId String
+
+  // Optional link to related resource
+  resourceType String? // "appointment", "customer", "inventory", etc.
+  resourceId   String?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+// ===================================================
+// 16. INVENTORY ITEMS
+// ===================================================
+
+enum InventoryStatus {
+  IN_STOCK
+  LOW_STOCK
+  OUT_OF_STOCK
+}
+
+model InventoryItem {
+  id              String          @id @default(cuid())
+  name            String
+  category        String?
+  currentQuantity Int             @default(0)
+  minQuantity     Int             @default(0)
+  unit            String?         // ml, g, pieces, bottles
+  costPerUnit     Decimal?        @db.Decimal(10, 2)
+  supplierName    String?
+  supplierContact String?
+  reorderQuantity Int?
+  notes           String?
+  status          InventoryStatus @default(IN_STOCK)
+
+  // Soft delete
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@index([status])
+  @@index([isDeleted])
+  @@map("inventory_items")
+}

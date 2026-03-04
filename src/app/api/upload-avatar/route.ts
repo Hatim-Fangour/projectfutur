@@ -1,73 +1,86 @@
-// app/api/upload-avatar/route.ts
+import { NextRequest, NextResponse } from 'next/server'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { withAuth } from '@/lib/api/withAuth'
 
-import { NextRequest, NextResponse } from "next/server";
-import { v2 as cloudinary } from "cloudinary";
+const BUCKET_NAME = 'avatars'
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
 
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
-export async function POST(request: NextRequest) {
+// POST /api/upload-avatar - Upload a customer or staff avatar
+export const POST = withAuth(async (request: NextRequest) => {
   try {
-    // Get the file from the request
-    const formData = await request.formData();
-    const file = formData.get("file") as File;
+    const formData = await request.formData()
+    const file = formData.get('file') as File | null
 
     if (!file) {
       return NextResponse.json(
-        { error: "No file provided" },
+        { success: false, error: 'No file provided' },
         { status: 400 }
-      );
+      )
     }
 
-    // Convert file to buffer
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    // Upload to Cloudinary with face detection and optimization
-    const result = await new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
+    // Validate file type
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return NextResponse.json(
         {
-          folder: "customer-avatars",
-          resource_type: "image",
-          // ✅ Face-focused transformation - stored asset is optimized
-          transformation: [
-            {
-              width: 350,
-              height: 350,
-              gravity: "faces", // Focus on faces
-              crop: "thumb",
-            },
-          ],
-          // ✅ Smart compression and format optimization
-          quality: "auto:good",
-          format: "webp", // Modern format (smaller size)
-          fetch_format: "auto", // Auto-select best format
+          success: false,
+          error: `Invalid file type. Allowed: ${ALLOWED_TYPES.join(', ')}`,
         },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
-      );
+        { status: 400 }
+      )
+    }
 
-      stream.end(buffer);
-    });
+    // Validate file size
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { success: false, error: 'File size must be under 5MB' },
+        { status: 400 }
+      )
+    }
+
+    const supabase = createAdminClient()
+
+    // Generate unique filename
+    const ext = file.name.split('.').pop() ?? 'webp'
+    const fileName = `${crypto.randomUUID()}.${ext}`
+    const filePath = `customer-avatars/${fileName}`
+
+    // Convert file to ArrayBuffer for upload
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+
+    const { data, error } = await supabase.storage
+      .from(BUCKET_NAME)
+      .upload(filePath, buffer, {
+        contentType: file.type,
+        upsert: false,
+      })
+
+    if (error) {
+      console.error('Supabase Storage upload error:', error.message)
+      return NextResponse.json(
+        { success: false, error: 'Upload failed' },
+        { status: 500 }
+      )
+    }
+
+    // Get the public URL
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from(BUCKET_NAME).getPublicUrl(data.path)
 
     return NextResponse.json({
-      secure_url: (result as any).secure_url,
-      public_id: (result as any).public_id,
-      width: (result as any).width,
-      height: (result as any).height,
-      format: (result as any).format,
-    });
+      success: true,
+      data: {
+        url: publicUrl,
+        path: data.path,
+      },
+    })
   } catch (error) {
-    console.error("Upload error:", error);
+    console.error('Upload error:', error)
     return NextResponse.json(
-      { error: "Upload failed" },
+      { success: false, error: 'Upload failed' },
       { status: 500 }
-    );
+    )
   }
-}
+})
