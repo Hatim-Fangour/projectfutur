@@ -27,7 +27,7 @@ const resetPasswordSchema = z
 
 type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>
 
-const inputClasses = 'w-full rounded-xl bg-white/[0.03] py-3.5 text-sm text-[#f0ece4] outline-none transition-all duration-300 placeholder:text-white/15 disabled:opacity-40 border border-white/[0.06] focus:border-[#C9A84C]/40 focus:shadow-[0_0_0_3px_rgba(201,168,76,0.08)]'
+const inputClasses = 'w-full rounded-xl bg-white/90 py-3.5 text-sm text-gray-900 outline-none transition-all duration-300 placeholder:text-gray-400 disabled:opacity-40 border border-white/20 focus:border-[#C9A84C]/50 focus:shadow-[0_0_0_3px_rgba(201,168,76,0.12)]'
 
 export default function ResetPasswordPage() {
   const router = useRouter()
@@ -152,7 +152,7 @@ export default function ResetPasswordPage() {
               New Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-[15px] w-[15px]" style={{ color: 'rgba(201, 168, 76, 0.3)' }} />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-[15px] w-[15px]" style={{ color: '#C9A84C' }} />
               <input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
@@ -165,8 +165,8 @@ export default function ResetPasswordPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors duration-200 hover:text-[#C9A84C]/60"
-                style={{ color: 'rgba(240, 236, 228, 0.2)' }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors duration-200 hover:text-[#C9A84C]"
+                style={{ color: 'rgba(201, 168, 76, 0.6)' }}
                 tabIndex={-1}
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -182,7 +182,7 @@ export default function ResetPasswordPage() {
               Confirm New Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-[15px] w-[15px]" style={{ color: 'rgba(201, 168, 76, 0.3)' }} />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-[15px] w-[15px]" style={{ color: '#C9A84C' }} />
               <input
                 id="confirmPassword"
                 type={showConfirmPassword ? 'text' : 'password'}
@@ -195,8 +195,8 @@ export default function ResetPasswordPage() {
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors duration-200 hover:text-[#C9A84C]/60"
-                style={{ color: 'rgba(240, 236, 228, 0.2)' }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors duration-200 hover:text-[#C9A84C]"
+                style={{ color: 'rgba(201, 168, 76, 0.6)' }}
                 tabIndex={-1}
               >
                 {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}

@@ -17,7 +17,7 @@ const forgotPasswordSchema = z.object({
 
 type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>
 
-const inputClasses = 'w-full rounded-xl bg-white/[0.03] py-3.5 text-sm text-[#f0ece4] outline-none transition-all duration-300 placeholder:text-white/15 disabled:opacity-40 border border-white/[0.06] focus:border-[#C9A84C]/40 focus:shadow-[0_0_0_3px_rgba(201,168,76,0.08)]'
+const inputClasses = 'w-full rounded-xl bg-white/90 py-3.5 text-sm text-gray-900 outline-none transition-all duration-300 placeholder:text-gray-400 disabled:opacity-40 border border-white/20 focus:border-[#C9A84C]/50 focus:shadow-[0_0_0_3px_rgba(201,168,76,0.12)]'
 
 export default function ForgotPasswordPage() {
   const [serverError, setServerError] = useState<string | null>(null)
@@ -135,7 +135,7 @@ export default function ForgotPasswordPage() {
               Email
             </label>
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-[15px] w-[15px]" style={{ color: 'rgba(201, 168, 76, 0.3)' }} />
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-[15px] w-[15px]" style={{ color: '#C9A84C' }} />
               <input
                 id="email"
                 type="email"
