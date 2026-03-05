@@ -26,7 +26,7 @@
 - Phase 7: COMPLETE -- Luxury design system, UI components, page styling, loading/error pages, metadata
 
 ## Key File Locations
-- Schema: `prisma/schema.prisma` (PostgreSQL, 16 models)
+- Schema: `prisma/schema.prisma` (PostgreSQL, 17 models incl. PasswordResetOtp)
 - Prisma client: `src/lib/prisma.ts`
 - Supabase clients: `src/lib/supabase/{client,server,admin,middleware}.ts`
 - API client: `src/lib/api-client.ts` (typed, fetch-based, all resources incl. paymentApi)
@@ -42,7 +42,8 @@
 - Route groups: `src/app/[locale]/(auth)/` and `src/app/[locale]/(dashboard)/`
 - Root layout: `src/app/layout.tsx` (minimal: fonts + body only)
 - Locale layout: `src/app/[locale]/layout.tsx` (providers: NextIntl, Theme, Auth, Realtime, Toaster)
-- Services: `src/lib/services/` (appointment, customer, staff, service-catalog, finance, dashboard, note, inventory, notification, payment, notification-triggers)
+- Services: `src/lib/services/` (appointment, customer, staff, service-catalog, finance, dashboard, note, inventory, notification, payment, notification-triggers, password-reset)
+- Email: `src/lib/email.ts` (Resend client + OTP email template)
 
 ## Realtime Architecture (Phase 6)
 - RealtimeProvider subscribes to Supabase postgres_changes on: appointments, notifications, inventory_items
@@ -90,3 +91,15 @@
 - Added in Phase 3: @radix-ui/react-switch (shadcn Switch)
 - Added in Phase 4: next-intl
 - Added in Phase 5: stripe, @stripe/stripe-js, @stripe/react-stripe-js
+- Added post-phase: resend (email sending)
+
+## OTP Password Reset Flow
+- 3-step flow: email -> OTP verification -> new password (all in ForgotPasswordClient.tsx)
+- PasswordResetOtp model in Prisma (@@map: password_reset_otps)
+- OTP: SHA-256 hashed, 10min expiry, max 3 attempts, max 3 requests/email/hour
+- After OTP verified: issues a 64-char hex reset token (stored on same record)
+- Reset token used once to update password via Supabase Admin API
+- API routes: /api/auth/forgot-password, /api/auth/verify-otp, /api/auth/reset-password
+- Email via Resend (RESEND_API_KEY + EMAIL_FROM env vars)
+- forgot-password route always returns success (prevents email enumeration)
+- Migration note: Prisma migration_lock.toml has MySQL provider; use `prisma db push` not `migrate dev`

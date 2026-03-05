@@ -189,7 +189,6 @@ const BookAppointment = ({
           apt.end && apt.end instanceof Date && !isNaN(apt.end.getTime());
 
         if (!hasValidStart || !hasValidEnd) {
-          console.warn("Invalid appointment found:", apt);
           return false;
         }
 
@@ -410,14 +409,9 @@ const BookAppointment = ({
         event.end instanceof Date &&
         !isNaN(event.end.getTime());
 
-      if (!isValid) {
-        console.warn("Filtered out invalid event:", event);
-      }
-
       return isValid;
     });
 
-    // console.log("📅 Valid events for calendar:", validEvents.length);
     return validEvents;
   }, [existingEvents, draftEvent]);
 
@@ -462,7 +456,7 @@ const BookAppointment = ({
         >
           <DialogContent className="thisDialog flex flex-col justify-between w-full h-full gap-10! sm:max-w-full">
             <DialogHeader className="flex">
-              <DialogTitle>Book Appointment for Achille</DialogTitle>
+              <DialogTitle>Book Appointment for {customer.fullName}</DialogTitle>
               <DialogDescription>
                 Make changes to your profile here. Click save when you&apos;re
                 done.
@@ -531,7 +525,7 @@ const BookAppointment = ({
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="flex items-center gap-2">
-                                <Sparkles className="h-4 w-4" />
+                                <Sparkles className="h-4 w-4" aria-hidden="true" />
                                 Service
                               </FormLabel>
 
@@ -583,13 +577,13 @@ const BookAppointment = ({
                                       <div className="flex items-center gap-7">
                                         {selectedServiceInfo.price && (
                                           <p className="text-muted-foreground flex items-center gap-1">
-                                            <DollarSign className="h-4 w-4" />
+                                            <DollarSign className="h-4 w-4" aria-hidden="true" />
                                             Cost: ${selectedServiceInfo.price}
                                           </p>
                                         )}
                                         {selectedServiceInfo.duration && (
                                           <p className="text-muted-foreground flex items-center gap-1">
-                                            <Clock className="h-4 w-4" />
+                                            <Clock className="h-4 w-4" aria-hidden="true" />
                                             Duration:{" "}
                                             {selectedServiceInfo.duration} min
                                           </p>
@@ -602,7 +596,7 @@ const BookAppointment = ({
                                             render={({ field }) => (
                                               <FormItem className="flex ">
                                                 <FormLabel className="text-muted-foreground flex items-center gap-1">
-                                                  <Timer className="h-4 w-4" />
+                                                  <Timer className="h-4 w-4" aria-hidden="true" />
                                                   Buffer
                                                 </FormLabel>
                                                 <Select
@@ -663,7 +657,7 @@ const BookAppointment = ({
 
                         {/* Date and Time Pickers */}
                         <div className="flex items-center gap-6 w-full">
-                          <Clock />
+                          <Clock aria-hidden="true" />
                           <div className="flex flex-1 gap-14 min-w-0">
                             {/* Date Picker */}
                             <FormField
@@ -688,7 +682,7 @@ const BookAppointment = ({
                                           ) : (
                                             <span>Pick a date</span>
                                           )}
-                                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" aria-hidden="true" />
                                         </Button>
                                       </FormControl>
                                     </PopoverTrigger>
@@ -737,7 +731,7 @@ const BookAppointment = ({
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="flex items-center gap-2">
-                                <UserStar className="h-4 w-4" />
+                                <UserStar className="h-4 w-4" aria-hidden="true" />
                                 Guest
                               </FormLabel>
                               <FormControl className="mt-2">
@@ -745,7 +739,7 @@ const BookAppointment = ({
                                   <Avatar>
                                     <AvatarImage
                                       src="https://github.com/shadcn.png"
-                                      alt="@shadcn"
+                                      alt={customer.fullName}
                                     />
                                     <AvatarFallback>CN</AvatarFallback>
                                   </Avatar>
@@ -765,7 +759,7 @@ const BookAppointment = ({
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="flex items-center gap-2">
-                                <House className="h-4 w-4" />
+                                <House className="h-4 w-4" aria-hidden="true" />
                                 Room
                               </FormLabel>
                               <Select
@@ -795,7 +789,7 @@ const BookAppointment = ({
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="flex items-center gap-2">
-                                <NotebookPen className="h-4 w-4" />
+                                <NotebookPen className="h-4 w-4" aria-hidden="true" />
                                 Note
                               </FormLabel>
                               <FormControl className="mt-2">
@@ -820,7 +814,7 @@ const BookAppointment = ({
                           <Avatar>
                             <AvatarImage
                               src="https://github.com/shadcn.png"
-                              alt="@shadcn"
+                              alt="Hatim Fangour"
                             />
                             <AvatarFallback>CN</AvatarFallback>
                           </Avatar>
@@ -843,7 +837,7 @@ const BookAppointment = ({
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="flex items-center gap-2">
-                                <Sparkles className="h-4 w-4" />
+                                <Sparkles className="h-4 w-4" aria-hidden="true" />
                                 Class
                               </FormLabel>
 
@@ -893,13 +887,13 @@ const BookAppointment = ({
                                       <div className="flex items-center gap-7">
                                         {selectedServiceInfo.price && (
                                           <p className="text-muted-foreground flex items-center gap-1">
-                                            <DollarSign className="h-4 w-4" />
+                                            <DollarSign className="h-4 w-4" aria-hidden="true" />
                                             Cost: ${selectedServiceInfo.price}
                                           </p>
                                         )}
                                         {selectedServiceInfo.duration && (
                                           <p className="text-muted-foreground flex items-center gap-1">
-                                            <Clock className="h-4 w-4" />
+                                            <Clock className="h-4 w-4" aria-hidden="true" />
                                             Duration:{" "}
                                             {selectedServiceInfo.duration} min
                                           </p>
@@ -912,7 +906,7 @@ const BookAppointment = ({
                                             render={({ field }) => (
                                               <FormItem className="flex ">
                                                 <FormLabel className="text-muted-foreground flex items-center gap-1">
-                                                  <Timer className="h-4 w-4" />
+                                                  <Timer className="h-4 w-4" aria-hidden="true" />
                                                   Buffer
                                                 </FormLabel>
                                                 <Select
@@ -973,7 +967,7 @@ const BookAppointment = ({
 
                         {/* Date and Time Pickers */}
                         <div className="flex items-center gap-6 w-full">
-                          <Clock />
+                          <Clock aria-hidden="true" />
                           <div className="flex flex-1 gap-14 min-w-0">
                             {/* Date Picker */}
                             <FormField
@@ -998,7 +992,7 @@ const BookAppointment = ({
                                           ) : (
                                             <span>Pick a date</span>
                                           )}
-                                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" aria-hidden="true" />
                                         </Button>
                                       </FormControl>
                                     </PopoverTrigger>
@@ -1045,7 +1039,7 @@ const BookAppointment = ({
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="flex items-center gap-2">
-                                <UserStar className="h-4 w-4" />
+                                <UserStar className="h-4 w-4" aria-hidden="true" />
                                 Guest
                               </FormLabel>
                               <FormControl className="mt-2">
@@ -1053,7 +1047,7 @@ const BookAppointment = ({
                                   <Avatar>
                                     <AvatarImage
                                       src="https://github.com/shadcn.png"
-                                      alt="@shadcn"
+                                      alt={customer.fullName}
                                     />
                                     <AvatarFallback>CN</AvatarFallback>
                                   </Avatar>
@@ -1073,7 +1067,7 @@ const BookAppointment = ({
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="flex items-center gap-2">
-                                <NotebookPen className="h-4 w-4" />
+                                <NotebookPen className="h-4 w-4" aria-hidden="true" />
                                 Notes
                               </FormLabel>
                               <FormControl className="mt-2">
@@ -1098,7 +1092,7 @@ const BookAppointment = ({
                           <Avatar>
                             <AvatarImage
                               src="https://github.com/shadcn.png"
-                              alt="@shadcn"
+                              alt="Hatim Fangour"
                             />
                             <AvatarFallback>CN</AvatarFallback>
                           </Avatar>
@@ -1121,7 +1115,7 @@ const BookAppointment = ({
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="flex items-center gap-2">
-                                <Sparkles className="h-4 w-4" />
+                                <Sparkles className="h-4 w-4" aria-hidden="true" />
                                 Event
                               </FormLabel>
 
@@ -1164,7 +1158,7 @@ const BookAppointment = ({
 
                         {/* Date and Time Pickers */}
                         <div className="flex items-center gap-6 w-full">
-                          <Clock />
+                          <Clock aria-hidden="true" />
                           <div className="flex flex-1 gap-14 min-w-0">
                             {/* Date Picker */}
                             <FormField
@@ -1189,7 +1183,7 @@ const BookAppointment = ({
                                           ) : (
                                             <span>Pick a date</span>
                                           )}
-                                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" aria-hidden="true" />
                                         </Button>
                                       </FormControl>
                                     </PopoverTrigger>
@@ -1236,7 +1230,7 @@ const BookAppointment = ({
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="flex items-center gap-2">
-                                <UserStar className="h-4 w-4" />
+                                <UserStar className="h-4 w-4" aria-hidden="true" />
                                 Guest
                               </FormLabel>
                               <FormControl className="mt-2">
@@ -1244,7 +1238,7 @@ const BookAppointment = ({
                                   <Avatar>
                                     <AvatarImage
                                       src="https://github.com/shadcn.png"
-                                      alt="@shadcn"
+                                      alt={customer.fullName}
                                     />
                                     <AvatarFallback>CN</AvatarFallback>
                                   </Avatar>
@@ -1264,7 +1258,7 @@ const BookAppointment = ({
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="flex items-center gap-2">
-                                <LocationEdit className="h-4 w-4" />
+                                <LocationEdit className="h-4 w-4" aria-hidden="true" />
                                 Location
                               </FormLabel>
                               <FormControl className="mt-2">
@@ -1288,7 +1282,7 @@ const BookAppointment = ({
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="flex items-center gap-2">
-                                <NotebookPen className="h-4 w-4" />
+                                <NotebookPen className="h-4 w-4" aria-hidden="true" />
                                 Notes
                               </FormLabel>
                               <FormControl className="mt-2">
@@ -1313,7 +1307,7 @@ const BookAppointment = ({
                           <Avatar>
                             <AvatarImage
                               src="https://github.com/shadcn.png"
-                              alt="@shadcn"
+                              alt="Hatim Fangour"
                             />
                             <AvatarFallback>CN</AvatarFallback>
                           </Avatar>
@@ -1331,7 +1325,7 @@ const BookAppointment = ({
                       <div className="grid gap-8 flex-1 h-fit">
                         {/* Date and Time Pickers */}
                         <div className="flex items-center gap-6 w-full">
-                          <Clock />
+                          <Clock aria-hidden="true" />
                           <div className="flex flex-1 gap-14 min-w-0">
                             {/* Date Picker */}
                             <FormField
@@ -1356,7 +1350,7 @@ const BookAppointment = ({
                                           ) : (
                                             <span>Pick a date</span>
                                           )}
-                                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" aria-hidden="true" />
                                         </Button>
                                       </FormControl>
                                     </PopoverTrigger>
@@ -1403,7 +1397,7 @@ const BookAppointment = ({
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="flex items-center gap-2">
-                                <NotebookPen className="h-4 w-4" />
+                                <NotebookPen className="h-4 w-4" aria-hidden="true" />
                                 Notes
                               </FormLabel>
                               <FormControl className="mt-2">
@@ -1428,7 +1422,7 @@ const BookAppointment = ({
                           <Avatar>
                             <AvatarImage
                               src="https://github.com/shadcn.png"
-                              alt="@shadcn"
+                              alt="Hatim Fangour"
                             />
                             <AvatarFallback>CN</AvatarFallback>
                           </Avatar>
@@ -1447,11 +1441,6 @@ const BookAppointment = ({
               </DialogClose>
               <Button
                 type="submit"
-                // onClick={() => {
-                //   console.log("Form values:", form.getValues());
-                //   console.log("Form errors:", form.formState.errors);
-                //   console.log("Is valid?", form.formState.isValid);
-                // }}
                 onClick={form.handleSubmit((data) =>
                   handleFormSubmit(customer, data, onSubmit, setDialogOpen)
                 )}

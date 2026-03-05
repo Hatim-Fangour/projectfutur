@@ -29,7 +29,7 @@ const ClassCard = ({ Class }: any) => {
       />
       <div className="info flex w-1/ items-center gap-5 ">
         <Avatar className="size-15 text-xl">
-          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+          <AvatarImage src="https://github.com/shadcn.png" alt={Class.title} />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
 
@@ -42,17 +42,17 @@ const ClassCard = ({ Class }: any) => {
           </div>
           <div className="flex gap-8 w-full">
             <div className="flex items-center gap-2">
-              <AlarmClockCheck className="h-4 w-4" />
+              <AlarmClockCheck aria-hidden="true" className="h-4 w-4" />
               <span>{Class.duration} minutes</span>
             </div>
 
             <div className="flex items-center gap-2">
-              <Armchair className="h-4 w-4" />
+              <Armchair aria-hidden="true" className="h-4 w-4" />
               <span>{Class.seats}</span>
             </div>
 
             <div className="flex items-center gap-2">
-              <CircleDollarSign className="h-4 w-4" />
+              <CircleDollarSign aria-hidden="true" className="h-4 w-4" />
               <span>{Class.cost}</span>
             </div>
           </div>
@@ -61,8 +61,8 @@ const ClassCard = ({ Class }: any) => {
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-         <Button className="w-8 h-8 border-0 p-0!" variant="ghost" size="sm">
-            <MoreVertical size={10} />
+         <Button className="w-8 h-8 border-0 p-0!" variant="ghost" size="sm" aria-label={`More options for ${Class.title}`}>
+            <MoreVertical aria-hidden="true" size={10} />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
@@ -72,19 +72,19 @@ const ClassCard = ({ Class }: any) => {
           align="start"
         >
           <DropdownMenuItem
-            onSelect={() => console.log("Edit")}
+            onSelect={() => {}}
             className="flex items-center justify-between w-full"
           >
             Edit
-            <Pen />
+            <Pen aria-hidden="true" />
           </DropdownMenuItem>
           <DropdownMenuItem
-            onSelect={() => console.log("Delete")}
+            onSelect={() => {}}
             variant="destructive"
             className="flex items-center justify-between w-full"
           >
             Delete
-            <Trash2 />
+            <Trash2 aria-hidden="true" />
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

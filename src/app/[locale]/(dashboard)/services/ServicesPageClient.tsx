@@ -245,8 +245,8 @@ export default function ServicesPage() {
                                     )}
                                     <div className="flex justify-end gap-1">
                                       <Button variant="ghost" size="sm" onClick={() => openCreatePricing(item.id)}><DollarSign className="h-3 w-3 mr-1" /> Price</Button>
-                                      <Button variant="ghost" size="sm" onClick={() => openEditItem(item)}><Pencil className="h-3 w-3" /></Button>
-                                      <Button variant="ghost" size="sm" onClick={() => openDelete(item.id, 'item')}><Trash2 className="h-3 w-3 text-destructive" /></Button>
+                                      <Button variant="ghost" size="sm" aria-label="Edit service" onClick={() => openEditItem(item)}><Pencil className="h-3 w-3" /></Button>
+                                      <Button variant="ghost" size="sm" aria-label="Delete service" onClick={() => openDelete(item.id, 'item')}><Trash2 className="h-3 w-3 text-destructive" /></Button>
                                     </div>
                                   </CardContent>
                                 </Card>
@@ -288,8 +288,8 @@ export default function ServicesPage() {
                     {p.description && <p className="text-xs text-muted-foreground">{p.description}</p>}
                     {p.duration && <p className="text-xs text-muted-foreground">{p.duration} min</p>}
                     <div className="flex justify-end gap-1">
-                      <Button variant="ghost" size="sm" onClick={() => openEditPricing(p)}><Pencil className="h-3 w-3" /></Button>
-                      <Button variant="ghost" size="sm" onClick={() => openDelete(p.id, 'pricing')}><Trash2 className="h-3 w-3 text-destructive" /></Button>
+                      <Button variant="ghost" size="sm" aria-label="Edit pricing" onClick={() => openEditPricing(p)}><Pencil className="h-3 w-3" /></Button>
+                      <Button variant="ghost" size="sm" aria-label="Delete pricing" onClick={() => openDelete(p.id, 'pricing')}><Trash2 className="h-3 w-3 text-destructive" /></Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -329,7 +329,7 @@ export default function ServicesPage() {
             <div className="grid gap-2">
               <Label>Category *</Label>
               <Select value={itemForm.categoryId} onValueChange={(v) => setItemForm((p) => ({ ...p, categoryId: v }))} disabled={submitting}>
-                <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
+                <SelectTrigger aria-label="Category"><SelectValue placeholder="Select category" /></SelectTrigger>
                 <SelectContent>{categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
               </Select>
             </div>
@@ -363,12 +363,12 @@ export default function ServicesPage() {
               </Select>
             </div>
             <div className="grid gap-2"><Label htmlFor="priceName">Plan Name *</Label><Input id="priceName" value={pricingForm.name} onChange={(e) => setPricingForm((p) => ({ ...p, name: e.target.value }))} disabled={submitting} /></div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="grid gap-2"><Label htmlFor="priceAmount">Price *</Label><Input id="priceAmount" type="number" step="0.01" min="0" value={pricingForm.price} onChange={(e) => setPricingForm((p) => ({ ...p, price: e.target.value }))} disabled={submitting} /></div>
               <div className="grid gap-2">
                 <Label>Billing Type</Label>
                 <Select value={pricingForm.billingType} onValueChange={(v) => setPricingForm((p) => ({ ...p, billingType: v }))} disabled={submitting}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger aria-label="Billing type"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="SINGLE">Single</SelectItem>
                     <SelectItem value="PACKAGE">Package</SelectItem>

@@ -300,8 +300,6 @@ export const handleFormSubmit = (
   onSubmit: (appointment: any) => void,
   setDialogOpen: (value: SetStateAction<boolean>) => void
 ) => {
- 
-console.log({data})
 
   // const appointment = {
   //   date: formatDateToString(data.date),
@@ -318,7 +316,6 @@ console.log({data})
   //   color: data.color,
   //   status: "pending" as const,
   // };
-  // console.log({ appointment });
   // onSubmit(appointment);
   toast.success("Customer added successfully!");
 

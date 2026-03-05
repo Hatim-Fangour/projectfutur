@@ -498,7 +498,7 @@ const BudgetManager = ({ timeRange }: any) => {
                 {/* Expandable Details */}
                 {selectedCategory === index && (
                   <div className="mt-4 pt-4 border-t border-border">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <div className="text-sm text-muted-foreground">
                           Remaining

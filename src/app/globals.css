@@ -320,3 +320,39 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ===================================================
+   Reduced Motion — WCAG 2.1 AA §2.3.3
+   =================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up,
+  .animate-fade-in,
+  .animate-slide-in,
+  .animate-scale-in {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .animate-gold-pulse,
+  .animate-float {
+    animation: none !important;
+  }
+
+  .luxury-shimmer {
+    animation: none !important;
+  }
+
+  .stagger-children > * {
+    animation-delay: 0s !important;
+  }
+
+  .card-hover-lift {
+    transition: none !important;
+  }
+
+  .card-hover-lift:hover {
+    transform: none !important;
+  }
+}

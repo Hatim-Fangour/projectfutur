@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const PackageCard = ({ pkg }: any) => {
-  console.log({ pkg });
   return (
     <div className="packageCardContainer w-full border rounded-lg flex items-center p-2.5 pl-5 overflow-hidden justify-between relative">
       <div
@@ -26,7 +25,7 @@ const PackageCard = ({ pkg }: any) => {
       />
       <div className="info flex w-1/ items-center gap-5 ">
         <Avatar className="size-15 text-xl">
-          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+          <AvatarImage src="https://github.com/shadcn.png" alt={pkg.name} />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
 
@@ -39,12 +38,12 @@ const PackageCard = ({ pkg }: any) => {
           </div>
           <div className="flex gap-8 w-full">
             <div className="flex items-center gap-2">
-              <AlarmClockCheck className="h-4 w-4" />
+              <AlarmClockCheck aria-hidden="true" className="h-4 w-4" />
               <span>{pkg.duration} minutes</span>
             </div>
 
             <div className="flex items-center gap-2">
-              <CircleDollarSign className="h-4 w-4" />
+              <CircleDollarSign aria-hidden="true" className="h-4 w-4" />
               {pkg.promoPrice ? (
                 <>
                   <span className="promoPrice font-bold">
@@ -62,8 +61,8 @@ const PackageCard = ({ pkg }: any) => {
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button className="w-8 h-8 border-0 p-0!" variant="ghost" size="sm">
-            <MoreVertical size={10} />
+          <Button className="w-8 h-8 border-0 p-0!" variant="ghost" size="sm" aria-label={`More options for ${pkg.name}`}>
+            <MoreVertical aria-hidden="true" size={10} />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
@@ -73,19 +72,19 @@ const PackageCard = ({ pkg }: any) => {
           align="start"
         >
           <DropdownMenuItem
-            onSelect={() => console.log("Edit")}
+            onSelect={() => {}}
             className="flex items-center justify-between w-full"
           >
             Edit
-            <Pen />
+            <Pen aria-hidden="true" />
           </DropdownMenuItem>
           <DropdownMenuItem
-            onSelect={() => console.log("Delete")}
+            onSelect={() => {}}
             variant="destructive"
             className="flex items-center justify-between w-full"
           >
             Delete
-            <Trash2 />
+            <Trash2 aria-hidden="true" />
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -130,14 +129,14 @@ const PackageCard = ({ pkg }: any) => {
     //       align="start"
     //     >
     //       <DropdownMenuItem
-    //         onSelect={() => console.log("Edit")}
+    //         onSelect={() => {}}
     //         className="flex items-center justify-between w-full"
     //       >
     //         Edit
     //         <Pen />
     //       </DropdownMenuItem>
     //       <DropdownMenuItem
-    //         onSelect={() => console.log("Delete")}
+    //         onSelect={() => {}}
     //         variant="destructive"
     //         className="flex items-center justify-between w-full"
     //       >

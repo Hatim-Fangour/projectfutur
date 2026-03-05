@@ -162,7 +162,7 @@ export default function ManualPaymentForm({
             onValueChange={setCustomerId}
             disabled={submitting || loadingCustomers}
           >
-            <SelectTrigger>
+            <SelectTrigger aria-label="Customer">
               <SelectValue placeholder={t('selectCustomer')} />
             </SelectTrigger>
             <SelectContent>
@@ -184,7 +184,7 @@ export default function ManualPaymentForm({
           onValueChange={setAppointmentId}
           disabled={submitting}
         >
-          <SelectTrigger>
+          <SelectTrigger aria-label="Appointment">
             <SelectValue placeholder={t('selectAppointment')} />
           </SelectTrigger>
           <SelectContent>
@@ -220,7 +220,7 @@ export default function ManualPaymentForm({
             onValueChange={(v) => setPaymentMethod(v as PaymentMethodType)}
             disabled={submitting}
           >
-            <SelectTrigger>
+            <SelectTrigger aria-label="Payment method">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

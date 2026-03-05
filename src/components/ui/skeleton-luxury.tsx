@@ -34,7 +34,7 @@ SkeletonLuxury.displayName = 'SkeletonLuxury'
 
 function SkeletonStatCards({ count = 4 }: { count?: number }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div role="status" aria-label="Loading statistics" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="glass-card rounded-xl p-5 gold-border-top space-y-3">
           <div className="flex items-start justify-between">
@@ -53,7 +53,7 @@ function SkeletonStatCards({ count = 4 }: { count?: number }) {
 
 function SkeletonPageHeader() {
   return (
-    <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between pb-4 mb-6 border-b border-gold/20">
+    <div role="status" aria-label="Loading page header" className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between pb-4 mb-6 border-b border-gold/20">
       <div className="space-y-2">
         <SkeletonLuxury className="h-8 w-48" />
         <SkeletonLuxury className="h-4 w-72" />
@@ -65,7 +65,7 @@ function SkeletonPageHeader() {
 
 function SkeletonTable({ rows = 5, cols = 5 }: { rows?: number; cols?: number }) {
   return (
-    <div className="glass-card rounded-xl overflow-hidden">
+    <div role="status" aria-label="Loading table" className="glass-card rounded-xl overflow-hidden">
       <div className="p-4 border-b border-gold/10">
         <div className="flex gap-4">
           {Array.from({ length: cols }).map((_, i) => (
@@ -88,7 +88,7 @@ function SkeletonTable({ rows = 5, cols = 5 }: { rows?: number; cols?: number })
 
 function SkeletonCards({ count = 6 }: { count?: number }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div role="status" aria-label="Loading cards" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="glass-card rounded-xl p-5 space-y-3">
           <div className="flex items-center gap-3">

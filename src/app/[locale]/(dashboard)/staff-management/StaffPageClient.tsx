@@ -252,21 +252,23 @@ export default function StaffManagementPage() {
 
       {/* Filters */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 border-b border-gold/10 pb-4">
+        <label className="sr-only" htmlFor="staff-search">Search staff</label>
         <Input
+          id="staff-search"
           placeholder="Search by name or email..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="md:col-span-2"
         />
         <Select value={roleFilter} onValueChange={(v) => setRoleFilter(v === 'all' ? '' : v)}>
-          <SelectTrigger><SelectValue placeholder="All Roles" /></SelectTrigger>
+          <SelectTrigger aria-label="Filter by role"><SelectValue placeholder="All Roles" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Roles</SelectItem>
             {ROLES.map((r) => <SelectItem key={r} value={r}>{formatRole(r)}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v === 'all' ? '' : v)}>
-          <SelectTrigger><SelectValue placeholder="All Statuses" /></SelectTrigger>
+          <SelectTrigger aria-label="Filter by status"><SelectValue placeholder="All Statuses" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Statuses</SelectItem>
             {STATUSES.map((s) => <SelectItem key={s} value={s}>{s.replace('_', ' ')}</SelectItem>)}
@@ -280,8 +282,8 @@ export default function StaffManagementPage() {
           Showing {filteredStaff.length} of {staffMembers.length} staff members
         </span>
         <div className="flex items-center gap-1">
-          <Button variant={viewMode === 'table' ? 'default' : 'outline'} size="sm" onClick={() => setViewMode('table')}><List className="h-4 w-4" /></Button>
-          <Button variant={viewMode === 'cards' ? 'default' : 'outline'} size="sm" onClick={() => setViewMode('cards')}><Grid className="h-4 w-4" /></Button>
+          <Button variant={viewMode === 'table' ? 'default' : 'outline'} size="sm" onClick={() => setViewMode('table')} aria-label="Table view" aria-pressed={viewMode === 'table'}><List className="h-4 w-4" /></Button>
+          <Button variant={viewMode === 'cards' ? 'default' : 'outline'} size="sm" onClick={() => setViewMode('cards')} aria-label="Card view" aria-pressed={viewMode === 'cards'}><Grid className="h-4 w-4" /></Button>
         </div>
       </div>
 
@@ -318,7 +320,7 @@ export default function StaffManagementPage() {
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar className="h-9 w-9">
-                        <AvatarImage src={member.pictureURL ?? undefined} />
+                        <AvatarImage src={member.pictureURL ?? undefined} alt={member.fullName} />
                         <AvatarFallback>{getInitials(member.fullName)}</AvatarFallback>
                       </Avatar>
                       <div>
@@ -333,8 +335,8 @@ export default function StaffManagementPage() {
                   <TableCell className="text-muted-foreground capitalize">{member.employmentType.replace('_', ' ').toLowerCase()}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Button variant="ghost" size="icon" onClick={() => openEdit(member)}><Pencil className="h-4 w-4" /></Button>
-                      <Button variant="ghost" size="icon" onClick={() => openDelete(member)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                      <Button variant="ghost" size="icon" onClick={() => openEdit(member)} aria-label={`Edit ${member.fullName}`}><Pencil className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" onClick={() => openDelete(member)} aria-label={`Delete ${member.fullName}`}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -350,7 +352,7 @@ export default function StaffManagementPage() {
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-12 w-12">
-                      <AvatarImage src={member.pictureURL ?? undefined} />
+                      <AvatarImage src={member.pictureURL ?? undefined} alt={member.fullName} />
                       <AvatarFallback>{getInitials(member.fullName)}</AvatarFallback>
                     </Avatar>
                     <div>
@@ -438,7 +440,7 @@ export default function StaffManagementPage() {
               <div className="grid gap-2">
                 <Label>Employment Type</Label>
                 <Select value={formData.employmentType} onValueChange={(v) => setFormData((p) => ({ ...p, employmentType: v }))} disabled={submitting}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger aria-label="Filter by employment type"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {EMPLOYMENT_TYPES.map((t) => <SelectItem key={t} value={t}>{t.replace('_', ' ')}</SelectItem>)}
                   </SelectContent>

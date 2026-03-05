@@ -1,858 +1,491 @@
-@import './variables.scss';
+@import './variables';
 
+// ============================================
+// Calendar Page Body
+// ============================================
 
 .calendarPageBody {
   height: 100%;
-  // flex: 5;
-  // padding: 10px;
-  
+
   .calendar-container {
     height: 100%;
-    //   padding: 20px;
     box-sizing: border-box;
-    
-    .rbc-toolbr {
-      // background-color: #43f303;
-      .rbc-toolbar-label {
-        font-size: 20px;
-      }
-      .rbc-btn-group {
-        button {
-          border: 1px solid #cab06d;
-          border-radius: 90px;
-          cursor: pointer;
-          margin-right: 5px;
-          background-color: #ffe49f4f;
-        }
-        
-        .addAppointmentBtn {
-          border: none;
-          cursor: pointer;
-          background-color: black !important;
-          color: white;
-          font-weight: bold;
-          // padding: 0;
+  }
+}
 
-          .addAppointmentIcon {
-            font-size: 20px;
-            margin-top: 2px;
-            // height: 20px;
-          }
-        }
-      }
+// ============================================
+// Global react-big-calendar overrides
+// ============================================
+
+.rbc-calendar {
+  color: var(--cal-text);
+  font-family: inherit;
+}
+
+// Header row (Sun, Mon, etc.)
+.rbc-header {
+  background: var(--cal-header-bg);
+  border-bottom: 1px solid var(--cal-border) !important;
+  border-left: none !important;
+  padding: 8px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--cal-text-muted);
+
+  & + .rbc-header {
+    border-left: 1px solid var(--cal-border) !important;
+  }
+}
+
+// ============================================
+// Month View
+// ============================================
+
+.rbc-month-view {
+  border: 1px solid var(--cal-border) !important;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.rbc-month-row {
+  border-top: 1px solid var(--cal-border);
+  border-bottom: none;
+
+  & + .rbc-month-row {
+    border-top: 1px solid var(--cal-border);
+  }
+}
+
+.rbc-day-bg {
+  border-left: 1px solid var(--cal-border) !important;
+  transition: background-color 0.15s ease;
+
+  &:first-child {
+    border-left: none !important;
+  }
+
+  &:hover {
+    background-color: var(--cal-hover);
+  }
+
+  &.rbc-today {
+    background-color: var(--cal-today-bg) !important;
+  }
+
+  &.rbc-off-range-bg {
+    background-color: var(--cal-off-range);
+  }
+}
+
+// Date number in month cells
+.rbc-date-cell {
+  padding: 4px 6px;
+  text-align: right;
+  font-size: 13px;
+  color: var(--cal-text-muted);
+
+  &.rbc-now {
+    .rbc-button-link {
+      color: var(--cal-today-num-color);
+      font-weight: 700;
+      background: var(--cal-today-num-bg);
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
     }
   }
-  
-  .calendar-container.month-view {
-    .rbc-month-view {
+
+  &.rbc-off-range {
+    color: var(--cal-text-muted);
+    opacity: 0.4;
+  }
+
+  .rbc-button-link {
+    color: var(--cal-text);
+    font-size: 13px;
+  }
+}
+
+// "Show more" link
+.rbc-show-more {
+  color: var(--cal-gold) !important;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 4px;
+
+  &:hover {
+    color: var(--cal-gold-light) !important;
+  }
+}
+
+// ============================================
+// Events (all views)
+// ============================================
+
+.rbc-event {
+  background-color: var(--event-service-bg) !important;
+  border: none !important;
+  border-left: 3px solid var(--event-service-border) !important;
+  border-radius: 4px !important;
+  color: var(--cal-text) !important;
+  font-size: 12px;
+  padding: 2px 6px !important;
+  outline: none !important;
+  box-shadow: none !important;
+  transition: opacity 0.15s ease;
+  overflow: hidden;
+
+  &:hover {
+    opacity: 0.85;
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 2px rgba(201, 168, 76, 0.3) !important;
+  }
+
+  &.rbc-selected {
+    opacity: 1;
+    box-shadow: 0 0 0 2px rgba(201, 168, 76, 0.4) !important;
+  }
+
+  // Type-specific
+  &.serviceEvent {
+    background-color: var(--event-service-bg) !important;
+    border-left-color: var(--event-service-border) !important;
+  }
+
+  &.classEvent {
+    background-color: var(--event-class-bg) !important;
+    border-left-color: var(--event-class-border) !important;
+  }
+
+  &.eventEvent {
+    background-color: var(--event-event-bg) !important;
+    border-left-color: var(--event-event-border) !important;
+  }
+
+  &.reminderEvent {
+    background-color: var(--event-reminder-bg) !important;
+    border-left-color: var(--event-reminder-border) !important;
+  }
+
+  .rbc-event-content {
+    font-size: 12px;
+    line-height: 1.3;
+    color: var(--cal-text);
+  }
+
+  .rbc-event-label {
+    font-size: 11px;
+    color: var(--cal-text-muted);
+    padding: 2px 0;
+  }
+}
+
+// ============================================
+// Time Views (Week & Day)
+// ============================================
+
+.rbc-time-view {
+  border: 1px solid var(--cal-border) !important;
+  border-radius: 8px;
+  overflow: hidden;
+
+  .rbc-time-header {
+    border-right: none !important;
+    margin-right: 0 !important;
+
+    .rbc-time-header-gutter {
       border: none;
-      margin-top: 10px;
-      
-      .rbc-time-header {
-        // background-color: red;
-        // background-color: red;
-        padding-bottom: 5px;
-
-        .rbc-label {
-          border: none;
-        }
-      }
-
-      .rbc-month-row {
-        border: none;
-
-        &:last-child {
-          // background-color: red;
-          border-bottom: 0.5px solid rgba(128, 128, 128, 0.57);
-        }
-        // .rbc-row-bg {
-        // }
-        .rbc-row-content {
-          .rbc-date-cell {
-            padding-right: 3px;
-            padding-top: 1px;
-          }
-
-          // .rbc-row {
-          //   // margin-top: 2px;
-          // }
-        }
-        .rbc-day-bg {
-          // border: 2px solid red;
-          border: 0.5px solid rgba(128, 128, 128, 0.57);
-          // border-radius: 20px;
-          // margin-right: 5px;
-          // margin-bottom: 5px;
-          padding: 10px;
-          border-bottom: none;
-          border-right: none;
-          &:last-child {
-            // background-color: red;
-            border-right: 0.5px solid rgba(128, 128, 128, 0.57);
-          }
-        }
-        .rbc-day-bg.rbc-today {
-          background-color: transparent;
-        }
-        .rbc-row {
-          .rbc-button-link.rbc-show-more {
-            color: rgb(110, 110, 110);
-          }
-          .rbc-event {
-            box-sizing: border-box;
-            padding: 0;
-            background-color: $rbc-event-content-selected-bgc-1;
-            white-space: wrap;
-            color: black;
-            outline: none;
-            width: initial;
-            font-size: 12px;
-            // padding: 3px 0px;
-            position: relative;
-            overflow: hidden;
-            border-radius: 2px;
-            //   border: 0.2px solid $rbc-event-brdr-color-1;
-
-            &.timeOffEvent {
-              background-color: $rbc-event-content-selected-bgc-1;
-
-              &::before {
-                position: absolute;
-                left: 0;
-                top: 0;
-                content: "";
-                background-color: $rbc-event-brdr-color-1;
-                width: 5px;
-                height: 100%;
-              }
-
-              &.rbc-selected {
-                background-color: $rbc-event-content-selected-bgc-1;
-                z-index: 999;
-              }
-            }
-
-            &.reminderEvent {
-              background-color: $rbc-event-content-selected-bgc-2;
-
-              &::before {
-                position: absolute;
-                left: 0;
-                top: 0;
-                content: "";
-                background-color: $rbc-event-brdr-color-2;
-                width: 5px;
-                height: 100%;
-              }
-
-              &.rbc-selected {
-                background-color: $rbc-event-content-selected-bgc-2;
-                z-index: 999;
-              }
-            }
-
-            &.serviceEvent {
-              // background-color: red;
-              background-color: $rbc-event-content-selected-bgc-3;
-
-              &::before {
-                position: absolute;
-                left: 0;
-                top: 0;
-                content: "";
-                background-color: black;
-                background-color: $rbc-event-brdr-color-3;
-                width: 5px;
-                height: 100%;
-              }
-
-              &.rbc-selected {
-                background-color: $rbc-event-content-selected-bgc-3;
-                z-index: 999;
-              }
-            }
-
-            .rbc-event-content {
-              padding-left: 7px;
-            }
-          }
-
-          .rbc-date-cell.rbc-now {
-            button.rbc-button-link {
-              // text-align: center;
-              // padding: 5px;
-              // margin-top: 5px;
-              // margin-right: 2px;
-              color: white;
-              font-weight: bold;
-              background-color: #cab06d;
-              // border: 1px solid black;
-              border-radius: 50%;
-              height: 30px;
-              width: 30px;
-            }
-          }
-        }
-      }
+      width: 52px;
+      min-width: 48px;
+      max-width: 52px;
     }
-  }
 
-  .calendar-container.week-view {
-    .rbc-time-view {
-      border: none;
-      margin-top: 10px;
+    .rbc-time-header-content {
+      border-left: 1px solid var(--cal-border);
 
-      .rbc-time-header {
-        border-right: 2px solid #ddd;
-        // margin-right: 12px !important;
-        font-size: 12px;
-
-        margin-right: 0 !important;
-
-        .rbc-time-header-gutter {
-          border: none;
-          // edit here to adjust width of time column
-          // background-color: red;
-          width: 44px;
-          min-width: 40px;
-          max-width: 44.7625px;
-        }
-        .rbc-time-header-content {
-          border-color: rgba(134, 134, 134, 0.11);
-
-          // background-color: red;
-
-          .rbc-time-header-cell {
-            font-size: 12px;
-            .rbc-header {
-              // border: none;
-
-              .rbc-button-link {
-                font-size: 90%x;
-                // color: red;
-                font-weight: bold;
-              }
-              // &.rbc-today {
-              //   // background-color: blue;
-              // }
-            }
-          }
-
-          .rbc-allday-cell {
-            .rbc-row-content {
-              .rbc-row {
-                .rbc-row-segment {
-                  .rbc-event.timeOffEvent.rbc-event-allday {
-                    position: relative;
-                    overflow: hidden;
-
-                    &.timeOffEvent {
-                      background-color: $rbc-event-bgc-1;
-
-                      &::before {
-                        position: absolute;
-                        left: 0;
-                        top: 0;
-                        content: "";
-                        background-color: $rbc-event-brdr-color-1;
-                        width: 10px;
-                        height: 100%;
-                        // z-index: 999;
-                      }
-
-                      .rbc-event-content {
-                        color: black;
-                        background-color: transparent;
-                        padding-left: 10px;
-                      }
-
-                      &.rbc-selected {
-                        background-color: $rbc-event-content-selected-bgc-1;
-                        z-index: 999;
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-
-      .rbc-time-content {
-        scroll-margin: 0 !important;
-
-        border-top: none;
-          scroll-behavior: auto !important; /* disables smooth scroll jumps */
-
-        // padding-right: 10px;
-
-        &::-webkit-scrollbar {
-          width: 5px;
-        }
-
-        &::-webkit-scrollbar-track {
-          background: #f1f1f1;
-          border-radius: 4px;
-        }
-
-        &::-webkit-scrollbar-thumb {
-          background: #acabab;
-          border-radius: 4px;
-        }
-
-        &::-webkit-scrollbar-thumb:hover {
-          background: #797979d3;
-        }
-
-        & > * + * > * {
-          border-left: none;
-        }
-
-        .rbc-time-gutter {
-          .rbc-timeslot-group {
-            // background-color: red;
-            // border: 1px solid rgba(181, 181, 181, 0.36);
-            border: none;
-            // border-radius: 20px;
-            // margin-top: 2px;
-            // margin-right: 5px;
-            border-bottom: none;
-            min-height: 100px;
-
-            &:last-child {
-              // border: 1px solid rgba(181, 181, 181, 0.36);
-              border: none;
-            }
-            .rbc-time-slot {
-              padding-top: 0;
-            }
-            .rbc-label {
-              margin-top: 5px;
-              font-size: 12px;
-            }
-          }
-        }
-
-        .rbc-day-slot.rbc-time-column {
-          .rbc-timeslot-group {
-            border: 1px solid rgba(181, 181, 181, 0.36);
-            border-bottom: none;
-            border-right: none;
-            min-height: 100px;
-
-            display: flex;
-            flex-direction: column;
-
-            .rbc-time-slot {
-              // flex: 1 0 auto;
-              // height: 100%;
-              // min-height: 20px; /* adjust depending on step (15min ~ 20px, 30min ~ 40px) */
-              // border-top: 1px solid #ddd; /* keep the divider */
-              // background-color: #000;
-
-              // &:hover {
-              //   background-color: rgba(146, 36, 36, 0.137);
-              //   cursor: pointer; // optional
-              // }
-            }
-
-            &:nth-child(12) {
-              border-bottom: 1px solid rgba(181, 181, 181, 0.36);
-              // background-color: green;
-            }
-
-            .rbc-time-slot:first-child {
-              border: none;
-            }
-            .rbc-time-slot:last-child {
-              border-color: rgba(134, 134, 134, 0.042);
-              // background-color: red;
-            }
-
-            &:last-child {
-              background-color: green;
-            }
-          }
-
-          .rbc-events-container {
-            margin: 0;
-            .rbc-event {
-              padding: 0;
-              font-size: 90%;
-              white-space: wrap;
-              border: none;
-              box-sizing: border-box;
-              color: black;
-              width: initial;
-              font-size: 14px;
-              outline: none;
-              border: 1px solid white;
-              // width: 15% !important;
-
-              &.timeOffEvent {
-                background-color: $rbc-event-bgc-1;
-
-                &::before {
-                  position: absolute;
-                  left: 0;
-                  top: 0;
-                  content: "";
-                  background-color: $rbc-event-brdr-color-1;
-                  width: 10px;
-                  height: 100%;
-                  // z-index: 999;
-                }
-
-                .rbc-event-content {
-                  background-color: $rbc-event-content-bgc-1;
-                }
-
-                &.rbc-selected {
-                  background-color: $rbc-event-content-selected-bgc-1;
-                  z-index: 999;
-                }
-              }
-
-              &.reminderEvent {
-                background-color: $rbc-event-bgc-2;
-                // width: 15% !important;
-
-                &::before {
-                  position: absolute;
-                  left: 0;
-                  top: 0;
-                  content: "";
-                  background-color: $rbc-event-brdr-color-2;
-                  width: 10px;
-                  height: 100%;
-                  // z-index: 999;
-                }
-
-                .rbc-event-content {
-                  background-color: $rbc-event-content-bgc-2;
-                }
-                &.rbc-selected {
-                  background-color: $rbc-event-content-selected-bgc-2;
-                  z-index: 999;
-                }
-              }
-
-              &.serviceEvent {
-                background-color: $rbc-event-bgc-3;
-                // width: 15% !important;
-                // left: 15% !important;
-                border-radius: 5px;
-                overflow: hidden;
-
-                &::before {
-                  position: absolute;
-                  left: 0;
-                  top: 0;
-                  content: "";
-                  background-color: $rbc-event-brdr-color-3;
-                  width: 5px;
-                  height: 100%;
-
-                  z-index: 9;
-                }
-
-                .rbc-event-content {
-                  background-color: $rbc-event-content-bgc-3;
-                }
-                &.rbc-selected {
-                  background-color: $rbc-event-content-selected-bgc-3;
-                  z-index: 999;
-                }
-
-                .rbc-event-label {
-                  display: none;
-                  // font-size: 14px;
-                  // padding: 4px 15px;
-                }
-
-                // .rbc-event-content {
-                //   padding: 4px 15px;
-                // background-color: $rbc-event-content-selected-bgc-2;
-                //   // padding-top: 5px;
-                //   font-size: 100%;
-                //   font-weight: bold;
-                // }
-              }
-
-              .rbc-event-label {
-                font-size: 14px;
-                padding: 4px 15px;
-              }
-
-              .rbc-event-content {
-                // padding: 4px 10px;
-                // padding-top: 5px;
-                font-size: 13px;
-                // padding-left: 10px;
-                // font-weight: bold;
-                // border: 1px solid white;
-                // overflow: hidden;
-              }
-            }
-          }
-
-          &:last-child {
-            // background-color: rgb(33, 156, 198); /* Example styling */
-
-            .rbc-timeslot-group {
-              border: 1px solid rgba(181, 181, 181, 0.36);
-              height: 100px;
-              min-height: 100px;
-              // border-left: none;
-              border-bottom: none;
-              // background-color: blue;
-              // border-radius: 0px 20px 20px 0px;
-
-              &:nth-child(12) {
-                border-bottom: 1px solid rgba(181, 181, 181, 0.36);
-                // background-color: green;
-              }
-            }
-          }
-
-          .rbc-current-time-indicator {
-            background-color: #8f0202;
-          }
-        }
-      }
-    }
-  }
-
-  .calendar-container.day-view {
-    .rbc-time-view {
-      border: none;
-      // border-left: none;
-      .rbc-time-header {
-        margin-right: 10px !important;
-        .rbc-time-header-gutter {
-          border: none;
-          // background-color: red;
-          width: 51.4125px;
-          min-width: 51.4125px;
-          max-width: 51.4125px;
-        }
-        .rbc-time-header-content {
-          border-color: rgba(134, 134, 134, 0.11);
-
-          // background-color: red;
-
-          .rbc-time-header-cell {
-            .rbc-header {
-              // border: none;
-
-              .rbc-button-link {
-                font-size: 90%x;
-                // color: red;
-                font-weight: bold;
-              }
-              // &.rbc-today {
-              //   // background-color: blue;
-              // }
-            }
-          }
-
-          .rbc-allday-cell {
-            .rbc-row-content {
-              .rbc-row {
-                .rbc-row-segment {
-                  .rbc-event.timeOffEvent.rbc-event-allday {
-                    &.timeOffEvent {
-                      background-color: $rbc-event-bgc-1;
-                      position: relative;
-                      overflow: hidden;
-
-                      &::before {
-                        position: absolute;
-                        left: 0;
-                        top: 0;
-                        content: "";
-                        background-color: $rbc-event-brdr-color-1;
-                        width: 10px;
-                        height: 100%;
-                        // z-index: 999;
-                      }
-
-                      .rbc-event-content {
-                        color: black;
-                        background-color: transparent;
-                        padding-left: 10px;
-                      }
-
-                      &.rbc-selected {
-                        background-color: $rbc-event-content-selected-bgc-1;
-                        z-index: 999;
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-
-      .rbc-time-content {
-        // border: none;
-        // padding-right: 10px;
-        &::-webkit-scrollbar {
-          width: 5px;
-        }
-
-        &::-webkit-scrollbar-track {
-          background: #f1f1f1;
-          border-radius: 4px;
-        }
-
-        &::-webkit-scrollbar-thumb {
-          background: #acabab;
-          border-radius: 4px;
-        }
-
-        &::-webkit-scrollbar-thumb:hover {
-          background: #797979d3;
-        }
-
-        .rbc-time-gutter {
-          .rbc-timeslot-group {
-            border: 1px solid rgba(181, 181, 181, 0.36);
-            border-top: none;
-            min-height: 100px;
-            .rbc-time-slot {
-              margin-top: 5px;
-            }
-          }
-        }
-
-        .rbc-day-slot {
-          border: none;
-          background-color: transparent;
-
-          .rbc-current-time-indicator {
-            background-color: #8f0202;
-          }
-
-          .rbc-timeslot-group {
-            border: 1px solid rgba(181, 181, 181, 0.36);
-            border-left: none;
-            border-top: none;
-            min-height: 100px;
-          }
-
-          .rbc-events-container {
-            .rbc-event {
-              padding: 0;
-              font-size: 90%;
-              white-space: wrap;
-              border: none;
-              box-sizing: border-box;
-              color: black;
-              width: initial;
-              font-size: 14px;
-              outline: none;
-              width: 15% !important;
-
-              &.timeOffEvent {
-                background-color: $rbc-event-bgc-1;
-
-                &::before {
-                  position: absolute;
-                  left: 0;
-                  top: 0;
-                  content: "";
-                  background-color: $rbc-event-brdr-color-1;
-                  width: 10px;
-                  height: 100%;
-                  // z-index: 999;
-                }
-
-                .rbc-event-content {
-                  background-color: $rbc-event-content-bgc-1;
-                }
-
-                &.rbc-selected {
-                  background-color: $rbc-event-content-selected-bgc-1;
-                  z-index: 999;
-                }
-              }
-
-              &.reminderEvent {
-                background-color: $rbc-event-bgc-2;
-                // width: 15% !important;
-
-                &::before {
-                  position: absolute;
-                  left: 0;
-                  top: 0;
-                  content: "";
-                  background-color: $rbc-event-brdr-color-2;
-                  width: 10px;
-                  height: 100%;
-                  // z-index: 999;
-                }
-
-                .rbc-event-content {
-                  background-color: $rbc-event-content-bgc-2;
-                }
-                &.rbc-selected {
-                  // background-color: $rbc-event-content-selected-bgc-2;
-                  z-index: 999;
-                }
-              }
-
-              &.serviceEvent {
-                background-color: $rbc-event-bgc-3;
-                // width: 15% !important;
-                // left: 15% !important;
-
-                &::before {
-                  position: absolute;
-                  left: 0;
-                  top: 0;
-                  content: "";
-                  background-color: $rbc-event-brdr-color-3;
-                  width: 10px;
-                  height: 100%;
-                  // z-index: 999;
-                }
-
-                .rbc-event-content {
-                  background-color: $rbc-event-content-bgc-3;
-                }
-                &.rbc-selected {
-                  background-color: $rbc-event-content-selected-bgc-3;
-                  z-index: 999;
-                }
-
-                // .rbc-event-label {
-                //   font-size: 14px;
-                //   padding: 4px 15px;
-                // }
-
-                // .rbc-event-content {
-                //   padding: 4px 15px;
-                // background-color: $rbc-event-content-selected-bgc-2;
-                //   // padding-top: 5px;
-                //   font-size: 100%;
-                //   font-weight: bold;
-                // }
-              }
-
-              .rbc-event-label {
-                font-size: 14px;
-                padding: 4px 15px;
-              }
-
-              .rbc-event-content {
-                padding: 4px 15px;
-                // padding-top: 5px;
-                font-size: 100%;
-                font-weight: bold;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  .calendar-container.agenda-view {
-    .rbc-agenda-view {
-      .rbc-agenda-empty {
-        text-align: center;
-        padding-top: 50px;
-        // font-weight : bold;
-        font-size: 30px;
+      .rbc-allday-cell {
+        border-bottom: 1px solid var(--cal-border);
       }
     }
   }
 }
 
-/* Dark mode */
-// .dark .rbc-calendar {
-//   background-color: #92883a;
-//   color: #f9fafb;
-// }
+.rbc-time-content {
+  border-top: 1px solid var(--cal-border) !important;
 
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
 
-// .rbc-addons-dnd {
-//   .rbc-addons-dnd-row-body {
-//     position: relative;
-//   }
-//   .rbc-addons-dnd-drag-row {
-//     position: absolute;
-//     top: 0;
-//     left: 0;
-//     right: 0;
-//   }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
 
+  &::-webkit-scrollbar-thumb {
+    background: var(--cal-scrollbar);
+    border-radius: 4px;
 
-// //   .rbc-addons-dnd-over {
-// //     background-color: rgba(
-// //       red($date-selection-bg-color),
-// //       green($date-selection-bg-color),
-// //       blue($date-selection-bg-color),
-// //       .3
-// //     );
-// //   }
+    &:hover {
+      background: var(--cal-scrollbar-hover);
+    }
+  }
 
-//   .rbc-event {
-//     transition: opacity 150ms;
+  .rbc-time-gutter {
+    .rbc-timeslot-group {
+      border-bottom: 1px solid var(--cal-border);
+      min-height: 60px;
 
-//     &:hover {
-//       .rbc-addons-dnd-resize-ns-icon, .rbc-addons-dnd-resize-ew-icon { display: block; }
-//     }
-//   }
+      .rbc-label {
+        font-size: 11px;
+        color: var(--cal-text-muted);
+        padding: 0 8px;
+      }
+    }
+  }
 
-//   .rbc-addons-dnd-dragged-event {
-//     opacity: 0;
-//   }
+  & > * + * > * {
+    border-left: 1px solid var(--cal-border);
+  }
+}
 
-//   &.rbc-addons-dnd-is-dragging .rbc-event:not(.rbc-addons-dnd-dragged-event):not(.rbc-addons-dnd-drag-preview) {
-//     opacity: .50;
-//   }
+// Day slots
+.rbc-day-slot {
+  .rbc-timeslot-group {
+    border-bottom: 1px solid var(--cal-border);
+    min-height: 60px;
 
-//   .rbc-addons-dnd-resizable {
-//     position: relative;
-//     width: 100%;
-//     height: 100%;
-//   }
+    .rbc-time-slot {
+      border-top: 1px solid var(--cal-border);
+      opacity: 0.4;
 
-//   .rbc-addons-dnd-resize-ns-anchor {
-//     width: 100%;
-//     text-align: center;
-//     position: absolute;
-//     &:first-child { top: 0; }
-//     &:last-child { bottom: 0; }
+      &:first-child {
+        border-top: none;
+      }
+    }
+  }
 
-//     .rbc-addons-dnd-resize-ns-icon {
-//       display: none;
-//       border-top: 3px double;
-//       margin: 0 auto;
-//       width: 10px;
-//       cursor: ns-resize;
-//     }
-//   }
+  .rbc-current-time-indicator {
+    background-color: var(--cal-current-time);
+    height: 2px;
 
-//   .rbc-addons-dnd-resize-ew-anchor {
-//     position: absolute;
-//     top: 4px;
-//     bottom: 0;
-//     &:first-child { left: 0; }
-//     &:last-child { right: 0; }
+    &::before {
+      content: '';
+      position: absolute;
+      left: -4px;
+      top: -3px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--cal-current-time);
+    }
+  }
 
-//     .rbc-addons-dnd-resize-ew-icon {
-//       display: none;
-//       border-left: 3px double;
-//       margin-top: auto;
-//       margin-bottom: auto;
-//       height: 10px;
-//       cursor: ew-resize;
-//     }
-//   }
-// }
+  .rbc-events-container {
+    margin: 0;
+
+    .rbc-event {
+      border-left-width: 3px !important;
+
+      .rbc-event-label {
+        display: none;
+      }
+    }
+  }
+}
+
+// Today column highlight
+.rbc-today {
+  background-color: var(--cal-today-bg) !important;
+}
+
+// ============================================
+// Agenda View
+// ============================================
+
+.rbc-agenda-view {
+  border: none !important;
+
+  .rbc-agenda-empty {
+    text-align: center;
+    padding: 60px 20px;
+    font-size: 16px;
+    color: var(--cal-text-muted);
+  }
+
+  table.rbc-agenda-table {
+    border: none;
+
+    thead > tr > th {
+      border-bottom: 1px solid var(--cal-border-strong);
+      padding: 10px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--cal-text-muted);
+    }
+
+    tbody > tr > td {
+      border-bottom: 1px solid var(--cal-border);
+      padding: 10px 12px;
+      font-size: 13px;
+      color: var(--cal-text);
+    }
+
+    tbody > tr:hover {
+      background-color: var(--cal-hover);
+    }
+  }
+
+  .rbc-agenda-date-cell,
+  .rbc-agenda-time-cell {
+    white-space: nowrap;
+    color: var(--cal-text-muted);
+    font-size: 12px;
+  }
+
+  .rbc-agenda-event-cell {
+    color: var(--cal-text);
+  }
+}
+
+// ============================================
+// Overlay / Popup
+// ============================================
+
+.rbc-overlay {
+  background: var(--cal-overlay-bg) !important;
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--cal-overlay-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--cal-overlay-shadow) !important;
+  padding: 12px !important;
+  z-index: 50;
+
+  .rbc-overlay-header {
+    border-bottom: 1px solid var(--cal-border);
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--cal-gold);
+  }
+
+  .rbc-event {
+    margin-bottom: 4px;
+  }
+}
+
+// ============================================
+// Drag & Drop
+// ============================================
+
+.rbc-addons-dnd {
+  .rbc-addons-dnd-row-body {
+    position: relative;
+  }
+
+  .rbc-addons-dnd-drag-row {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+  }
+
+  .rbc-event {
+    transition: opacity 0.15s ease;
+  }
+
+  .rbc-addons-dnd-dragged-event {
+    opacity: 0;
+  }
+
+  &.rbc-addons-dnd-is-dragging .rbc-event:not(.rbc-addons-dnd-dragged-event):not(.rbc-addons-dnd-drag-preview) {
+    opacity: 0.5;
+  }
+
+  .rbc-addons-dnd-drag-preview .rbc-event {
+    box-shadow: var(--cal-overlay-shadow) !important;
+    opacity: 0.9;
+  }
+}
+
+// ============================================
+// Selection
+// ============================================
+
+.rbc-slot-selection {
+  background-color: var(--cal-selection-bg) !important;
+  border: 1px solid var(--cal-selection-border) !important;
+  border-radius: 4px;
+  color: var(--cal-gold) !important;
+  font-size: 12px;
+}
+
+// ============================================
+// Responsive
+// ============================================
+
+@media (max-width: 768px) {
+  .rbc-header {
+    font-size: 10px;
+    padding: 6px 2px;
+    letter-spacing: 0;
+  }
+
+  .rbc-date-cell {
+    font-size: 11px;
+    padding: 2px 4px;
+
+    &.rbc-now .rbc-button-link {
+      width: 24px;
+      height: 24px;
+      font-size: 11px;
+    }
+  }
+
+  .rbc-event {
+    font-size: 10px !important;
+    padding: 1px 4px !important;
+    border-left-width: 2px !important;
+
+    .rbc-event-content {
+      font-size: 10px;
+    }
+  }
+
+  .rbc-show-more {
+    font-size: 10px;
+  }
+
+  .rbc-time-content .rbc-time-gutter .rbc-timeslot-group {
+    min-height: 48px;
+
+    .rbc-label {
+      font-size: 10px;
+      padding: 0 4px;
+    }
+  }
+
+  .rbc-day-slot .rbc-timeslot-group {
+    min-height: 48px;
+  }
+}
+
+@media (max-width: 480px) {
+  .rbc-month-view .rbc-month-row {
+    min-height: 60px;
+  }
+
+  .rbc-header {
+    font-size: 9px;
+  }
+}

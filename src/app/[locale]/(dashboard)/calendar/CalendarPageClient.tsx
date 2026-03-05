@@ -9,7 +9,6 @@ import 'react-big-calendar/lib/css/react-big-calendar.css'
 import './style/calendarStyle.scss'
 import CustomToolbar from '@/app/[locale]/(dashboard)/calendar/calendarComps/CustomToolbar'
 import CustomEvent from '@/app/[locale]/(dashboard)/calendar/calendarComps/CustomEvent'
-import PopOverEvent from '@/app/[locale]/(dashboard)/calendar/calendarComps/PopOverEvent'
 import { Calendar1, Clock, Loader2, Plus, User } from 'lucide-react'
 import {
   Select,
@@ -25,7 +24,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { Card, CardContent } from '@/components/ui/card'
+// Card removed — sidebar uses inline popover now
 import {
   Dialog,
   DialogContent,
@@ -466,10 +465,16 @@ export default function CalendarPage() {
     if (type === 'service') return { className: 'serviceEvent' }
     if (type === 'class') return { className: 'classEvent' }
     if (type === 'reminder') return { className: 'reminderEvent' }
-    if (type === 'event') {
-      return { className: 'eventEvent', style: { backgroundColor: '#56ff98' } }
-    }
+    if (type === 'event') return { className: 'eventEvent' }
     return {}
+  }, [])
+
+  // Listen for create event from toolbar's + button
+  useEffect(() => {
+    const handler = () => openCreate()
+    window.addEventListener('calendar:create', handler)
+    return () => window.removeEventListener('calendar:create', handler)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // ===================================================
@@ -634,7 +639,7 @@ export default function CalendarPage() {
                 </Badge>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                 <div className="flex items-center gap-2">
                   <Calendar1 className="h-3 w-3 text-muted-foreground" />
                   <span>{formatDateShort(selectedEvent.resource.startTime)}</span>
@@ -693,15 +698,19 @@ export default function CalendarPage() {
       )}
 
       {/* Body */}
-      <div className="grid-cols-10 grid flex-1 gap-4 h-full">
+      <div className="flex flex-col lg:grid lg:grid-cols-12 flex-1 gap-3 min-h-0">
         {/* Sidebar */}
-        <div className="col-span-2 h-full bg-primary-foreground p-0.5 rounded-lg border-none overflow-hidden pb-9">
-          <div className="px-1 pt-2 flex items-center justify-between gap-1">
+        <div
+          className="lg:col-span-3 xl:col-span-2 rounded-xl overflow-hidden flex flex-col shrink-0 bg-card border border-border"
+          style={{ height: 'auto', maxHeight: '200px' }}
+        >
+          {/* Sidebar header */}
+          <div className="px-3 py-2.5 flex items-center gap-2 border-b border-border">
             <Select
               value={sidebarFilter}
               onValueChange={(v) => setSidebarFilter(v as SidebarFilter)}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="flex-1 h-8 text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -713,134 +722,128 @@ export default function CalendarPage() {
                 </SelectGroup>
               </SelectContent>
             </Select>
-            <Button size="icon" variant="outline" onClick={openCreate} title="New appointment">
+            <Button
+              size="icon"
+              className="h-8 w-8 shrink-0 bg-[#C9A84C] hover:bg-[#dbb960] text-white dark:text-[#0a0a0f]"
+              onClick={openCreate}
+              aria-label="New appointment"
+            >
               <Plus className="h-4 w-4" />
             </Button>
           </div>
 
-          <ScrollArea className="h-[95%] overflow-y-auto p-1 pr-4 mt-5">
-            {loading && appointments.length === 0 ? (
-              <div className="space-y-3 p-2">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <Skeleton key={i} className="h-16 w-full rounded-lg" />
-                ))}
-              </div>
-            ) : sidebarAppointments.length === 0 ? (
-              <div className="text-center py-8 text-sm text-muted-foreground">
-                <Calendar1 className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p>No appointments {sidebarFilter === 'today' ? 'today' : `for ${sidebarFilter}`}</p>
-              </div>
-            ) : (
-              sidebarAppointments.map((apt) => (
-                <div
-                  key={apt.id}
-                  className="mb-3 p-2 mr-2 flex items-center justify-between cursor-pointer w-full border-2 rounded-lg hover:bg-muted transition-colors duration-200"
-                >
-                  <Popover>
+          {/* Sidebar list */}
+          <ScrollArea className="flex-1 overflow-y-auto">
+            <div className="p-2">
+              {loading && appointments.length === 0 ? (
+                <div className="space-y-2">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <Skeleton key={i} className="h-14 w-full rounded-lg" />
+                  ))}
+                </div>
+              ) : sidebarAppointments.length === 0 ? (
+                <div className="text-center py-6">
+                  <Calendar1 className="h-6 w-6 mx-auto mb-2 text-muted-foreground/40" />
+                  <p className="text-xs text-muted-foreground">
+                    No appointments {sidebarFilter === 'today' ? 'today' : `for ${sidebarFilter}`}
+                  </p>
+                </div>
+              ) : (
+                sidebarAppointments.map((apt) => (
+                  <Popover key={apt.id}>
                     <PopoverTrigger asChild>
-                      <div className="flex items-center justify-between space-x-2 w-full">
-                        <div className="flex items-center gap-3 text-sm">
-                          <Calendar1 className="w-6 h-6 flex-shrink-0" />
-                          <div className="min-w-0">
-                            <h4 className="text-md font-bold text-foreground truncate">
+                      <button
+                        className="w-full mb-1.5 p-2.5 rounded-lg text-left transition-all duration-200 hover:scale-[1.01] bg-muted/30 border border-border hover:bg-muted/50"
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <div
+                            className="w-1 h-8 rounded-full shrink-0"
+                            style={{
+                              background:
+                                apt.type === 'SERVICE' ? '#C9A84C'
+                                : apt.type === 'CLASS' ? '#2dd4bf'
+                                : apt.type === 'EVENT' ? '#8b5cf6'
+                                : '#fbbf24',
+                            }}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium truncate text-foreground">
                               {apt.service || apt.reason || apt.type}
-                            </h4>
-                            <p className="font-medium text-foreground text-xs">
-                              {formatDateShort(apt.startTime)} at {formatTime(apt.startTime)}
                             </p>
-                            <p className="text-xs text-muted-foreground truncate">
-                              {apt.customer.fullName}
+                            <p className="text-[11px] truncate text-muted-foreground">
+                              {formatTime(apt.startTime)} &middot; {apt.customer.fullName}
                             </p>
                           </div>
                         </div>
-                      </div>
+                      </button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-full p-0" side="right">
-                      <Card className="border-none transition-all hover:shadow-md cursor-pointer group py-2">
-                        <CardContent className="p-2 px-4">
-                          <div className="flex items-start justify-between gap-4">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-3 mb-3">
-                                <h3 className="text-lg font-semibold text-foreground">
-                                  {apt.service || apt.reason || apt.type}
-                                </h3>
-                                <Badge className={STATUS_COLORS[apt.status] ?? ''}>
-                                  {apt.status}
-                                </Badge>
-                              </div>
-
-                              <div className="grid grid-cols-2 gap-2 mb-3">
-                                <div className="flex items-center gap-3 text-sm">
-                                  <Calendar1 className="w-4 h-4" />
-                                  <div>
-                                    <p className="text-muted-foreground">Date & Time</p>
-                                    <p className="font-medium text-foreground">
-                                      {formatDateShort(apt.startTime)} at {formatTime(apt.startTime)}
-                                    </p>
-                                  </div>
-                                </div>
-
-                                <div className="flex items-center gap-3 text-sm">
-                                  <Clock className="w-4 h-4" />
-                                  <div>
-                                    <p className="text-muted-foreground">Duration</p>
-                                    <p className="font-medium text-foreground">
-                                      {Math.round(
-                                        (new Date(apt.endTime).getTime() - new Date(apt.startTime).getTime()) / 60000
-                                      )}{' '}
-                                      min
-                                    </p>
-                                  </div>
-                                </div>
-
-                                {apt.reason && (
-                                  <div className="bg-muted/30 rounded-lg p-3 border">
-                                    <p className="text-xs text-muted-foreground mb-1">Reason</p>
-                                    <p className="font-medium text-foreground text-sm">{apt.reason}</p>
-                                  </div>
-                                )}
-
-                                {apt.therapist && (
-                                  <div className="bg-muted/30 rounded-lg p-3 border">
-                                    <p className="text-xs text-muted-foreground mb-1">Therapist</p>
-                                    <p className="font-medium text-foreground text-sm">
-                                      {apt.therapist.fullName}
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
-
-                              {apt.notes && (
-                                <div className="mt-3 bg-accent/5 border-l-4 border-accent/800 rounded-r-lg p-3">
-                                  <p className="text-xs text-muted-foreground mb-1">Notes</p>
-                                  <p className="text-sm text-foreground">{apt.notes}</p>
-                                </div>
-                              )}
-
-                              <div className="flex justify-end gap-1 mt-3">
-                                <Button variant="outline" size="sm" onClick={() => openEdit(apt)}>
-                                  Edit
-                                </Button>
-                                <Button variant="destructive" size="sm" onClick={() => openDelete(apt)}>
-                                  Delete
-                                </Button>
-                              </div>
-                            </div>
+                    <PopoverContent className="w-72 p-0" side="right" sideOffset={8}>
+                      <div className="p-4 space-y-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <h4 className="font-semibold text-sm truncate">
+                              {apt.service || apt.reason || apt.type}
+                            </h4>
+                            <p className="text-xs text-muted-foreground">{apt.customer.fullName}</p>
                           </div>
-                        </CardContent>
-                      </Card>
+                          <Badge className={`${STATUS_COLORS[apt.status] ?? ''} text-[10px] shrink-0`}>
+                            {apt.status}
+                          </Badge>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div className="flex items-center gap-1.5">
+                            <Calendar1 className="h-3 w-3 text-muted-foreground" />
+                            <span>{formatDateShort(apt.startTime)}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <Clock className="h-3 w-3 text-muted-foreground" />
+                            <span>
+                              {Math.round(
+                                (new Date(apt.endTime).getTime() - new Date(apt.startTime).getTime()) / 60000
+                              )} min
+                            </span>
+                          </div>
+                          {apt.therapist && (
+                            <div className="flex items-center gap-1.5 col-span-2">
+                              <User className="h-3 w-3 text-muted-foreground" />
+                              <span>{apt.therapist.fullName}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {apt.notes && (
+                          <p className="text-xs text-muted-foreground border-t pt-2">{apt.notes}</p>
+                        )}
+
+                        <div className="flex justify-end gap-1.5 pt-1">
+                          <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => openEdit(apt)}>
+                            Edit
+                          </Button>
+                          <Button variant="destructive" size="sm" className="h-7 text-xs" onClick={() => openDelete(apt)}>
+                            Delete
+                          </Button>
+                        </div>
+                      </div>
                     </PopoverContent>
                   </Popover>
-                </div>
-              ))
-            )}
+                ))
+              )}
+            </div>
           </ScrollArea>
         </div>
 
+        {/* Sidebar height override for large screens */}
+        <style>{`
+          @media (min-width: 1024px) {
+            .lg\\:col-span-3 { max-height: none !important; height: 100% !important; }
+          }
+        `}</style>
+
         {/* Calendar */}
         <div
-          className={`calendarPageBody col-span-8 h-full flex-1 box-border bg-primary-foreground p-1 rounded-lg border-none month-view`}
-          style={{ height: '100%', width: '100%', position: 'relative', overflow: 'hidden' }}
+          className="calendarPageBody lg:col-span-9 xl:col-span-10 flex-1 min-h-0 rounded-xl overflow-hidden bg-card border border-border p-1 relative"
+          style={{ height: '100%', width: '100%' }}
         >
           <div className={`calendar-container h-full ${currentView}-view`}>
             <DragAndDropCalendar
@@ -897,7 +900,7 @@ export default function CalendarPage() {
                   onValueChange={(v) => setFormData((p) => ({ ...p, customerId: v }))}
                   disabled={submitting}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger aria-label="Customer">
                     <SelectValue placeholder="Select a customer" />
                   </SelectTrigger>
                   <SelectContent>
@@ -919,7 +922,7 @@ export default function CalendarPage() {
                 onValueChange={(v) => setFormData((p) => ({ ...p, therapistId: v === 'none' ? '' : v }))}
                 disabled={submitting}
               >
-                <SelectTrigger>
+                <SelectTrigger aria-label="Therapist">
                   <SelectValue placeholder="Select a therapist (optional)" />
                 </SelectTrigger>
                 <SelectContent>
@@ -943,7 +946,7 @@ export default function CalendarPage() {
                 }
                 disabled={submitting}
               >
-                <SelectTrigger>
+                <SelectTrigger aria-label="Appointment type">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -956,7 +959,7 @@ export default function CalendarPage() {
             </div>
 
             {/* Date/Time */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="startDate">Start Date *</Label>
                 <Input
@@ -978,7 +981,7 @@ export default function CalendarPage() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="endDate">End Date *</Label>
                 <Input
@@ -1014,7 +1017,7 @@ export default function CalendarPage() {
             </div>
 
             {/* Reason & Location */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="reason">Reason</Label>
                 <Input

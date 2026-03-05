@@ -30,8 +30,16 @@ export default async function DashboardLayout({
       <div className="flex w-full">
         <AppSidebar />
         <main className="w-full h-screen flex flex-col">
-          <Navbar />
-          <div className="px-4 md:px-8 lg:px-16 pb-6 flex-1 overflow-auto">
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-4 focus:left-4 focus:px-4 focus:py-2 focus:bg-gold focus:text-white focus:rounded-md focus:text-sm focus:font-medium"
+          >
+            Skip to main content
+          </a>
+          <header>
+            <Navbar />
+          </header>
+          <div id="main-content" className="px-4 md:px-8 lg:px-16 pb-6 flex-1 overflow-auto">
             {children}
           </div>
         </main>

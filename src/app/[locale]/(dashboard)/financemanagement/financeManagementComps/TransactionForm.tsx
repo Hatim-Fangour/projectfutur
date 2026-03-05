@@ -81,9 +81,6 @@ const TransactionForm = ({ isOpen, onClose, transactionType }: any) => {
       return;
     }
 
-    // Process form submission
-    console.log("Transaction Data:", formData);
-
     // Close modal and reset form
     onClose();
     setFormData({

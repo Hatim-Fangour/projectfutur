@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
+import { createClient } from '@supabase/supabase-js'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 
 const registerSchema = z.object({
   fullName: z.string().min(2, 'Full name must be at least 2 characters'),
   email: z.string().email('Invalid email address'),
+  authUserId: z.string().uuid('Invalid user ID'),
 })
 
 /**
@@ -28,47 +29,41 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { fullName, email } = parseResult.data
+    const { fullName, email, authUserId } = parseResult.data
 
-    // Get the authenticated user from the session
-    const supabaseUrl =
-      process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'http://localhost:54321'
-    const supabaseAnonKey =
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? 'placeholder-key'
-
-    const supabase = createServerClient(supabaseUrl, supabaseAnonKey,
-      {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll()
-          },
-          setAll() {
-            // Not needed for POST
-          },
-        },
-      }
+    // Verify the user exists in Supabase using the service role key
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+    const { data: { user }, error: getUserError } = await supabaseAdmin.auth.admin.getUserById(authUserId)
 
-    if (!user) {
+    if (getUserError || !user) {
       return NextResponse.json(
-        { success: false, error: 'Authentication required' },
+        { success: false, error: 'Invalid user' },
         { status: 401 }
       )
     }
 
-    // Check if a StaffMember already exists for this auth user
+    // Check if a StaffMember already exists for this auth user or email
     const existing = await prisma.staffMember.findFirst({
-      where: { authUserId: user.id },
+      where: { OR: [{ authUserId: user.id }, { email }] },
     })
 
     if (existing) {
+      // If the record exists but has a different authUserId, link it to the new auth user
+      if (existing.authUserId !== user.id) {
+        const updated = await prisma.staffMember.update({
+          where: { id: existing.id },
+          data: { authUserId: user.id, fullName },
+          select: { id: true, fullName: true, email: true, role: true },
+        })
+        return NextResponse.json({ success: true, data: updated }, { status: 200 })
+      }
       return NextResponse.json(
-        { success: false, error: 'Account profile already exists' },
-        { status: 409 }
+        { success: true, data: { id: existing.id, fullName: existing.fullName, email: existing.email, role: existing.role } },
+        { status: 200 }
       )
     }
 

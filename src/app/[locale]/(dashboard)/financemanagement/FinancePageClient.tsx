@@ -307,8 +307,8 @@ export default function FinanceManagementPage() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1">
-                          <Button variant="ghost" size="icon" onClick={() => openEditTx(tx)}><Pencil className="h-4 w-4" /></Button>
-                          <Button variant="ghost" size="icon" onClick={() => openDeleteDialog(tx.id, 'tx')}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                          <Button variant="ghost" size="icon" aria-label="Edit transaction" onClick={() => openEditTx(tx)}><Pencil className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="icon" aria-label="Delete transaction" onClick={() => openDeleteDialog(tx.id, 'tx')}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -349,13 +349,13 @@ export default function FinanceManagementPage() {
                         <span className="text-muted-foreground">Spent</span>
                         <span className="font-medium">{formatCurrency(spent)} / {formatCurrency(budget)}</span>
                       </div>
-                      <div className="w-full bg-muted rounded-full h-2">
+                      <div className="w-full bg-muted rounded-full h-2" role="progressbar" aria-valuenow={Math.round(percent)} aria-valuemin={0} aria-valuemax={100}>
                         <div className={`h-full rounded-full ${percent > 90 ? 'bg-red-500' : percent > 70 ? 'bg-yellow-500' : 'bg-green-500'}`} style={{ width: `${percent}%` }} />
                       </div>
                       <p className="text-xs text-muted-foreground">{percent.toFixed(0)}% used</p>
                       <div className="flex justify-end gap-1 pt-1">
-                        <Button variant="ghost" size="sm" onClick={() => openEditBudget(b)}><Pencil className="h-3 w-3" /></Button>
-                        <Button variant="ghost" size="sm" onClick={() => openDeleteDialog(b.id, 'budget')}><Trash2 className="h-3 w-3 text-destructive" /></Button>
+                        <Button variant="ghost" size="sm" aria-label="Edit budget" onClick={() => openEditBudget(b)}><Pencil className="h-3 w-3" /></Button>
+                        <Button variant="ghost" size="sm" aria-label="Delete budget" onClick={() => openDeleteDialog(b.id, 'budget')}><Trash2 className="h-3 w-3 text-destructive" /></Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -396,14 +396,14 @@ export default function FinanceManagementPage() {
                         <span className="text-muted-foreground">Progress</span>
                         <span className="font-medium">{formatCurrency(current)} / {formatCurrency(target)}</span>
                       </div>
-                      <div className="w-full bg-muted rounded-full h-2">
+                      <div className="w-full bg-muted rounded-full h-2" role="progressbar" aria-valuenow={Math.round(percent)} aria-valuemin={0} aria-valuemax={100}>
                         <div className="bg-blue-500 h-full rounded-full" style={{ width: `${percent}%` }} />
                       </div>
                       <p className="text-xs text-muted-foreground">{percent.toFixed(0)}% complete</p>
                       {s.deadline && <p className="text-xs text-muted-foreground">Deadline: {new Date(s.deadline).toLocaleDateString()}</p>}
                       <div className="flex justify-end gap-1 pt-1">
-                        <Button variant="ghost" size="sm" onClick={() => openEditSavings(s)}><Pencil className="h-3 w-3" /></Button>
-                        <Button variant="ghost" size="sm" onClick={() => openDeleteDialog(s.id, 'savings')}><Trash2 className="h-3 w-3 text-destructive" /></Button>
+                        <Button variant="ghost" size="sm" aria-label="Edit savings goal" onClick={() => openEditSavings(s)}><Pencil className="h-3 w-3" /></Button>
+                        <Button variant="ghost" size="sm" aria-label="Delete savings goal" onClick={() => openDeleteDialog(s.id, 'savings')}><Trash2 className="h-3 w-3 text-destructive" /></Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -422,11 +422,11 @@ export default function FinanceManagementPage() {
             <DialogDescription>Fill in the transaction details.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label>Type</Label>
                 <Select value={txForm.type} onValueChange={(v) => setTxForm((p) => ({ ...p, type: v }))} disabled={submitting}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger aria-label="Transaction type"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="INCOME">Income</SelectItem>
                     <SelectItem value="EXPENSE">Expense</SelectItem>
@@ -442,7 +442,7 @@ export default function FinanceManagementPage() {
               <Label htmlFor="txCategory">Category *</Label>
               <Input id="txCategory" value={txForm.category} onChange={(e) => setTxForm((p) => ({ ...p, category: e.target.value }))} disabled={submitting} placeholder="e.g. Services, Rent, Supplies" />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="txDate">Date</Label>
                 <Input id="txDate" type="date" value={txForm.date} onChange={(e) => setTxForm((p) => ({ ...p, date: e.target.value }))} disabled={submitting} />
@@ -450,7 +450,7 @@ export default function FinanceManagementPage() {
               <div className="grid gap-2">
                 <Label>Payment Method</Label>
                 <Select value={txForm.paymentMethod} onValueChange={(v) => setTxForm((p) => ({ ...p, paymentMethod: v }))} disabled={submitting}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger aria-label="Payment method"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="CASH">Cash</SelectItem>
                     <SelectItem value="CARD">Card</SelectItem>
@@ -488,7 +488,7 @@ export default function FinanceManagementPage() {
               <Label htmlFor="budgetCategory">Category *</Label>
               <Input id="budgetCategory" value={budgetForm.category} onChange={(e) => setBudgetForm((p) => ({ ...p, category: e.target.value }))} disabled={submitting} />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="budgetAmount">Amount *</Label>
                 <Input id="budgetAmount" type="number" step="0.01" min="0" value={budgetForm.amount} onChange={(e) => setBudgetForm((p) => ({ ...p, amount: e.target.value }))} disabled={submitting} />
@@ -496,7 +496,7 @@ export default function FinanceManagementPage() {
               <div className="grid gap-2">
                 <Label>Period</Label>
                 <Select value={budgetForm.period} onValueChange={(v) => setBudgetForm((p) => ({ ...p, period: v }))} disabled={submitting}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger aria-label="Budget period"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="MONTHLY">Monthly</SelectItem>
                     <SelectItem value="QUARTERLY">Quarterly</SelectItem>
@@ -505,7 +505,7 @@ export default function FinanceManagementPage() {
                 </Select>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="budgetStart">Start Date</Label>
                 <Input id="budgetStart" type="date" value={budgetForm.startDate} onChange={(e) => setBudgetForm((p) => ({ ...p, startDate: e.target.value }))} disabled={submitting} />
@@ -542,7 +542,7 @@ export default function FinanceManagementPage() {
               <Label htmlFor="savingsName">Name *</Label>
               <Input id="savingsName" value={savingsForm.name} onChange={(e) => setSavingsForm((p) => ({ ...p, name: e.target.value }))} disabled={submitting} />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="savingsTarget">Target Amount *</Label>
                 <Input id="savingsTarget" type="number" step="0.01" min="0" value={savingsForm.targetAmount} onChange={(e) => setSavingsForm((p) => ({ ...p, targetAmount: e.target.value }))} disabled={submitting} />

@@ -61,10 +61,6 @@ import {
 import { CustomerFormData, customerSchema } from "../schemas/CustomerSchema";
 import { toast } from "sonner";
 
-// console.log("=== CLOUDINARY CONFIG CHECK ===");
-// console.log("Cloud Name:", process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME);
-// console.log("Upload Preset:", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET);
-// console.log("===============================");
 
 const CustomerForm = ({
   customer,
@@ -78,9 +74,6 @@ const CustomerForm = ({
 
   //  ✅ Detect mode
   const isEditMode = !!customer;
-  console.log("📝 CustomerForm mode:", isEditMode ? "EDIT" : "CREATE");
-  console.log(" + Customer", customer);
-
   // ✅ Dialog state - auto-open for edit mode
   const [dialogOpen, setDialogOpen] = useState(isEditMode);
 
@@ -112,10 +105,6 @@ const CustomerForm = ({
 
   const [imageDeleted, setImageDeleted] = useState(false);
 
-  // console.log({ countries });
-  // console.log({ states });
-  // console.log({ cities });
-
   // ✅ Default form values function
   const getDefaultCustomerFormValues = useCallback(
     () => ({
@@ -136,8 +125,6 @@ const CustomerForm = ({
   useEffect(() => {
     setAvatarPreview(customer?.pictureURL || "");
     if (customer) {
-      console.log("✏️ Opening edit mode for:", customer.fullName);
-      console.log("customer.pictureURL : ", customer.pictureURL);
       setDialogOpen(true);
     }
   }, [customer]);
@@ -184,8 +171,6 @@ const CustomerForm = ({
 // ✅ NEW - Resets when dialog opens AND when customer changes
 useEffect(() => {
   if (open) {
-    console.log('🔄 Dialog opened, resetting to original data');
-    
     // Reset form to original customer data
     form.reset(getDefaultCustomerFormValues());
     
@@ -207,17 +192,12 @@ useEffect(() => {
     setSelectedCountry(customer?.country || "");
     setSelectedState(customer?.state || "");
     setSelectedCity(customer?.city || "");
-    
-    console.log('✅ Form reset to original data');
   }
 }, [open, customer, form, getDefaultCustomerFormValues]);
 
   // ✅ Form submission handler
   // const handleCustomerFormSubmit = useCallback(
   //   (data: CustomerFormData) => {
-  //     console.log("🎉 FORM SUBMITTED!");
-  //     console.log("Form Data:", data);
-
   //     try {
   //       // Get full names for display
   //       const countryName =
@@ -232,8 +212,6 @@ useEffect(() => {
   //         stateName,
   //         id: customer?.id || `customer-${Date.now()}`,
   //       };
-
-  //       console.log("Customer Data to submit:", customerData);
 
   //       // Call the onSubmit prop
   //       onSubmit(customerData);
@@ -260,27 +238,14 @@ useEffect(() => {
 
   // 🐛 DEBUG: Add error handler
   const handleFormError = (errors: any) => {
-    console.log("❌ FORM VALIDATION FAILED!");
-    console.log("Errors:", errors);
   };
 
   // ✅ Country change handler - memoized
   const handleCountryChange = useCallback(
     (value: string) => {
-      console.log("Country isoCode selected:", value);
-
       const countryObj = countries.find((c: any) => c.isoCode === value);
-      console.log({ countryObj });
 
       if (countryObj) {
-        const countryData = {
-          emoji: countryObj.flag,
-          id: countries.indexOf(countryObj),
-          name: countryObj.name,
-          isoCode: countryObj.isoCode,
-        };
-
-        console.log("Country object:", countryData);
         setSelectedCountry(value);
       }
     },
@@ -290,18 +255,9 @@ useEffect(() => {
   // ✅ State change handler - memoized
   const handleStateChange = useCallback(
     (value: string) => {
-      console.log("State isoCode selected:", value);
-
       const stateObj = states.find((s: any) => s.isoCode === value);
-      console.log({ stateObj });
 
       if (stateObj) {
-        const stateData = {
-          id: states.indexOf(stateObj),
-          name: stateObj.name,
-        };
-
-        console.log("State object:", stateData);
         setSelectedState(value);
       }
     },
@@ -311,74 +267,42 @@ useEffect(() => {
   // ✅ City change handler - memoized
   const handleCityChange = useCallback(
     (value: string) => {
-      console.log("City Name selected:", value);
-
       const cityObj = cities.find((c: any) => c.name === value);
-      console.log({ cityObj });
 
       if (cityObj) {
-        const cityData = {
-          id: cities.indexOf(cityObj),
-          name: cityObj.name,
-        };
-
-        console.log("City object:", cityData);
         setSelectedCity(value);
       }
     },
     [cities]
   );
 
-  // ✅ Upload to Cloudinary (called ONLY on submit)
-  const uploadToCloudinary = async (file: File): Promise<string> => {
-    console.log("🚀 Uploading to Cloudinary:", file.name);
-
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-    const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
-
-    console.log({ cloudName: cloudName, uploadPreset: uploadPreset });
-
-    if (!cloudName || !uploadPreset) {
-      throw new Error("Cloudinary configuration missing. Check .env.local");
-    }
+  // ✅ Upload to Supabase Storage
+  const uploadAvatar = async (file: File): Promise<string> => {
+    const ext = file.name.split(".").pop() || "jpg";
+    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", uploadPreset);
-    formData.append("folder", "customer-avatars");
+    formData.append("fileName", fileName);
 
-    try {
-      const response = await fetch("/api/upload-avatar", {
-        method: "POST",
-        body: formData,
-      });
+    const response = await fetch("/api/upload-avatar", {
+      method: "POST",
+      body: formData,
+    });
 
-      if (!response.ok) {
-        const error = await response.json();
-        console.error("Upload failed:", error);
-        throw new Error(error.error || "Failed to upload image");
-      }
-
-      const data = await response.json();
-      console.log("✅ Upload successful:");
-      console.log("  URL:", data.secure_url);
-      console.log("  Format:", data.format);
-      console.log("  Size:", data.width, "x", data.height);
-
-      return data.secure_url;
-    } catch (error) {
-      console.error("Upload error:", error);
-      throw error;
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to upload image");
     }
+
+    const data = await response.json();
+    return data.data?.url || data.url;
   };
 
   // ✅ Handle file selection and upload
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log({ "event.target.files?.[0] ": event.target.files?.[0] });
     const file = event.target.files?.[0];
     if (!file) return;
-
-    console.log("📁 File selected:", file.name);
 
     // Validate file type
     if (!file.type.startsWith("image/")) {
@@ -400,14 +324,11 @@ useEffect(() => {
     const previewUrl = URL.createObjectURL(file);
     setAvatarPreview(previewUrl);
 
-    console.log("✅ Preview created (not uploaded yet)");
     toast.success("Image selected! It will upload when you submit.");
   };
 
   // ✅ Delete avatar
   const handleDeleteAvatar = useCallback(() => {
-    console.log("🗑️ Deleting avatar");
-
     setAvatarPreview("");
     setSelectedFile(null);
     setImageDeleted(true); // ✅ Track deletion
@@ -423,9 +344,6 @@ useEffect(() => {
   // ✅ Form submission handler
   const handleCustomerFormSubmit = useCallback(
     async (data: CustomerFormData) => {
-      console.log("🎉 FORM SUBMITTED!");
-      console.log(isEditMode ? "✏️ EDITING" : "➕ CREATING", "customer");
-
       try {
         setIsUploading(true);
 
@@ -434,17 +352,14 @@ useEffect(() => {
 
         // ✅ Check if image was explicitly deleted
         if (imageDeleted) {
-          console.log("🗑️ Image was deleted, setting to null");
           finalPictureURL = null;
         }
         // ✅ Check if new image was selected
         else if (selectedFile) {
-          console.log("📤 New image selected, uploading...");
           toast.info("Uploading image...");
 
           try {
-            finalPictureURL = await uploadToCloudinary(selectedFile);
-            console.log("✅ New image uploaded:", finalPictureURL);
+            finalPictureURL = await uploadAvatar(selectedFile);
           } catch (uploadError) {
             console.error("❌ Upload failed:", uploadError);
             toast.error("Failed to upload image");
@@ -454,7 +369,6 @@ useEffect(() => {
         }
         // ✅ Otherwise keep existing image
         else {
-          console.log("ℹ️ No changes to image, keeping:", finalPictureURL);
         }
 
         // ✅ Prepare data
@@ -470,15 +384,10 @@ useEffect(() => {
           pictureURL: finalPictureURL,
         };
 
-        console.log("📤 Submitting customer data:", customerData);
-
         // ✅ Call parent's onSubmit (handleCreateCustomer)
         await onSubmit(customerData);
 
         onOpenChange(false);
-        // ✅ SUCCESS: Close dialog
-        console.log("✅ Submission successful, closing dialog");
-
         setSelectedCountry("");
         setSelectedState("");
         setSelectedCity("");
@@ -504,13 +413,10 @@ useEffect(() => {
     ]
   );
 
-  console.log({ customer });
-  console.log({ avatarPreview });
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="thisDialog flex flex-col justify-between gap-10 sm:max-w-[850px]"
+        className="thisDialog flex flex-col justify-between gap-10 w-full max-w-[850px]"
         onInteractOutside={(e) => {
           e.preventDefault();
         }}
@@ -518,8 +424,6 @@ useEffect(() => {
         <Form {...form}>
           <form
             onSubmit={(e) => {
-              console.log({ e });
-              console.log("🚀 Form submit event triggered");
               e.preventDefault();
               form.handleSubmit(handleCustomerFormSubmit, handleFormError)(e);
             }}
@@ -534,9 +438,9 @@ useEffect(() => {
               </DialogDescription>
             </DialogHeader>
 
-            <div className="grid grid-cols-4 grid-row-1 w-full mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 grid-row-1 w-full mb-4">
               <div className="modal-left flex flex-col items-center gap-4 col-span-1 p-4 px-2">
-                <Avatar className="size-30 object-contain">
+                <Avatar className="size-30">
                   <AvatarImage
                     src={avatarPreview || undefined}
                     alt={customer?.fullName || "Customer"}
@@ -582,7 +486,6 @@ useEffect(() => {
                     className="cursor-pointer"
                     onClick={() => {
                       fileInputRef.current?.click();
-                      console.log({ fileInputRef });
                     }}
                     disabled={isUploading}
                   >
@@ -601,7 +504,7 @@ useEffect(() => {
                 )}
               </div>
 
-              <div className="modal-right col-span-3 p-4 w-full">
+              <div className="modal-right col-span-1 md:col-span-3 p-4 w-full">
                 <FieldGroup>
                   {/* Main details */}
                   <FieldSet>
@@ -714,7 +617,7 @@ useEffect(() => {
 
                     {/* country/state/city selectors */}
                     <FieldGroup>
-                      <div className="grid grid-cols-3 gap-4 w-full">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
                         {/* Country */}
                         <FormField
                           control={form.control}
@@ -890,7 +793,6 @@ useEffect(() => {
               <Button
                 className="cursor-pointer"
                 type="submit"
-                // onClick={() => console.log("Submit button clicked")}
               >
                 {!isEditMode ? "Add Customer" : "Update Customer"}
               </Button>

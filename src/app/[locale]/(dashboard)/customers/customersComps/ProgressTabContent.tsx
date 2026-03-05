@@ -35,7 +35,6 @@ import { formatDate, getSessionStatusColor } from "../utils/helpers";
 
 const ProgressTabContent = ({ customer }: TabContentProps) => {
   const [selectedSession, setSelectedSession] = useState<string>("1");
-  console.log({ customer });
   // Mock data with enhanced treatment information
   const sessions = customer.progress || [];
 
@@ -81,7 +80,7 @@ const ProgressTabContent = ({ customer }: TabContentProps) => {
                     <span className="text-xs text-muted-foreground">
                       {formatDate(session?.date, "short")}
                     </span>
-                    <div className="w-12 h-1 bg-muted rounded-full overflow-hidden">
+                    <div className="w-12 h-1 bg-muted rounded-full overflow-hidden" role="progressbar" aria-valuenow={session?.progress} aria-valuemin={0} aria-valuemax={100}>
                       <div
                         className="h-full bg-accent transition-all"
                         style={{ width: `${session?.progress}%` }}
@@ -125,7 +124,7 @@ const ProgressTabContent = ({ customer }: TabContentProps) => {
                       {currentSession.progress}%
                     </span>
                   </div>
-                  <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
+                  <div className="w-full h-3 bg-muted rounded-full overflow-hidden" role="progressbar" aria-valuenow={currentSession.progress} aria-valuemin={0} aria-valuemax={100}>
                     <div
                       className="h-full bg-linear-to-r from-accent to-accent/60 transition-all duration-500"
                       style={{ width: `${currentSession.progress}%` }}
@@ -143,11 +142,14 @@ const ProgressTabContent = ({ customer }: TabContentProps) => {
 
       <Dialog>
         <DialogTrigger asChild>
-          <div className="sticky bottom-0 w-6 left-0 cursor-pointer">
-            <Expand />
-          </div>
+          <button className="sticky bottom-0 w-6 left-0 cursor-pointer" aria-label="Expand progress view">
+            <Expand aria-hidden="true" />
+          </button>
         </DialogTrigger>
         <DialogContent className="w-[95%]! h-[95%]! max-w-full!">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Treatment Progress Detail</DialogTitle>
+          </DialogHeader>
           <ExpendedProgressTabContent />
         </DialogContent>
       </Dialog>

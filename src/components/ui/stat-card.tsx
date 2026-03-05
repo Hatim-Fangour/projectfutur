@@ -75,12 +75,13 @@ const StatCard = forwardRef<HTMLDivElement, StatCardProps>(
           <div className="space-y-1">
             <p className="text-sm font-medium text-muted-foreground">{label}</p>
             <p className="text-2xl font-bold text-foreground tracking-tight">
-              {displayValue}
+              <span aria-hidden="true">{displayValue}</span>
+              <span className="sr-only">{typeof value === 'number' ? value.toLocaleString() : value}</span>
             </p>
           </div>
           {Icon && (
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gold-dark to-gold-light">
-              <Icon className="h-5 w-5 text-white" />
+              <Icon aria-hidden="true" className="h-5 w-5 text-white" />
             </div>
           )}
         </div>

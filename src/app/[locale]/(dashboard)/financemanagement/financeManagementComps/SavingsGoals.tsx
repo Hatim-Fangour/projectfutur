@@ -159,7 +159,6 @@ const SavingsGoals = () => {
   const handleAddGoal = (e: any) => {
     e?.preventDefault();
     // Handle adding new goal logic here
-    console.log("New goal:", newGoal);
     setShowAddGoal(false);
     setNewGoal({
       title: "",
@@ -373,7 +372,7 @@ const SavingsGoals = () => {
               </div>
 
               {/* Goal Details */}
-              <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
                   <div className="text-sm text-muted-foreground">Remaining</div>
                   <div className="font-semibold text-foreground">

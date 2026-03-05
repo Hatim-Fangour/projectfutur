@@ -1,167 +1,144 @@
 import {
   ChevronLeft,
   ChevronRight,
-  Columns3,
-  Columns4,
-  Eye,
-  GalleryVertical,
+  CalendarDays,
+  CalendarRange,
   Grid3x3,
+  List,
   Plus,
-} from "lucide-react";
-import React, { useState } from "react";
-import { Views } from "react-big-calendar";
-import { Button } from "@/components/ui/button";
+} from 'lucide-react'
+import React from 'react'
+import { Views, type View } from 'react-big-calendar'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu'
 
-const CustomToolbar = ({ label, onNavigate, onView }: any) => {
-  const [anchorElViewSelector, setAnchorElViewSelector] = useState<
-    boolean | null
-  >(false);
-  const open = Boolean(anchorElViewSelector);
+interface ToolbarProps {
+  label: string
+  onNavigate: (action: 'PREV' | 'TODAY' | 'NEXT') => void
+  onView: (view: View) => void
+  view: View
+}
 
-  const onClickViewSelector = (event: any) => {
-    setAnchorElViewSelector(event.currentTarget);
-  };
-  const handleCloseViewSelector = () => setAnchorElViewSelector(null);
-  // console.log(Views);
+const viewOptions = [
+  { key: Views.DAY, label: 'Day', icon: CalendarDays },
+  { key: Views.WEEK, label: 'Week', icon: CalendarRange },
+  { key: Views.MONTH, label: 'Month', icon: Grid3x3 },
+  { key: Views.AGENDA, label: 'Agenda', icon: List },
+]
 
-  const viewsMenu = [
-    {
-      id: 1,
-      name: "Day",
-      icon: <GalleryVertical className="h-4 w-4 text-gray-500" />,
-      action: () => onView(Views.DAY),
-    },
-    {
-      id: 2,
-      name: "Week",
-      icon: <Columns4 className="h-4 w-4 text-gray-500" />,
-      action: () => onView(Views.WEEK),
-    },
-    {
-      id: 3,
-      name: "Month",
-      icon: <Grid3x3 className="h-4 w-4 text-gray-500" />,
-      action: () => onView(Views.MONTH),
-    },
-    {
-      id: 4,
-      name: "Agenda",
-      icon: <Columns3 className="h-4 w-4 text-gray-500" />,
-      action: () => onView(Views.AGENDA),
-    },
-  ];
+const CustomToolbar = ({ label, onNavigate, onView, view }: ToolbarProps) => {
   return (
-    <div className="rbc-toolbr flex justify-between items-center p-2 mb-3">
-      {/* Left buttons */}
-      <div className="space-x-1 flex items-center">
-        <Button onClick={() => onNavigate("PREV")} className="btn">
-          <ChevronLeft />
+    <div className="flex items-center justify-between gap-2 px-1 py-2 flex-wrap">
+      {/* Navigation */}
+      <div className="flex items-center gap-1">
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => onNavigate('PREV')}
+          aria-label="Previous"
+        >
+          <ChevronLeft className="h-4 w-4" />
         </Button>
-        <Button onClick={() => onNavigate("TODAY")} className="btn">
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 px-3 text-xs font-medium"
+          onClick={() => onNavigate('TODAY')}
+        >
           Today
         </Button>
-        <Button onClick={() => onNavigate("NEXT")} className="btn">
-          <ChevronRight />
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => onNavigate('NEXT')}
+          aria-label="Next"
+        >
+          <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
 
-      {/* Label */}
-      <span className="text-lg font-bold">{label}</span>
+      {/* Date Label */}
+      <h2
+        className="text-sm sm:text-base font-semibold tracking-tight order-3 sm:order-none w-full sm:w-auto text-center text-foreground"
+        aria-live="polite"
+      >
+        {label}
+      </h2>
 
-      {/* View switcher */}
-      <div className="space-x-1 flex items-center">
-        {/* code color */}
-        <div>
-          {/* Button with selected color */}
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button onClick={onClickViewSelector}>
-                <Eye className="h-5 w-5" />
+      {/* View Switcher + Add */}
+      <div className="flex items-center gap-1">
+        {/* Desktop: inline buttons */}
+        <div className="hidden sm:flex items-center gap-1">
+          {viewOptions.map((v) => {
+            const Icon = v.icon
+            const isActive = view === v.key
+            return (
+              <Button
+                key={v.key}
+                variant="outline"
+                size="sm"
+                className={`h-8 px-2.5 text-xs font-medium transition-all duration-200 ${
+                  isActive
+                    ? 'bg-[#C9A84C]/15 border-[#C9A84C]/30 text-[#C9A84C]'
+                    : 'text-muted-foreground'
+                }`}
+                onClick={() => onView(v.key)}
+              >
+                <Icon className="h-3.5 w-3.5 mr-1" />
+                {v.label}
               </Button>
-              {/* <Button className="rounded-full">+</Button> */}
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              sideOffset={10}
-              side="left"
-              className=""
-              align="start"
-            >
-              {viewsMenu.map((view, index) => (
-                <DropdownMenuItem onSelect={() => console.log("service")}>
-                  {view.name}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* Dropdown menu */}
-          {/* <Menu
-            anchorEl={anchorElViewSelector}
-            open={open}
-            onClose={handleCloseViewSelector}
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "left",
-            }}
-          >
-            <div
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                p: 1,
-                gap: 0.5,
-              }}
-            >
-              {viewsMenu.map((view, index) => (
-                <MenuItem
-                  key={index}
-                  onClick={view.action}
-                  sx={{
-                    width: "150px",
-                    minWidth: 0,
-                    p: 0.5,
-                    paddingX: 1,
-                    borderRadius: "8px",
-                  }}
-                >
-                  <div
-                    sx={{
-                      height: 24,
-                      width: "100%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 2,
-                    }}
-                  >
-                    <div className="flex items-center gap-3 w-full">
-                      <span>{view.icon}</span>
-                      <span>{view.name}</span>
-                    </div>
-                    <span>{view.name.charAt(0)}</span>
-                  </div>
-                </MenuItem>
-              ))}
-            </div>
-          </Menu> */}
+            )
+          })}
         </div>
 
+        {/* Mobile: dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="sm:hidden h-8 px-2.5 text-xs"
+            >
+              {viewOptions.find((v) => v.key === view)?.label ?? 'View'}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-[120px]">
+            {viewOptions.map((v) => {
+              const Icon = v.icon
+              return (
+                <DropdownMenuItem
+                  key={v.key}
+                  onClick={() => onView(v.key)}
+                  className={view === v.key ? 'text-[#C9A84C]' : ''}
+                >
+                  <Icon className="h-4 w-4 mr-2" />
+                  {v.label}
+                </DropdownMenuItem>
+              )
+            })}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         <Button
-          onClick={() => onView(Views.MONTH)}
-          //   className="btn border border-1 py-[2px] px-3 rounded-md"
+          size="icon"
+          className="h-8 w-8 bg-[#C9A84C] hover:bg-[#dbb960] text-white dark:text-[#0a0a0f]"
+          onClick={() => {
+            window.dispatchEvent(new CustomEvent('calendar:create'))
+          }}
+          aria-label="New appointment"
         >
-          <Plus className="h-5 w-5" />
+          <Plus className="h-4 w-4" />
         </Button>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default CustomToolbar;
+export default CustomToolbar

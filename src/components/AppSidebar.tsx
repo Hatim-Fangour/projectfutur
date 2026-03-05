@@ -119,7 +119,7 @@ export default function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <Link href="/">
-                <Image src="/logo.png" alt="logo" width={20} height={20} />
+                <Image src="/logo.png" alt="" width={20} height={20} />
                 <span>Magic Spa Center</span>
               </Link>
             </SidebarMenuButton>
@@ -136,7 +136,7 @@ export default function AppSidebar() {
                 <SidebarMenuItem key={item.label}>
                   <SidebarMenuButton asChild>
                     <Link href={item.url}>
-                      <item.icon />
+                      <item.icon aria-hidden="true" />
                       <span>{item.label}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -155,7 +155,7 @@ export default function AppSidebar() {
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
                     <Link href="/settings">
-                      <Settings />
+                      <Settings aria-hidden="true" />
                       <span>Settings</span>
                     </Link>
                   </SidebarMenuButton>
@@ -173,16 +173,16 @@ export default function AppSidebar() {
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton>
                   {loading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
                   ) : (
-                    <User2 />
+                    <User2 aria-hidden="true" />
                   )}
                   <span className="truncate">
                     {loading
                       ? 'Loading...'
                       : profile?.fullName ?? 'Unknown user'}
                   </span>
-                  <ChevronUp className="ml-auto" />
+                  <ChevronUp aria-hidden="true" className="ml-auto" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent side="top" align="start" className="w-56">

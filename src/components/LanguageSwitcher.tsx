@@ -51,6 +51,7 @@ export default function LanguageSwitcher() {
             key={loc}
             onClick={() => switchLocale(loc)}
             className={locale === loc ? 'font-bold' : ''}
+            aria-current={locale === loc ? 'true' : undefined}
           >
             {t(loc)}
           </DropdownMenuItem>

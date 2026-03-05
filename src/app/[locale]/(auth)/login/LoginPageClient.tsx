@@ -6,8 +6,10 @@ import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { useLocale } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { Loader2, Mail, Lock, Eye, EyeOff } from 'lucide-react'
+import OAuthButtons from '@/components/auth/OAuthButtons'
 
 const loginSchema = z.object({
   email: z
@@ -27,6 +29,7 @@ const inputClasses = 'w-full rounded-xl bg-white/90 py-3.5 text-sm text-gray-900
 function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const locale = useLocale()
   const redirectTo = searchParams.get('redirectTo') ?? '/'
   const [serverError, setServerError] = useState<string | null>(null)
   const [showPassword, setShowPassword] = useState(false)
@@ -48,11 +51,18 @@ function LoginForm() {
       password: data.password,
     })
     if (error) {
-      setServerError(
-        error.message === 'Invalid login credentials'
-          ? 'Invalid email or password. Please try again.'
-          : error.message
-      )
+      const msg = error.message.toLowerCase()
+      if (msg.includes('invalid login credentials') || msg.includes('invalid credentials')) {
+        setServerError('Incorrect email or password. Please try again.')
+      } else if (msg.includes('email not confirmed')) {
+        setServerError('Please check your email and confirm your account before signing in.')
+      } else if (msg.includes('rate') || msg.includes('too many')) {
+        setServerError('Too many login attempts. Please wait a moment and try again.')
+      } else if (msg.includes('network') || msg.includes('fetch')) {
+        setServerError('Connection error. Please check your internet and try again.')
+      } else {
+        setServerError('Unable to sign in. Please try again.')
+      }
       return
     }
     router.push(redirectTo)
@@ -79,14 +89,26 @@ function LoginForm() {
           >
             Welcome Back
           </h2>
-          <p className="mt-2 text-sm" style={{ color: 'rgba(201, 168, 76, 0.45)' }}>
+          <p className="mt-2 text-sm" style={{ color: 'rgba(201, 168, 76, 0.85)' }}>
             Sign in to your account
           </p>
+        </div>
+
+        <OAuthButtons locale={locale} />
+
+        {/* Divider */}
+        <div className="flex items-center gap-3 my-6">
+          <div className="h-px flex-1" style={{ background: 'rgba(255, 255, 255, 0.06)' }} />
+          <span className="text-xs uppercase tracking-wider" style={{ color: 'rgba(240, 236, 228, 0.35)' }}>
+            or sign in with email
+          </span>
+          <div className="h-px flex-1" style={{ background: 'rgba(255, 255, 255, 0.06)' }} />
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {serverError && (
             <div
+              role="alert"
               className="rounded-xl px-4 py-3 text-sm"
               style={{
                 background: 'rgba(239, 68, 68, 0.08)',
@@ -100,48 +122,51 @@ function LoginForm() {
 
           {/* Email */}
           <div className="space-y-2">
-            <label htmlFor="email" className="text-xs font-medium uppercase tracking-wider" style={{ color: 'rgba(201, 168, 76, 0.5)' }}>
+            <label htmlFor="email" className="text-xs font-medium uppercase tracking-wider" style={{ color: 'rgba(201, 168, 76, 0.85)' }}>
               Email
             </label>
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-[15px] w-[15px]" style={{ color: '#C9A84C' }} />
+              <Mail aria-hidden="true" className="absolute left-4 top-1/2 -translate-y-1/2 h-[15px] w-[15px]" style={{ color: '#C9A84C' }} />
               <input
                 id="email"
                 type="email"
                 placeholder="you@example.com"
                 autoComplete="email"
+                aria-required="true"
+                aria-describedby={errors.email ? 'email-error' : undefined}
                 disabled={isSubmitting}
                 className={`${inputClasses} pl-11 pr-4`}
                 {...register('email')}
               />
             </div>
             {errors.email && (
-              <p className="text-xs" style={{ color: '#f87171' }}>{errors.email.message}</p>
+              <p id="email-error" className="text-xs" style={{ color: '#f87171' }}>{errors.email.message}</p>
             )}
           </div>
 
           {/* Password */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label htmlFor="password" className="text-xs font-medium uppercase tracking-wider" style={{ color: 'rgba(201, 168, 76, 0.5)' }}>
+              <label htmlFor="password" className="text-xs font-medium uppercase tracking-wider" style={{ color: 'rgba(201, 168, 76, 0.85)' }}>
                 Password
               </label>
               <Link
                 href="/forgot-password"
                 className="text-xs transition-colors duration-200 hover:text-[#C9A84C]"
-                style={{ color: 'rgba(240, 236, 228, 0.3)' }}
-                tabIndex={-1}
+                style={{ color: 'rgba(240, 236, 228, 0.65)' }}
               >
                 Forgot password?
               </Link>
             </div>
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-[15px] w-[15px]" style={{ color: '#C9A84C' }} />
+              <Lock aria-hidden="true" className="absolute left-4 top-1/2 -translate-y-1/2 h-[15px] w-[15px]" style={{ color: '#C9A84C' }} />
               <input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Enter your password"
                 autoComplete="current-password"
+                aria-required="true"
+                aria-describedby={errors.password ? 'password-error' : undefined}
                 disabled={isSubmitting}
                 className={`${inputClasses} pl-11 pr-11`}
                 {...register('password')}
@@ -151,13 +176,14 @@ function LoginForm() {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors duration-200 hover:text-[#C9A84C]"
                 style={{ color: 'rgba(201, 168, 76, 0.6)' }}
-                tabIndex={-1}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-pressed={showPassword}
               >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showPassword ? <EyeOff aria-hidden="true" className="h-4 w-4" /> : <Eye aria-hidden="true" className="h-4 w-4" />}
               </button>
             </div>
             {errors.password && (
-              <p className="text-xs" style={{ color: '#f87171' }}>{errors.password.message}</p>
+              <p id="password-error" className="text-xs" style={{ color: '#f87171' }}>{errors.password.message}</p>
             )}
           </div>
 
@@ -192,7 +218,7 @@ function LoginForm() {
             />
             {isSubmitting ? (
               <span className="relative inline-flex items-center">
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 aria-hidden="true" className="mr-2 h-4 w-4 animate-spin" />
                 Signing in...
               </span>
             ) : (
@@ -202,7 +228,7 @@ function LoginForm() {
         </form>
 
         {/* Footer */}
-        <p className="mt-8 text-center text-sm" style={{ color: 'rgba(240, 236, 228, 0.3)' }}>
+        <p className="mt-8 text-center text-sm" style={{ color: 'rgba(240, 236, 228, 0.65)' }}>
           Don&apos;t have an account?{' '}
           <Link
             href="/register"

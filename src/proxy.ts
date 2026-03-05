@@ -11,7 +11,7 @@ const intlMiddleware = createMiddleware(routing)
 /**
  * Auth pages that do not require authentication (locale-stripped paths).
  */
-const PUBLIC_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password']
+const PUBLIC_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password', '/callback']
 
 /**
  * Routes that should be skipped by middleware entirely.

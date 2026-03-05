@@ -89,6 +89,7 @@ const LuxuryTableHead = forwardRef<HTMLTableCellElement, ThHTMLAttributes<HTMLTa
   ({ className, ...props }, ref) => (
     <th
       ref={ref}
+      scope="col"
       className={cn(
         'h-10 px-4 text-left align-middle font-semibold text-muted-foreground',
         'text-xs uppercase tracking-wider',

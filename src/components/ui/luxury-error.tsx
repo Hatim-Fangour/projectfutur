@@ -27,10 +27,10 @@ export default function LuxuryError({
   }, [error])
 
   return (
-    <div className="flex items-center justify-center min-h-[60vh] p-6 animate-fade-in-up">
+    <div role="alert" className="flex items-center justify-center min-h-[60vh] p-6 animate-fade-in-up">
       <GlassCard className="max-w-md w-full text-center">
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-rose-500/20 to-rose-500/5 border border-rose-500/20">
-          <AlertTriangle className="h-7 w-7 text-rose-500" />
+          <AlertTriangle aria-hidden="true" className="h-7 w-7 text-rose-500" />
         </div>
         <h2
           className="text-xl font-bold mb-2"

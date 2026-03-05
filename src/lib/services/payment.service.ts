@@ -304,6 +304,6 @@ export async function handleWebhookEvent(event: Stripe.Event) {
 
     default:
       // Unhandled event type -- log but do not error
-      console.log(`Unhandled Stripe event type: ${event.type}`)
+      break
   }
 }

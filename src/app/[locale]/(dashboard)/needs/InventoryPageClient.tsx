@@ -198,7 +198,9 @@ export default function InventoryPage() {
 
       {/* Filters */}
       <div className="flex gap-2">
+        <label htmlFor="inventory-search" className="sr-only">Search inventory</label>
         <Input
+          id="inventory-search"
           placeholder="Search items..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -206,7 +208,7 @@ export default function InventoryPage() {
           className="max-w-sm"
         />
         <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v === 'all' ? '' : v)}>
-          <SelectTrigger className="w-40"><SelectValue placeholder="All Status" /></SelectTrigger>
+          <SelectTrigger className="w-40" aria-label="Filter by status"><SelectValue placeholder="All Status" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
             <SelectItem value="IN_STOCK">In Stock</SelectItem>
@@ -214,7 +216,7 @@ export default function InventoryPage() {
             <SelectItem value="OUT_OF_STOCK">Out of Stock</SelectItem>
           </SelectContent>
         </Select>
-        <Button variant="outline" onClick={() => fetchItems(1)}><Search className="h-4 w-4" /></Button>
+        <Button variant="outline" aria-label="Search" onClick={() => fetchItems(1)}><Search className="h-4 w-4" /></Button>
       </div>
 
       {/* Table */}
@@ -255,8 +257,8 @@ export default function InventoryPage() {
                   <TableCell className="text-muted-foreground">{item.supplierName ?? '-'}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Button variant="ghost" size="icon" onClick={() => openEdit(item)}><Pencil className="h-4 w-4" /></Button>
-                      <Button variant="ghost" size="icon" onClick={() => openDelete(item)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                      <Button variant="ghost" size="icon" aria-label={`Edit ${item.name}`} onClick={() => openEdit(item)}><Pencil className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" aria-label={`Delete ${item.name}`} onClick={() => openDelete(item)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -287,7 +289,7 @@ export default function InventoryPage() {
               <Label htmlFor="name">Name *</Label>
               <Input id="name" value={formData.name} onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))} disabled={submitting} />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="category">Category</Label>
                 <Input id="category" value={formData.category} onChange={(e) => setFormData((p) => ({ ...p, category: e.target.value }))} disabled={submitting} />
@@ -297,7 +299,7 @@ export default function InventoryPage() {
                 <Input id="unit" value={formData.unit} onChange={(e) => setFormData((p) => ({ ...p, unit: e.target.value }))} disabled={submitting} />
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="currentQuantity">Current Qty</Label>
                 <Input id="currentQuantity" type="number" min="0" value={formData.currentQuantity} onChange={(e) => setFormData((p) => ({ ...p, currentQuantity: e.target.value }))} disabled={submitting} />
@@ -311,7 +313,7 @@ export default function InventoryPage() {
                 <Input id="reorderQuantity" type="number" min="0" value={formData.reorderQuantity} onChange={(e) => setFormData((p) => ({ ...p, reorderQuantity: e.target.value }))} disabled={submitting} />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="costPerUnit">Cost Per Unit</Label>
                 <Input id="costPerUnit" type="number" step="0.01" value={formData.costPerUnit} onChange={(e) => setFormData((p) => ({ ...p, costPerUnit: e.target.value }))} disabled={submitting} />

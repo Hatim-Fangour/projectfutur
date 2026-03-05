@@ -102,16 +102,11 @@ const CustomerPageClient = () => {
 
   // ✅ CREATE Customer - Axios version
   const handleCreateCustomer = async (customerData: any) => {
-    console.log({ editingCustomer });
-
     if (editingCustomer === undefined) {
       try {
         setLoading(true);
-        console.log("➕ Creating customer:", customerData);
-
         const result = await customerApi.create(customerData);
 
-        console.log({ result });
         if (result.success) {
           setCustomers([result.data, ...customers]);
           toast.success("Customer created!", {
@@ -158,7 +153,6 @@ const CustomerPageClient = () => {
 
       try {
         setLoading(true);
-        console.log("✏️ Updating customer:", editingCustomer.id);
 
         const result = await customerApi.update(
           editingCustomer.id,
@@ -166,8 +160,6 @@ const CustomerPageClient = () => {
         );
 
         if (result.success) {
-          console.log("✅ Customer updated");
-
           // Update in list
           setCustomers(
             customers.map((c: any) =>
@@ -228,13 +220,10 @@ const CustomerPageClient = () => {
 
     try {
       setLoading(true);
-      console.log("✏️ Updating customer:", editingCustomer.id);
 
       const result = await customerApi.update(editingCustomer.id, customerData);
 
       if (result.success) {
-        console.log("✅ Customer updated");
-
         // Update in list
         setCustomers(
           customers.map((c: any) =>
@@ -284,12 +273,9 @@ const CustomerPageClient = () => {
   };
 
   const handleSubmitAddOrUpdate = (customerData: any) => {
-    console.log({ customerData });
     if (editingCustomer === undefined) {
-      console.log("Creating...");
       handleCreateCustomer(customerData);
     } else if (editingCustomer) {
-      console.log("Updateding...");
       handleUpdateCustomer(customerData);
     }
   };
@@ -316,18 +302,13 @@ This will permanently delete:
 This action cannot be undone.`;
 
     if (!confirm(confirmMsg)) {
-      console.log("🚫 Delete cancelled by user");
       return;
     }
 
     try {
       setLoading(true);
 
-      console.log("🗑️ Deleting customer:", customer.id);
-
       await customerApi.delete(customer.id);
-
-      console.log("✅ Delete successful");
 
       // ✅ Remove from list
       const updatedCustomers = customers.filter(
@@ -375,7 +356,6 @@ This action cannot be undone.`;
   // OPEN EDIT FORM
   // ===================================================
   const handleOpenEditForm = (customer: Customer) => {
-    console.log("✏️ Opening edit form for:", customer.fullName);
     setEditingCustomer(customer);
   };
 
@@ -383,27 +363,23 @@ This action cannot be undone.`;
   // CLOSE EDIT DIALOG
   // ===================================================
   const handleCloseEditDialog = useCallback(() => {
-    console.log("🚫 Closing edit dialog");
     setEditDialogOpen(false);
     setEditingCustomer(undefined);
   }, []);
 
-  console.log({ editingCustomer });
-  console.log({ selectedCustomer });
-
   return (
-    <div className="grid grid-cols-10 gap-4 h-[calc(100vh-95px)] w-full overflow-hidden">
+    <div className="flex flex-col lg:grid lg:grid-cols-10 gap-4 h-[calc(100vh-95px)] w-full overflow-hidden">
       {/* left sidebar */}
 
-      <div className="col-span-2 h-full flex flex-col gap-5 bg-primary-foreground p-4 rounded-lg border overflow-hidden">
+      <div className="lg:col-span-2 h-48 lg:h-full flex flex-col gap-5 bg-primary-foreground p-4 rounded-lg border overflow-hidden shrink-0">
         {/* Header */}
         <header className="flex flex-col gap-4">
           <div className="flex items-center justify-between w-full">
             <h1 className="text-lg font-semibold">Customers</h1>
             <Button
               className="w-8 h-8"
+              aria-label="Add new customer"
               onClick={() => {
-                console.log("Dialog opening...");
                 setCustomerFormDialogOpen(true);
                 setEditingCustomer(undefined);
               }}
@@ -421,7 +397,8 @@ This action cannot be undone.`;
           </div>
 
           <div className="search-section">
-            <Input type="text" placeholder="Search customers..." />
+            <label htmlFor="customer-search" className="sr-only">Search customers</label>
+            <Input id="customer-search" type="text" placeholder="Search customers..." />
           </div>
         </header>
 
@@ -444,7 +421,7 @@ This action cannot be undone.`;
                       {customer.fullName?.[0]?.toUpperCase() || "?"}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="truncate w-full">{customer.fullName}</span>
+                  <span className="truncate w-full" title={customer.fullName}>{customer.fullName}</span>
                 </div>
               </div>
             ))
@@ -456,14 +433,14 @@ This action cannot be undone.`;
 
       {/* main content */}
       {!(customers.length > 0) ? (
-        <h1 className="col-span-8 bg-primary-foreground rounded-lg border p-4 flex flex-col overflow-hidden h-full">
+        <h1 className="lg:col-span-8 bg-primary-foreground rounded-lg border p-4 flex flex-col overflow-hidden h-full min-h-0 flex-1">
           No customers found
         </h1>
       ) : (
-        <div className="col-span-8 bg-primary-foreground rounded-lg border p-4 flex flex-col overflow-hidden h-full">
+        <div className="lg:col-span-8 bg-primary-foreground rounded-lg border p-4 flex flex-col overflow-hidden h-full min-h-0 flex-1">
           {/* header */}
           <div className="flex w-full justify-between border-b pb-4 shrink-0">
-            <div className="flex items-center justify-between  w-full px-5 py-0">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full px-5 py-0 gap-3">
               <div className="leftHeader flex items-center justify-between gap-2">
                 {(() => {
                   // const selectedOne = ""
@@ -476,7 +453,7 @@ This action cannot be undone.`;
 
                   return (
                     <>
-                      <Avatar className="size-25 text-5xl">
+                      <Avatar className="size-16 sm:size-25 text-3xl sm:text-5xl">
                         <AvatarImage
                           // sizes="40"
                           src={selectedCustomer?.pictureURL}
@@ -502,24 +479,22 @@ This action cannot be undone.`;
               <div className="rightHeader flex gap-1 items-center justify-center rounded-md">
                 <Button
                   onClick={() => {
-                    console.log("Dialog opening...");
                     setCustomerFormDialogOpen(true);
                     setEditingCustomer(selectedCustomer as Customer);
                   }}
-                  title="Edit customer"
+                  aria-label={`Edit ${selectedCustomer?.fullName || 'customer'}`}
                 >
-                  <Pencil className="w-4 h-4" />
+                  <Pencil aria-hidden="true" className="w-4 h-4" />
                 </Button>
 
                 <Button
-                  // variant="outlined"
                   color="error"
                   onClick={() =>
                     handleDeleteCustomer(selectedCustomer as Customer)
                   }
-                  title="Delete customer"
+                  aria-label={`Delete ${selectedCustomer?.fullName || 'customer'}`}
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 aria-hidden="true" className="w-4 h-4" />
                 </Button>
 
                 <BookAppointment
@@ -534,23 +509,23 @@ This action cannot be undone.`;
           {/* main content */}
           <div className="flex-1 overflow-hidden mt-2">
             <Tabs defaultValue="about" className="h-full flex flex-col">
-              <TabsList>
-                <TabsTrigger value="about" className="px-8">
+              <TabsList className="w-full overflow-x-auto flex justify-start">
+                <TabsTrigger value="about" className="px-4 sm:px-8">
                   About
                 </TabsTrigger>
-                <TabsTrigger value="notes" className="px-8">
+                <TabsTrigger value="notes" className="px-4 sm:px-8">
                   Notes
                 </TabsTrigger>
-                <TabsTrigger value="appointments" className="px-8">
+                <TabsTrigger value="appointments" className="px-4 sm:px-8">
                   Appointments
                 </TabsTrigger>
-                <TabsTrigger value="services" className="px-8">
+                <TabsTrigger value="services" className="px-4 sm:px-8">
                   Services
                 </TabsTrigger>
-                <TabsTrigger value="progress" className="px-8">
+                <TabsTrigger value="progress" className="px-4 sm:px-8">
                   Progress
                 </TabsTrigger>
-                <TabsTrigger value="payments" className="px-8">
+                <TabsTrigger value="payments" className="px-4 sm:px-8">
                   Payments
                 </TabsTrigger>
               </TabsList>

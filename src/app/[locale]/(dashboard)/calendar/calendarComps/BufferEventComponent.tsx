@@ -9,7 +9,6 @@ const BufferEventComponent: React.FC<EventProps<CalendarEventType>> = ({
   event,
 }) => {
   const hasBuffer = event.bufferTime && event.bufferTime > 0 && event.actualEnd;
-  console.log({ event });
   // ✅ If no buffer, render simple event
   if (!hasBuffer) {
     return (
@@ -75,15 +74,6 @@ const BufferEventComponent: React.FC<EventProps<CalendarEventType>> = ({
   // ✅ Calculate percentages
   const appointmentPercent = (actualMinutes / totalMinutes) * 100;
   const bufferPercent = (bufferMinutes / totalMinutes) * 100;
-
-  console.log("📊 Buffer calculation:", {
-    totalMinutes,
-    actualMinutes,
-    bufferMinutes,
-    appointmentPercent: appointmentPercent.toFixed(2) + "%",
-    bufferPercent: bufferPercent.toFixed(2) + "%",
-    sum: (appointmentPercent + bufferPercent).toFixed(2) + "% (should be 100%)",
-  });
 
   // ✅ Validation check
   if (appointmentPercent <= 0 || bufferPercent <= 0 || bufferPercent >= 100) {

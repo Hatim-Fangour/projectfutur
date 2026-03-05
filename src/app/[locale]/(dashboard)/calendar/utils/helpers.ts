@@ -232,7 +232,6 @@ export const timeStringToDate = (dateStr: string, timeStr: string): Date => {
 // ✅ Create a function to get fresh default values
 export const getDefaultFormAppointmentValues = () => {
   const startTime = getNextTimeSlot();
-  console.log({startTime})
   return {
     serviceId: "",
     date: new Date(),
@@ -318,7 +317,6 @@ export const handleFormSubmit = (
 
     switch (data.appointmentType) {
       case "service": {
-        console.log({data})
         const serviceData = data as ServiceFormData;
         const service =
           customer.services?.find((s) => s.id === serviceData.serviceId) ||
@@ -354,7 +352,6 @@ export const handleFormSubmit = (
           note: serviceData.note,
         } as ServiceAppointment;
 
-        console.log({appointmentData})
         break;
       }
 
@@ -441,7 +438,6 @@ export const handleFormSubmit = (
         break;
       }
     }
-    console.log("Appointment Data:", appointmentData);
     onSubmit(appointmentData);
      toast.success(`${data.appointmentType} booked successfully!`);
      // ✅ Close dialog

@@ -646,3 +646,27 @@ model InventoryItem {
   @@index([isDeleted])
   @@map("inventory_items")
 }
+
+// ===================================================
+// 17. PASSWORD RESET OTPs
+// ===================================================
+
+model PasswordResetOtp {
+  id        String   @id @default(cuid())
+  email     String
+  otpHash   String   // bcrypt hash of the 6-digit OTP
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  attempts  Int      @default(0) // max 3 verification attempts
+
+  // Temporary token issued after successful OTP verification
+  resetToken     String?  @unique
+  resetTokenUsed Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([expiresAt])
+  @@index([resetToken])
+  @@map("password_reset_otps")
+}

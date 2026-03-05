@@ -33,6 +33,7 @@ export const metadata: Metadata = {
     'beauty business',
   ],
   authors: [{ name: 'Magic Spa Center' }],
+  manifest: '/manifest.json',
   openGraph: {
     type: 'website',
     locale: 'en_US',
@@ -40,6 +41,12 @@ export const metadata: Metadata = {
     title: 'Magic Spa Center',
     description:
       'Premium luxury spa management platform. Manage appointments, staff, services, inventory, and finances with elegance.',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Magic Spa Center',
+    description:
+      'Premium luxury spa management platform for appointments, staff, services, and finances.',
   },
   robots: {
     index: false,
@@ -51,13 +58,18 @@ export const metadata: Metadata = {
  * Root layout: provides fonts and global styles.
  * Locale-specific providers are in [locale]/layout.tsx.
  */
-export default function RootLayout({
+export default async function RootLayout({
   children,
+  params,
 }: Readonly<{
   children: React.ReactNode
+  params: Promise<{ locale?: string }>
 }>) {
+  const { locale } = await params
+  const lang = locale && ['en', 'fr'].includes(locale) ? locale : 'en'
+
   return (
-    <html suppressHydrationWarning>
+    <html lang={lang} suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} antialiased`}
       >

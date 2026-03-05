@@ -161,7 +161,7 @@ export default function NotificationBell() {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="outline" size="icon" className="relative">
-          <Bell className="h-[1.2rem] w-[1.2rem]" />
+          <Bell aria-hidden="true" className="h-[1.2rem] w-[1.2rem]" />
           {unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
               {unreadCount > 99 ? '99+' : unreadCount}
@@ -178,7 +178,7 @@ export default function NotificationBell() {
           <h4 className="font-semibold text-sm">Notifications</h4>
           {unreadCount > 0 && (
             <Button variant="ghost" size="sm" className="text-xs h-7" onClick={handleMarkAllRead}>
-              <CheckCheck className="h-3 w-3 mr-1" />
+              <CheckCheck aria-hidden="true" className="h-3 w-3 mr-1" />
               Mark all read
             </Button>
           )}
@@ -187,18 +187,18 @@ export default function NotificationBell() {
         {/* List */}
         <ScrollArea className="max-h-80">
           {loading && notifications.length === 0 ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            <div role="status" aria-label="Loading notifications" className="flex items-center justify-center py-8">
+              <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
           ) : notifications.length === 0 ? (
             <div className="text-center py-8 text-sm text-muted-foreground">
-              <Bell className="h-8 w-8 mx-auto mb-2 opacity-40" />
+              <Bell aria-hidden="true" className="h-8 w-8 mx-auto mb-2 opacity-40" />
               <p>No notifications yet</p>
             </div>
           ) : (
-            <div className="divide-y">
+            <ul role="list" className="divide-y">
               {notifications.map((n) => (
-                <div
+                <li
                   key={n.id}
                   className={`flex items-start gap-3 px-4 py-3 hover:bg-muted/50 transition-colors ${
                     !n.isRead ? 'bg-muted/30' : ''
@@ -230,9 +230,9 @@ export default function NotificationBell() {
                         size="icon"
                         className="h-6 w-6"
                         onClick={() => handleMarkAsRead(n.id)}
-                        title="Mark as read"
+                        aria-label="Mark as read"
                       >
-                        <Check className="h-3 w-3" />
+                        <Check aria-hidden="true" className="h-3 w-3" />
                       </Button>
                     )}
                     <Button
@@ -240,14 +240,14 @@ export default function NotificationBell() {
                       size="icon"
                       className="h-6 w-6 text-muted-foreground hover:text-destructive"
                       onClick={() => handleDelete(n.id)}
-                      title="Delete"
+                      aria-label="Delete notification"
                     >
-                      <Trash2 className="h-3 w-3" />
+                      <Trash2 aria-hidden="true" className="h-3 w-3" />
                     </Button>
                   </div>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
         </ScrollArea>
 

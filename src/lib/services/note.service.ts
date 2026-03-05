@@ -126,8 +126,7 @@ export async function deleteNote(id: string) {
     select: { id: true },
   })
   if (!existing) throw new ServiceError('Note not found', 404)
-  await prisma.customerNote.update({
+  await prisma.customerNote.delete({
     where: { id },
-    data: { isDeleted: true, deletedAt: new Date() },
   })
 }

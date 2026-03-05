@@ -29,7 +29,7 @@ const AddClassDialog = () => {
 
   return (
     <DialogContent
-      className="w-[750px] sm:max-w-[700px]"
+      className="w-full max-w-[750px]"
       onInteractOutside={(e) => {
         e.preventDefault();
       }}
@@ -106,7 +106,7 @@ const AddClassDialog = () => {
               <ColorPicker
                 eventColors={existingColors}
                 selectedColor={existingColors[0]}
-                onColorChange={() => console.log("Color has benn changed !")}
+                onColorChange={() => {}}
               />
             </div>
           </div>

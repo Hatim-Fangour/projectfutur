@@ -10,7 +10,6 @@ export const metadata: Metadata = {
 const singleCustomer = async () => {
   const cust = await prisma.customer.findMany();
 
-  console.log({ cust });
   return (
     <div>
       <div>{cust[0].fullName}</div>
