@@ -29,7 +29,7 @@ export const GET = withAuth(
 )
 
 export const PUT = withAuth(
-  async (request: NextRequest, { params }) => {
+  async (request: NextRequest, { auth, params }) => {
     try {
       const { id } = await params!
       const body = await request.json()
@@ -40,7 +40,7 @@ export const PUT = withAuth(
           { status: 400 }
         )
       }
-      const staff = await updateStaff(id, input.data)
+      const staff = await updateStaff(id, input.data, auth.role)
       return NextResponse.json({ success: true, data: staff })
     } catch (error) {
       if (error instanceof ServiceError) {

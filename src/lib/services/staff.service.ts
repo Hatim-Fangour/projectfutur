@@ -75,7 +75,6 @@ const staffDetailSelect = {
   dateOfBirth: true,
   address: true,
   endDate: true,
-  authUserId: true,
   updatedAt: true,
   schedules: {
     orderBy: { dayOfWeek: 'asc' as const },
@@ -167,12 +166,29 @@ export async function createStaff(input: CreateStaffInput) {
   })
 }
 
-export async function updateStaff(id: string, input: UpdateStaffInput) {
+const ROLE_HIERARCHY: Record<string, number> = {
+  THERAPIST: 1,
+  RECEPTIONIST: 2,
+  STAFF: 3,
+  MANAGER: 4,
+  OWNER: 5,
+}
+
+export async function updateStaff(id: string, input: UpdateStaffInput, callerRole?: string) {
   const existing = await prisma.staffMember.findFirst({
     where: { id, isDeleted: false },
-    select: { id: true, email: true },
+    select: { id: true, email: true, role: true },
   })
   if (!existing) throw new ServiceError('Staff member not found', 404)
+
+  // Prevent role escalation: only OWNER can assign OWNER, and no one can assign a role above their own
+  if (input.role !== undefined && callerRole) {
+    const callerLevel = ROLE_HIERARCHY[callerRole] ?? 0
+    const targetLevel = ROLE_HIERARCHY[input.role] ?? 0
+    if (targetLevel > callerLevel) {
+      throw new ServiceError('You cannot assign a role higher than your own', 403)
+    }
+  }
 
   if (input.email && input.email !== existing.email) {
     const emailTaken = await prisma.staffMember.findFirst({
