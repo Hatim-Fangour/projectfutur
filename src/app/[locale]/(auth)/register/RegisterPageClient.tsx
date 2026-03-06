@@ -242,8 +242,8 @@ export default function RegisterPage() {
       })
       if (error) {
         const msg = error.message.toLowerCase()
-        if (msg.includes('rate') || msg.includes('too many')) {
-          setServerError('Too many attempts. Please wait a moment and try again.')
+        if (msg.includes('rate') || msg.includes('too many') || msg.includes('rate_limit')) {
+          setServerError('Too many attempts. Please wait a few minutes and try again.')
         } else if (msg.includes('valid email') || msg.includes('invalid')) {
           setServerError('Please enter a valid email address.')
         } else {
@@ -254,6 +254,8 @@ export default function RegisterPage() {
       setUserData({ fullName: data.fullName, email: data.email })
       setResendCooldown(60)
       setStep(2)
+    } catch {
+      setServerError('Unable to connect. Please check your internet connection and try again.')
     } finally {
       setLoading(false)
     }
@@ -317,11 +319,18 @@ export default function RegisterPage() {
         options: { data: { full_name: userData.fullName } },
       })
       if (error) {
-        setServerError('Failed to resend code. Please try again.')
+        const msg = error.message.toLowerCase()
+        if (msg.includes('rate') || msg.includes('too many')) {
+          setServerError('Too many attempts. Please wait a few minutes and try again.')
+        } else {
+          setServerError('Failed to resend code. Please try again.')
+        }
         return
       }
       setResendCooldown(60)
       setOtpCode('')
+    } catch {
+      setServerError('Unable to connect. Please try again.')
     } finally {
       setLoading(false)
     }
