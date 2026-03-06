@@ -13,5 +13,24 @@ export function createClient() {
   const supabaseAnonKey =
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? 'placeholder-key'
 
-  return createBrowserClient(supabaseUrl, supabaseAnonKey)
+  return createBrowserClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        if (typeof document === 'undefined') return []
+        return document.cookie.split('; ').filter(Boolean).map((c) => {
+          const [name, ...rest] = c.split('=')
+          return { name, value: decodeURIComponent(rest.join('=')) }
+        })
+      },
+      setAll(cookies) {
+        if (typeof document === 'undefined') return
+        cookies.forEach(({ name, value, options }) => {
+          let cookie = `${name}=${encodeURIComponent(value)}; path=${options?.path ?? '/'}`
+          if (options?.maxAge) cookie += `; max-age=${options.maxAge}`
+          if (options?.sameSite) cookie += `; samesite=${options.sameSite}`
+          document.cookie = cookie
+        })
+      },
+    },
+  })
 }
