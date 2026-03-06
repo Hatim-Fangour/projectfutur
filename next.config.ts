@@ -3,6 +3,20 @@ import createNextIntlPlugin from 'next-intl/plugin'
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
+const isDev = process.env.NODE_ENV === 'development'
+
+const cspValue = [
+  "default-src 'self'",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}`,
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data:",
+  `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com${isDev ? ' ws://localhost:* http://localhost:*' : ''}`,
+  "frame-src https://js.stripe.com",
+  "object-src 'none'",
+  "base-uri 'self'",
+].join('; ')
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
@@ -27,7 +41,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com; frame-src https://js.stripe.com; object-src 'none'; base-uri 'self'",
+            value: cspValue,
           },
         ],
       },
