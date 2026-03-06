@@ -160,3 +160,33 @@ export async function sendPasswordResetOtpEmail(
     return false
   }
 }
+
+/**
+ * Sends a registration verification OTP email.
+ */
+export async function sendRegistrationOtpEmail(
+  to: string,
+  otp: string
+): Promise<boolean> {
+  try {
+    const { error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to,
+      subject: 'Verify Your Email - Magic Spa Center',
+      html: buildOtpEmailHtml(otp)
+        .replace('Password Reset Code', 'Email Verification Code')
+        .replace('Use this code to reset your password. Do not share it with anyone.', 'Use this code to verify your email and complete your registration.')
+        .replace('If you didn&rsquo;t request a password reset, you can safely ignore this email.', 'If you didn&rsquo;t create an account, you can safely ignore this email.'),
+    })
+
+    if (error) {
+      console.error('Failed to send registration OTP email:', error)
+      return false
+    }
+
+    return true
+  } catch (err) {
+    console.error('Registration email send error:', err)
+    return false
+  }
+}

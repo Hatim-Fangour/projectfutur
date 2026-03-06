@@ -6,20 +6,26 @@ import { z } from 'zod'
 const registerSchema = z.object({
   fullName: z.string().min(2, 'Full name must be at least 2 characters'),
   email: z.string().email('Invalid email address'),
-  authUserId: z.string().uuid('Invalid user ID'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+      'Password must contain uppercase, lowercase, and a number'
+    ),
+  ownerSetupKey: z.string().optional(),
 })
 
 /**
  * POST /api/auth/register
- * Creates a StaffMember record for a newly registered Supabase user.
- * Called after Supabase auth.signUp() succeeds on the client.
+ * Creates a Supabase auth user + StaffMember record in one server-side call.
+ * Uses the admin API so we bypass email confirmation (staff-only registration).
  * The first user is created as OWNER.
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
-    // Validate input
     const parseResult = registerSchema.safeParse(body)
     if (!parseResult.success) {
       const firstIssue = parseResult.error.issues[0]
@@ -29,55 +35,53 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { fullName, email, authUserId } = parseResult.data
+    const { fullName, email, password } = parseResult.data
 
-    // Verify the user exists in Supabase using the service role key
     const supabaseAdmin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    const { data: { user }, error: getUserError } = await supabaseAdmin.auth.admin.getUserById(authUserId)
-
-    if (getUserError || !user) {
+    // Check if email already exists in Supabase
+    const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers()
+    const existingUser = existingUsers?.users?.find(
+      (u) => u.email?.toLowerCase() === email.toLowerCase()
+    )
+    if (existingUser) {
       return NextResponse.json(
-        { success: false, error: 'Invalid user' },
-        { status: 401 }
+        { success: false, error: 'An account with this email already exists' },
+        { status: 409 }
       )
     }
 
-    // Check if a StaffMember already exists for this auth user or email
-    const existing = await prisma.staffMember.findFirst({
-      where: { OR: [{ authUserId: user.id }, { email }] },
+    // Create auth user with admin API (auto-confirms email)
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { full_name: fullName },
     })
 
-    if (existing) {
-      // If the record exists but has a different authUserId, link it to the new auth user
-      if (existing.authUserId !== user.id) {
-        const updated = await prisma.staffMember.update({
-          where: { id: existing.id },
-          data: { authUserId: user.id, fullName },
-          select: { id: true, fullName: true, email: true, role: true },
-        })
-        return NextResponse.json({ success: true, data: updated }, { status: 200 })
-      }
+    if (authError || !authData.user) {
+      console.error('Supabase admin createUser error:', authError)
       return NextResponse.json(
-        { success: true, data: { id: existing.id, fullName: existing.fullName, email: existing.email, role: existing.role } },
-        { status: 200 }
+        { success: false, error: 'Failed to create account' },
+        { status: 500 }
       )
     }
 
-    // Check if this is the first staff member (make them OWNER)
+    // Determine role
     const staffCount = await prisma.staffMember.count({
       where: { isDeleted: false },
     })
     let role: 'OWNER' | 'STAFF' = 'STAFF'
     if (staffCount === 0) {
-      // If OWNER_SETUP_KEY is configured, require it to claim the OWNER role
       const setupKey = process.env.OWNER_SETUP_KEY
       if (setupKey) {
         const providedKey = body.ownerSetupKey
         if (providedKey !== setupKey) {
+          // Clean up the auth user we just created
+          await supabaseAdmin.auth.admin.deleteUser(authData.user.id)
           return NextResponse.json(
             { success: false, error: 'Invalid or missing owner setup key' },
             { status: 403 }
@@ -87,10 +91,10 @@ export async function POST(request: NextRequest) {
       role = 'OWNER'
     }
 
-    // Create the StaffMember record
+    // Create StaffMember record
     const staffMember = await prisma.staffMember.create({
       data: {
-        authUserId: user.id,
+        authUserId: authData.user.id,
         fullName,
         email,
         role,
@@ -114,7 +118,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('POST /api/auth/register error:', error)
     return NextResponse.json(
-      { success: false, error: 'Failed to create account profile' },
+      { success: false, error: 'Failed to create account' },
       { status: 500 }
     )
   }

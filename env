@@ -1,0 +1,17 @@
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://qekukwyglnjmkediuctk.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFla3Vrd3lnbG5qbWtlZGl1Y3RrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0MDA1NDEsImV4cCI6MjA4Nzk3NjU0MX0.sbWuIxZrjMgKQzD4rZe_kE6mk6pn6zH2jyumwPO_5II
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFla3Vrd3lnbG5qbWtlZGl1Y3RrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjQwMDU0MSwiZXhwIjoyMDg3OTc2NTQxfQ.a0XunOD9dB4Y1e51LDKO0DTVLbACKSr2h4-D6zEdiZM
+
+# Database (Supabase PostgreSQL)
+DATABASE_URL="postgresql://postgres.qekukwyglnjmkediuctk:123ewqHat99%40%40@aws-1-eu-central-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
+DIRECT_URL="postgresql://postgres.qekukwyglnjmkediuctk:123ewqHat99%40%40@aws-1-eu-central-1.pooler.supabase.com:5432/postgres"
+
+# Stripe
+STRIPE_SECRET_KEY=your_stripe_secret_key
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
+STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
+
+# Resend (Email)
+RESEND_API_KEY=your_resend_api_key
+EMAIL_FROM="Magic Spa Center <noreply@yourdomain.com>"

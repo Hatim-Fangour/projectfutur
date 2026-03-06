@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useLocale } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
-import { Loader2, User, Mail, Lock, Eye, EyeOff, CheckCircle, Copy, Check, RefreshCw, Shield, Sparkles } from 'lucide-react'
+import { Loader2, User, Mail, Lock, Eye, EyeOff, CheckCircle, RefreshCw, Shield, Sparkles, Copy, Check } from 'lucide-react'
 import OAuthButtons from '@/components/auth/OAuthButtons'
 
 // --- Schemas ---
@@ -105,7 +105,6 @@ function OtpInput({
 }) {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
-  // Build a 6-slot array: each slot is a single digit or ''
   const getDigits = useCallback((): string[] => {
     const chars = value.split('').slice(0, 6)
     while (chars.length < 6) chars.push('')
@@ -230,25 +229,19 @@ export default function RegisterPage() {
     return () => clearTimeout(t)
   }, [resendCooldown])
 
-  // --- Step 1: Send OTP ---
+  // --- Step 1: Send OTP via our API (Resend) ---
   const handleStep1 = async (data: Step1Data) => {
     setServerError(null)
     setLoading(true)
     try {
-      const supabase = createClient()
-      const { error } = await supabase.auth.signInWithOtp({
-        email: data.email,
-        options: { data: { full_name: data.fullName } },
+      const res = await fetch('/api/auth/send-registration-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: data.email, fullName: data.fullName }),
       })
-      if (error) {
-        const msg = error.message.toLowerCase()
-        if (msg.includes('rate') || msg.includes('too many') || msg.includes('rate_limit')) {
-          setServerError('Too many attempts. Please wait a few minutes and try again.')
-        } else if (msg.includes('valid email') || msg.includes('invalid')) {
-          setServerError('Please enter a valid email address.')
-        } else {
-          setServerError('Failed to send verification code. Please try again.')
-        }
+      const result = await res.json()
+      if (!result.success) {
+        setServerError(result.error || 'Failed to send verification code.')
         return
       }
       setUserData({ fullName: data.fullName, email: data.email })
@@ -261,47 +254,25 @@ export default function RegisterPage() {
     }
   }
 
-  // --- Step 2: Verify OTP ---
+  // --- Step 2: Verify OTP via our API ---
   const handleVerifyOtp = async () => {
     if (otpCode.length !== 6) return
     setServerError(null)
     setLoading(true)
     try {
-      const supabase = createClient()
-      const { data: verifyData, error: verifyError } = await supabase.auth.verifyOtp({
-        email: userData.email,
-        token: otpCode,
-        type: 'email',
-      })
-      if (verifyError) {
-        const msg = verifyError.message.toLowerCase()
-        if (msg.includes('expired')) {
-          setServerError('Code expired. Please request a new one.')
-        } else if (msg.includes('invalid') || msg.includes('incorrect')) {
-          setServerError('Invalid code. Please check and try again.')
-        } else {
-          setServerError('Verification failed. Please try again.')
-        }
-        return
-      }
-
-      // Create StaffMember via API
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch('/api/auth/verify-registration-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fullName: userData.fullName,
-          email: userData.email,
-          authUserId: verifyData.user?.id,
-        }),
+        body: JSON.stringify({ email: userData.email, otp: otpCode }),
       })
       const result = await res.json()
-      if (!result.success && !result.error?.includes('already exists')) {
-        setServerError('Failed to complete registration. Please try again.')
+      if (!result.success) {
+        setServerError(result.error || 'Verification failed. Please try again.')
         return
       }
-
       setStep(3)
+    } catch {
+      setServerError('Unable to connect. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -313,18 +284,14 @@ export default function RegisterPage() {
     setServerError(null)
     setLoading(true)
     try {
-      const supabase = createClient()
-      const { error } = await supabase.auth.signInWithOtp({
-        email: userData.email,
-        options: { data: { full_name: userData.fullName } },
+      const res = await fetch('/api/auth/send-registration-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: userData.email, fullName: userData.fullName }),
       })
-      if (error) {
-        const msg = error.message.toLowerCase()
-        if (msg.includes('rate') || msg.includes('too many')) {
-          setServerError('Too many attempts. Please wait a few minutes and try again.')
-        } else {
-          setServerError('Failed to resend code. Please try again.')
-        }
+      const result = await res.json()
+      if (!result.success) {
+        setServerError('Failed to resend code. Please try again.')
         return
       }
       setResendCooldown(60)
@@ -336,19 +303,45 @@ export default function RegisterPage() {
     }
   }
 
-  // --- Step 3: Set Password ---
+  // --- Step 3: Set Password & Create Account ---
   const handleSetPassword = async (password: string) => {
     setServerError(null)
     setLoading(true)
     try {
-      const supabase = createClient()
-      const { error } = await supabase.auth.updateUser({ password })
-      if (error) {
-        setServerError('Failed to set password. Please try again.')
+      // Create account via our server API (admin API, no Supabase email)
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: userData.fullName,
+          email: userData.email,
+          password,
+        }),
+      })
+      const result = await res.json()
+      if (!result.success) {
+        setServerError(result.error || 'Failed to create account. Please try again.')
         return
       }
+
+      // Sign in to establish session
+      const supabase = createClient()
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: userData.email,
+        password,
+      })
+
+      if (signInError) {
+        // Account created but sign-in failed — redirect to login
+        setSuccess(true)
+        setTimeout(() => router.push(`/${locale}/login`), 2000)
+        return
+      }
+
       setSuccess(true)
       setTimeout(() => router.push(`/${locale}/calendar`), 2000)
+    } catch {
+      setServerError('Unable to connect. Please try again.')
     } finally {
       setLoading(false)
     }
