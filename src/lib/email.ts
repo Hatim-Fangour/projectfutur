@@ -1,20 +1,41 @@
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 
 /**
- * Resend email client.
- * Falls back to a dummy key at build time to avoid build errors.
+ * Gmail SMTP transporter.
+ * All credentials stay server-side in env vars — never exposed to the client.
  */
-const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_build_key')
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST || 'smtp.gmail.com',
+  port: Number(process.env.SMTP_PORT) || 465,
+  secure: true, // SSL on port 465
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+})
 
-/** The "from" address for all emails. Must be verified in Resend. */
-const FROM_EMAIL = process.env.EMAIL_FROM || 'Magic Spa Center <noreply@magicspa.com>'
+const FROM_EMAIL = process.env.EMAIL_FROM || `Magic Post Op <${process.env.SMTP_USER}>`
 
 /**
- * Generates the HTML email body for a password reset OTP.
- * Matches the existing luxury brand design from /emails/otp.html.
+ * Sends an email via Gmail SMTP.
+ * This is the single entry point for all outgoing emails — keeps SMTP credentials
+ * isolated to this server-only module.
  */
-function buildOtpEmailHtml(otp: string): string {
-  // Split OTP into individual digits for styled display
+async function sendEmail(to: string, subject: string, html: string): Promise<boolean> {
+  try {
+    await transporter.sendMail({ from: FROM_EMAIL, to, subject, html })
+    return true
+  } catch (err) {
+    console.error('Email send error:', err)
+    return false
+  }
+}
+
+/**
+ * Generates the HTML email body for an OTP.
+ * Matches the luxury brand design.
+ */
+function buildOtpEmailHtml(otp: string, heading: string, subtitle: string, disclaimer: string): string {
   const digits = otp.split('').map(
     (d) =>
       `<td style="width:44px;height:52px;text-align:center;font-size:28px;font-weight:700;color:#C9A84C;font-family:'Courier New',Courier,monospace;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.18);border-radius:8px;">${d}</td>`
@@ -25,7 +46,7 @@ function buildOtpEmailHtml(otp: string): string {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Password Reset Code</title>
+  <title>${heading}</title>
 </head>
 <body style="margin:0;padding:0;background-color:#0a0a0f;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#0a0a0f;min-height:100vh;">
@@ -38,7 +59,7 @@ function buildOtpEmailHtml(otp: string): string {
               <table role="presentation" cellpadding="0" cellspacing="0">
                 <tr>
                   <td style="font-size:28px;font-weight:700;letter-spacing:4px;color:#C9A84C;text-transform:uppercase;">
-                    MAGIC SPA CENTER
+                    MAGIC POST OP
                   </td>
                 </tr>
                 <tr>
@@ -67,7 +88,7 @@ function buildOtpEmailHtml(otp: string): string {
                 <tr>
                   <td align="center" style="padding-bottom:8px;">
                     <h1 style="margin:0;font-size:24px;font-weight:600;color:#f0ece4;letter-spacing:-0.3px;">
-                      Password Reset Code
+                      ${heading}
                     </h1>
                   </td>
                 </tr>
@@ -76,7 +97,7 @@ function buildOtpEmailHtml(otp: string): string {
                 <tr>
                   <td align="center" style="padding-bottom:32px;">
                     <p style="margin:0;font-size:14px;color:rgba(240,236,228,0.45);line-height:1.6;">
-                      Use this code to reset your password. Do not share it with anyone.
+                      ${subtitle}
                     </p>
                   </td>
                 </tr>
@@ -99,7 +120,7 @@ function buildOtpEmailHtml(otp: string): string {
                       This code expires in <strong style="color:rgba(201,168,76,0.7);">10 minutes</strong>.
                     </p>
                     <p style="margin:8px 0 0;font-size:12px;color:rgba(240,236,228,0.25);line-height:1.5;">
-                      If you didn&rsquo;t request a password reset, you can safely ignore this email.
+                      ${disclaimer}
                     </p>
                   </td>
                 </tr>
@@ -118,7 +139,7 @@ function buildOtpEmailHtml(otp: string): string {
           <tr>
             <td align="center">
               <p style="margin:0;font-size:11px;color:rgba(240,236,228,0.2);line-height:1.6;letter-spacing:0.5px;">
-                &copy; Magic Spa Center &middot; All rights reserved
+                &copy; Magic Post Op &middot; All rights reserved
               </p>
               <p style="margin:6px 0 0;font-size:11px;color:rgba(240,236,228,0.15);line-height:1.6;">
                 This is an automated message. Please do not reply.
@@ -135,58 +156,32 @@ function buildOtpEmailHtml(otp: string): string {
 
 /**
  * Sends a password reset OTP email.
- * @returns true if email was sent successfully, false otherwise
  */
-export async function sendPasswordResetOtpEmail(
-  to: string,
-  otp: string
-): Promise<boolean> {
-  try {
-    const { error } = await resend.emails.send({
-      from: FROM_EMAIL,
-      to,
-      subject: 'Your Password Reset Code - Magic Spa Center',
-      html: buildOtpEmailHtml(otp),
-    })
-
-    if (error) {
-      console.error('Failed to send OTP email:', error)
-      return false
-    }
-
-    return true
-  } catch (err) {
-    console.error('Email send error:', err)
-    return false
-  }
+export async function sendPasswordResetOtpEmail(to: string, otp: string): Promise<boolean> {
+  return sendEmail(
+    to,
+    'Your Password Reset Code - Magic Post Op',
+    buildOtpEmailHtml(
+      otp,
+      'Password Reset Code',
+      'Use this code to reset your password. Do not share it with anyone.',
+      'If you didn&rsquo;t request a password reset, you can safely ignore this email.'
+    )
+  )
 }
 
 /**
  * Sends a registration verification OTP email.
  */
-export async function sendRegistrationOtpEmail(
-  to: string,
-  otp: string
-): Promise<boolean> {
-  try {
-    const { error } = await resend.emails.send({
-      from: FROM_EMAIL,
-      to,
-      subject: 'Verify Your Email - Magic Spa Center',
-      html: buildOtpEmailHtml(otp)
-        .replace('Password Reset Code', 'Email Verification Code')
-        .replace('Use this code to reset your password. Do not share it with anyone.', 'Use this code to verify your email and complete your registration.')
-        .replace('If you didn&rsquo;t request a password reset, you can safely ignore this email.', 'If you didn&rsquo;t create an account, you can safely ignore this email.'),
-    })
-
-    if (error) {
-      console.error('Failed to send registration OTP email:', error)
-      return false
-    }
-
-    return true
-  } catch (err) {
-    console.error('Registration email send error:', err)
-    return false
-  }
+export async function sendRegistrationOtpEmail(to: string, otp: string): Promise<boolean> {
+  return sendEmail(
+    to,
+    'Verify Your Email - Magic Post Op',
+    buildOtpEmailHtml(
+      otp,
+      'Email Verification Code',
+      'Use this code to verify your email and complete your registration.',
+      'If you didn&rsquo;t create an account, you can safely ignore this email.'
+    )
+  )
 }
