@@ -52,16 +52,13 @@ function LoginForm() {
     })
     if (error) {
       const msg = error.message.toLowerCase()
-      if (msg.includes('invalid login credentials') || msg.includes('invalid credentials')) {
-        setServerError('Incorrect email or password. Please try again.')
-      } else if (msg.includes('email not confirmed')) {
-        setServerError('Please check your email and confirm your account before signing in.')
-      } else if (msg.includes('rate') || msg.includes('too many')) {
+      if (msg.includes('rate') || msg.includes('too many')) {
         setServerError('Too many login attempts. Please wait a moment and try again.')
       } else if (msg.includes('network') || msg.includes('fetch')) {
         setServerError('Connection error. Please check your internet and try again.')
       } else {
-        setServerError('Unable to sign in. Please try again.')
+        // Generic message for all auth failures to prevent email enumeration
+        setServerError('Incorrect email or password. Please try again.')
       }
       return
     }

@@ -314,12 +314,11 @@ export const noteApi = {
 // ===================================================
 
 export const notificationApi = {
-  list: (params?: { page?: number; limit?: number; isRead?: boolean; userId?: string }) => {
+  list: (params?: { page?: number; limit?: number; isRead?: boolean }) => {
     const searchParams = new URLSearchParams()
     if (params?.page) searchParams.set('page', String(params.page))
     if (params?.limit) searchParams.set('limit', String(params.limit))
     if (params?.isRead !== undefined) searchParams.set('isRead', String(params.isRead))
-    if (params?.userId) searchParams.set('userId', params.userId)
     return apiCall(`/api/notifications?${searchParams.toString()}`)
   },
 
@@ -330,14 +329,13 @@ export const notificationApi = {
       method: 'PATCH',
     }),
 
-  markAllRead: (userId: string) =>
+  markAllRead: () =>
     apiCall('/api/notifications/mark-all-read', {
       method: 'POST',
-      body: JSON.stringify({ userId }),
     }),
 
-  unreadCount: (userId: string) =>
-    apiCall(`/api/notifications/unread-count?userId=${encodeURIComponent(userId)}`),
+  unreadCount: () =>
+    apiCall('/api/notifications/unread-count'),
 
   delete: (id: string) =>
     apiCall(`/api/notifications/${id}`, {

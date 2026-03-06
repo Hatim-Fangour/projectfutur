@@ -4,10 +4,13 @@ import { listNotifications, createNotification, listNotificationsSchema, createN
 import { ServiceError } from '@/lib/services/appointment.service'
 
 export const GET = withAuth(
-  async (request: NextRequest) => {
+  async (request: NextRequest, { auth }) => {
     try {
       const { searchParams } = new URL(request.url)
-      const input = listNotificationsSchema.safeParse(Object.fromEntries(searchParams.entries()))
+      const rawParams = Object.fromEntries(searchParams.entries())
+      // Override userId with the authenticated user's ID to prevent IDOR
+      rawParams.userId = auth.userId
+      const input = listNotificationsSchema.safeParse(rawParams)
       if (!input.success) return NextResponse.json({ success: false, error: input.error.issues[0]?.message ?? 'Invalid query' }, { status: 400 })
       const result = await listNotifications(input.data)
       return NextResponse.json({ success: true, ...result })
@@ -17,7 +20,7 @@ export const GET = withAuth(
       return NextResponse.json({ success: false, error: 'Failed to fetch notifications' }, { status: 500 })
     }
   },
-  // Notifications are accessible to any authenticated user
+  // Notifications are accessible to any authenticated user (scoped to their own)
 )
 
 export const POST = withAuth(

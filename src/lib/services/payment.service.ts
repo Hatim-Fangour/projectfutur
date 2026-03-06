@@ -52,6 +52,26 @@ export type ManualPaymentInput = z.infer<typeof manualPaymentSchema>
  * Create a Stripe Checkout Session and record it in the database.
  */
 export async function createCheckoutSession(input: CreateCheckoutInput) {
+  // Validate redirect URLs against the app's own domain to prevent open redirect
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL
+  if (appUrl) {
+    const allowedOrigin = new URL(appUrl).origin
+    for (const url of [input.successUrl, input.cancelUrl]) {
+      try {
+        const parsed = new URL(url)
+        if (parsed.origin !== allowedOrigin) {
+          throw new ServiceError(
+            `Redirect URL must belong to ${allowedOrigin}`,
+            400
+          )
+        }
+      } catch (e) {
+        if (e instanceof ServiceError) throw e
+        throw new ServiceError('Invalid redirect URL', 400)
+      }
+    }
+  }
+
   // Verify customer exists
   const customer = await prisma.customer.findFirst({
     where: { id: input.customerId, isDeleted: false },

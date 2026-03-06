@@ -71,7 +71,21 @@ export async function POST(request: NextRequest) {
     const staffCount = await prisma.staffMember.count({
       where: { isDeleted: false },
     })
-    const role = staffCount === 0 ? 'OWNER' : 'STAFF'
+    let role: 'OWNER' | 'STAFF' = 'STAFF'
+    if (staffCount === 0) {
+      // If OWNER_SETUP_KEY is configured, require it to claim the OWNER role
+      const setupKey = process.env.OWNER_SETUP_KEY
+      if (setupKey) {
+        const providedKey = body.ownerSetupKey
+        if (providedKey !== setupKey) {
+          return NextResponse.json(
+            { success: false, error: 'Invalid or missing owner setup key' },
+            { status: 403 }
+          )
+        }
+      }
+      role = 'OWNER'
+    }
 
     // Create the StaffMember record
     const staffMember = await prisma.staffMember.create({

@@ -55,12 +55,10 @@ export default function NotificationBell() {
   const [loading, setLoading] = useState(false)
   const [open, setOpen] = useState(false)
 
-  const userId = user?.id
-
   const fetchUnreadCount = useCallback(async () => {
-    if (!userId) return
+    if (!user) return
     try {
-      const res = await notificationApi.unreadCount(userId)
+      const res = await notificationApi.unreadCount()
       if (res.success && res.data != null) {
         const count = typeof res.data === 'number' ? res.data : (res.data as { count: number }).count ?? 0
         setUnreadCount(count)
@@ -68,13 +66,13 @@ export default function NotificationBell() {
     } catch {
       /* non-critical */
     }
-  }, [userId])
+  }, [user])
 
   const fetchNotifications = useCallback(async () => {
-    if (!userId) return
+    if (!user) return
     setLoading(true)
     try {
-      const res = await notificationApi.list({ userId, limit: 20 })
+      const res = await notificationApi.list({ limit: 20 })
       if (res.success && res.data) {
         setNotifications(res.data as Notification[])
       }
@@ -83,7 +81,7 @@ export default function NotificationBell() {
     } finally {
       setLoading(false)
     }
-  }, [userId])
+  }, [user])
 
   // Realtime: subscribe to notification changes for instant updates
   const { onNotificationChange } = useRealtime()
@@ -128,9 +126,9 @@ export default function NotificationBell() {
   }
 
   const handleMarkAllRead = async () => {
-    if (!userId) return
+    if (!user) return
     try {
-      const res = await notificationApi.markAllRead(userId)
+      const res = await notificationApi.markAllRead()
       if (res.success) {
         setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
         setUnreadCount(0)
