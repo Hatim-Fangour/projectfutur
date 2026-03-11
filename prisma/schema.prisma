@@ -1,7 +1,8 @@
 // ===================================================
 // COMPLETE SPA CENTER DATABASE ARCHITECTURE
 // prisma/schema.prisma
-// Migrated to PostgreSQL/Supabase
+// Unified schema: Internal App + Website (magicpostop.com)
+// Database: Supabase PostgreSQL
 // ===================================================
 
 generator client {
@@ -15,7 +16,7 @@ datasource db {
 }
 
 // ===================================================
-// 1. USER / ROLE MANAGEMENT
+// ENUMS
 // ===================================================
 
 enum UserRole {
@@ -26,8 +27,153 @@ enum UserRole {
   THERAPIST
 }
 
+enum StaffStatus {
+  ACTIVE
+  INACTIVE
+  ON_LEAVE
+  TERMINATED
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  FREELANCE
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+enum AppointmentType {
+  SERVICE
+  CLASS
+  EVENT
+  REMINDER
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum BillingType {
+  SINGLE
+  PACKAGE
+  SUBSCRIPTION
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  BANK_TRANSFER
+  STRIPE
+  CHECK
+  OTHER
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+enum BudgetPeriod {
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum GoalStatus {
+  ACTIVE
+  COMPLETED
+  PAUSED
+  CANCELLED
+}
+
+enum NotificationType {
+  APPOINTMENT_CREATED
+  APPOINTMENT_CANCELLED
+  APPOINTMENT_REMINDER
+  PAYMENT_RECEIVED
+  LOW_STOCK
+  STAFF_SCHEDULE_CHANGE
+  GENERAL
+  // Website-specific notification types
+  CONTACT_MESSAGE
+  NEWSLETTER_SIGNUP
+  COURSE_REGISTRATION
+  SESSION_BUILD
+  BLOG_SUBMITTED
+  BLOG_APPROVED
+  BLOG_REJECTED
+  SERVICE_SUBMITTED
+  SERVICE_APPROVED
+  SERVICE_REJECTED
+}
+
+enum InventoryStatus {
+  IN_STOCK
+  LOW_STOCK
+  OUT_OF_STOCK
+}
+
+enum ApprovalStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  PUBLISHED
+}
+
+enum ServiceTab {
+  POST_OP
+  WELLNESS
+  GIFT_CERTIFICATE
+  COURSE
+  OTHER
+}
+
+enum AddonType {
+  GLOBAL
+  SPECIFIC
+}
+
+enum DeviceType {
+  DESKTOP
+  MOBILE
+  TABLET
+}
+
+enum PartnerType {
+  ESTABLISHMENT
+  DOCTOR
+}
+
+enum SessionBuildStatus {
+  NEW
+  CONTACTED
+  BOOKED
+  CANCELLED
+}
+
 // ===================================================
-// 2. CUSTOMERS
+// 1. CUSTOMERS
 // ===================================================
 
 model Customer {
@@ -68,44 +214,36 @@ model Customer {
 }
 
 // ===================================================
-// 3. STAFF MEMBERS
+// 2. STAFF MEMBERS (unified: internal HR + website public bios)
 // ===================================================
 
-enum StaffStatus {
-  ACTIVE
-  INACTIVE
-  ON_LEAVE
-  TERMINATED
-}
-
-enum EmploymentType {
-  FULL_TIME
-  PART_TIME
-  CONTRACT
-  FREELANCE
-}
-
 model StaffMember {
-  id        String  @id @default(cuid())
+  id         String  @id @default(cuid())
   authUserId String? @unique // Links to Supabase Auth user
 
   fullName       String
-  email          String  @unique
+  email          String         @unique
   phone          String?
   dateOfBirth    DateTime?
   address        String?
   pictureURL     String?
 
-  role           UserRole    @default(THERAPIST)
+  role           UserRole       @default(THERAPIST)
   department     String?
-  status         StaffStatus @default(ACTIVE)
+  status         StaffStatus    @default(ACTIVE)
   employmentType EmploymentType @default(FULL_TIME)
   startDate      DateTime?
   endDate        DateTime?
 
-  // Specializations stored as JSON array of strings
+  // Specializations stored as array of strings
   specializations String[]
   certifications  String[]
+
+  // Public website profile (shown on magicpostop.com team page)
+  isPublic          Boolean @default(false)
+  publicTitle       String? // e.g. "Lead Lymphatic Drainage Therapist"
+  publicDescription String? // Bio shown on website
+  publicPhoto       String? // Photo URL for website (may differ from internal pictureURL)
 
   // Soft delete
   isDeleted Boolean   @default(false)
@@ -116,37 +254,31 @@ model StaffMember {
   updatedAt DateTime @updatedAt
 
   // Relationships
-  schedules    StaffSchedule[]
-  appointments Appointment[]
+  schedules              StaffSchedule[]
+  appointments           Appointment[]
+  createdAppointments    Appointment[]   @relation("appointments_createdByIdTostaff_members")
+  blogPosts              BlogPost[]
+  mediaFiles             MediaFile[]
 
   @@index([email])
   @@index([role])
   @@index([status])
   @@index([isDeleted])
+  @@index([isPublic])
   @@map("staff_members")
 }
 
 // ===================================================
-// 4. STAFF SCHEDULES
+// 3. STAFF SCHEDULES
 // ===================================================
 
-enum DayOfWeek {
-  MONDAY
-  TUESDAY
-  WEDNESDAY
-  THURSDAY
-  FRIDAY
-  SATURDAY
-  SUNDAY
-}
-
 model StaffSchedule {
-  id         String    @id @default(cuid())
-  staffId    String
-  dayOfWeek  DayOfWeek
-  startTime  String    // HH:mm format
-  endTime    String    // HH:mm format
-  isWorking  Boolean   @default(true)
+  id        String    @id @default(cuid())
+  staffId   String
+  dayOfWeek DayOfWeek
+  startTime String    // HH:mm format
+  endTime   String    // HH:mm format
+  isWorking Boolean   @default(true)
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -161,31 +293,16 @@ model StaffSchedule {
 }
 
 // ===================================================
-// 5. APPOINTMENTS
+// 4. APPOINTMENTS
 // ===================================================
-
-enum AppointmentType {
-  SERVICE
-  CLASS
-  EVENT
-  REMINDER
-}
-
-enum AppointmentStatus {
-  SCHEDULED
-  CONFIRMED
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
-  NO_SHOW
-}
 
 model Appointment {
   id String @id @default(cuid())
 
   // Foreign Keys
-  customerId  String
+  customerId  String?
   therapistId String?
+  createdById String?
 
   // Appointment details
   type      AppointmentType   @default(SERVICE)
@@ -194,13 +311,17 @@ model Appointment {
   status    AppointmentStatus @default(SCHEDULED)
 
   // Details
-  service  String?
-  reason   String?
-  location String?
-  notes    String?
+  service    String?
+  reason     String?
+  location   String?
+  notes      String?
+  bufferTime Int       @default(0) // Buffer time in minutes between appointments
+  color      String?               // Calendar display color
+  guests     Json?                 // Array of guest info
+  videoLink  String?               // Video call link
 
   // Payment
-  paymentStatus String? // pending, paid, refunded
+  paymentStatus String?  // pending, paid, refunded
   paymentAmount Decimal? @db.Decimal(10, 2)
 
   // Soft delete
@@ -212,11 +333,13 @@ model Appointment {
   updatedAt DateTime @updatedAt
 
   // Relationships
-  customer  Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customer  Customer?    @relation(fields: [customerId], references: [id], onDelete: Cascade)
   therapist StaffMember? @relation(fields: [therapistId], references: [id], onDelete: SetNull)
+  createdBy StaffMember? @relation("appointments_createdByIdTostaff_members", fields: [createdById], references: [id])
 
   @@index([customerId])
   @@index([therapistId])
+  @@index([createdById])
   @@index([startTime])
   @@index([status])
   @@index([isDeleted])
@@ -224,7 +347,7 @@ model Appointment {
 }
 
 // ===================================================
-// 6. CUSTOMER NOTES
+// 5. CUSTOMER NOTES
 // ===================================================
 
 model CustomerNote {
@@ -259,16 +382,28 @@ model CustomerNote {
 }
 
 // ===================================================
-// 7. SERVICE CATEGORIES
+// 6. SERVICE CATEGORIES (shared: website display + internal management)
 // ===================================================
 
 model ServiceCategory {
-  id          String @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
-  description String?
+  slug        String  @unique
+  description String? // Internal description
+  shortDesc   String? // Public short description (website)
   color       String?
   icon        String?
-  sortOrder   Int    @default(0)
+  image       String? // Thumbnail for website
+  body        String? // Rich text body for website service page
+  sortOrder   Int     @default(0)
+
+  // Website-specific fields
+  hasPromo       Boolean        @default(false)
+  notes          String?        // Internal notes
+  enabled        Boolean        @default(true)
+  serviceTab     ServiceTab     @default(OTHER)
+  approvalStatus ApprovalStatus @default(DRAFT)
+  createdById    String?        // StaffMember who created it
 
   isActive Boolean @default(true)
 
@@ -281,14 +416,20 @@ model ServiceCategory {
   updatedAt DateTime @updatedAt
 
   // Relationships
-  items ServiceItem[]
+  items       ServiceItem[]
+  addonLinks  AddonService[]
 
+  @@index([slug])
+  @@index([sortOrder])
+  @@index([enabled])
+  @@index([serviceTab])
+  @@index([approvalStatus])
   @@index([isDeleted])
   @@map("service_categories")
 }
 
 // ===================================================
-// 8. SERVICE ITEMS
+// 7. SERVICE ITEMS
 // ===================================================
 
 model ServiceItem {
@@ -321,27 +462,23 @@ model ServiceItem {
 }
 
 // ===================================================
-// 9. PRICING PLANS
+// 8. PRICING PLANS
 // ===================================================
-
-enum BillingType {
-  SINGLE
-  PACKAGE
-  SUBSCRIPTION
-}
 
 model PricingPlan {
   id            String  @id @default(cuid())
   serviceItemId String?
   name          String
   description   String?
-  type          String? // legacy field for backward compatibility
-  price         Decimal @db.Decimal(10, 2)
-  currency      String  @default("USD")
-  duration      Int?    // in minutes
+  type          String?  // legacy field for backward compatibility
+  price         Decimal  @db.Decimal(10, 2)
+  promoPrice    Decimal? @db.Decimal(10, 2) // Promotional price
+  currency      String   @default("USD")
+  duration      Int?     // in minutes
   billingType   BillingType @default(SINGLE)
   sessionsIncluded Int?
   validityDays  Int?    // for packages/subscriptions
+  bufferTime    Int     @default(0) // Buffer time in minutes
 
   isActive Boolean @default(true)
 
@@ -363,7 +500,7 @@ model PricingPlan {
 }
 
 // ===================================================
-// 10. CUSTOMER SERVICES (many-to-many pivot)
+// 9. CUSTOMER SERVICES (many-to-many pivot)
 // ===================================================
 
 model CustomerService {
@@ -394,7 +531,7 @@ model CustomerService {
 }
 
 // ===================================================
-// 11. PROGRESS SESSIONS
+// 10. PROGRESS SESSIONS
 // ===================================================
 
 model ProgressSession {
@@ -439,41 +576,20 @@ model ProgressSession {
 }
 
 // ===================================================
-// 12. FINANCIAL TRANSACTIONS
+// 11. FINANCIAL TRANSACTIONS
 // ===================================================
-
-enum TransactionType {
-  INCOME
-  EXPENSE
-}
-
-enum PaymentMethod {
-  CASH
-  CARD
-  BANK_TRANSFER
-  STRIPE
-  CHECK
-  OTHER
-}
-
-enum TransactionStatus {
-  PENDING
-  COMPLETED
-  CANCELLED
-  REFUNDED
-}
 
 model Transaction {
   id String @id @default(cuid())
 
   type          TransactionType
   category      String
-  amount        Decimal         @db.Decimal(10, 2)
-  currency      String          @default("USD")
+  amount        Decimal           @db.Decimal(10, 2)
+  currency      String            @default("USD")
   description   String?
   notes         String?
   date          DateTime
-  paymentMethod PaymentMethod   @default(CASH)
+  paymentMethod PaymentMethod     @default(CASH)
   status        TransactionStatus @default(COMPLETED)
 
   // Optional links
@@ -484,7 +600,7 @@ model Transaction {
   // Stripe fields
   stripePaymentIntentId String?
   stripeSessionId       String?
-  idempotencyKey        String?  @unique
+  idempotencyKey        String? @unique
 
   // Soft delete
   isDeleted Boolean   @default(false)
@@ -504,14 +620,8 @@ model Transaction {
 }
 
 // ===================================================
-// 13. BUDGETS
+// 12. BUDGETS
 // ===================================================
-
-enum BudgetPeriod {
-  MONTHLY
-  QUARTERLY
-  YEARLY
-}
 
 model Budget {
   id       String       @id @default(cuid())
@@ -540,15 +650,8 @@ model Budget {
 }
 
 // ===================================================
-// 14. SAVINGS GOALS
+// 13. SAVINGS GOALS
 // ===================================================
-
-enum GoalStatus {
-  ACTIVE
-  COMPLETED
-  PAUSED
-  CANCELLED
-}
 
 model SavingsGoal {
   id            String     @id @default(cuid())
@@ -573,32 +676,23 @@ model SavingsGoal {
 }
 
 // ===================================================
-// 15. NOTIFICATIONS
+// 14. NOTIFICATIONS (unified: internal + website)
 // ===================================================
 
-enum NotificationType {
-  APPOINTMENT_CREATED
-  APPOINTMENT_CANCELLED
-  APPOINTMENT_REMINDER
-  PAYMENT_RECEIVED
-  LOW_STOCK
-  STAFF_SCHEDULE_CHANGE
-  GENERAL
-}
-
 model Notification {
-  id     String           @id @default(cuid())
-  type   NotificationType @default(GENERAL)
-  title  String
+  id      String           @id @default(cuid())
+  type    NotificationType @default(GENERAL)
+  title   String
   message String
-  isRead Boolean          @default(false)
+  isRead  Boolean          @default(false)
 
   // Target user (Supabase auth user ID)
   userId String
 
   // Optional link to related resource
-  resourceType String? // "appointment", "customer", "inventory", etc.
+  resourceType String? // "appointment", "customer", "blog_post", etc.
   resourceId   String?
+  link         String? // Direct URL for website admin notifications
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -610,14 +704,8 @@ model Notification {
 }
 
 // ===================================================
-// 16. INVENTORY ITEMS
+// 15. INVENTORY ITEMS
 // ===================================================
-
-enum InventoryStatus {
-  IN_STOCK
-  LOW_STOCK
-  OUT_OF_STOCK
-}
 
 model InventoryItem {
   id              String          @id @default(cuid())
@@ -648,7 +736,7 @@ model InventoryItem {
 }
 
 // ===================================================
-// 17. PASSWORD RESET OTPs
+// 16. PASSWORD RESET OTPs
 // ===================================================
 
 model PasswordResetOtp {
@@ -669,4 +757,340 @@ model PasswordResetOtp {
   @@index([expiresAt])
   @@index([resetToken])
   @@map("password_reset_otps")
+}
+
+// ===================================================
+// WEBSITE TABLES (magicpostop.com)
+// ===================================================
+
+// ===================================================
+// 17. BLOG POSTS
+// ===================================================
+
+model BlogPost {
+  id        Int     @id @default(autoincrement())
+  title     String
+  slug      String  @unique
+  author    String  @default("")
+  category  String  @default("")
+  tags      String  @default("") // Comma-separated tags
+  thumbnail String  @default("")
+  body      String  @default("") // Rich HTML content
+
+  published      Boolean        @default(true)
+  approvalStatus ApprovalStatus @default(DRAFT)
+
+  // Author (StaffMember who created it)
+  createdById String?
+  createdBy   StaffMember? @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([slug])
+  @@index([published, createdAt(sort: Desc)])
+  @@index([approvalStatus])
+  @@index([createdAt(sort: Desc)])
+  @@map("blog_posts")
+}
+
+// ===================================================
+// 18. CONTACT MESSAGES
+// ===================================================
+
+model ContactMessage {
+  id      Int     @id @default(autoincrement())
+  name    String  @default("")
+  email   String  @default("")
+  phone   String  @default("")
+  service String  @default("")
+  message String  @default("")
+  isRead  Boolean @default(false)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  @@index([createdAt(sort: Desc)])
+  @@index([isRead])
+  @@map("contact_messages")
+}
+
+// ===================================================
+// 19. NEWSLETTER SUBSCRIBERS
+// ===================================================
+
+model NewsletterSubscriber {
+  id    Int    @id @default(autoincrement())
+  name  String
+  email String @unique
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@map("newsletter_subscribers")
+}
+
+// ===================================================
+// 20. NEWSLETTER CAMPAIGNS
+// ===================================================
+
+model NewsletterCampaign {
+  id             Int    @id @default(autoincrement())
+  subject        String
+  body           String
+  sentBy         Int    // admin_users.id (legacy) or staff member reference
+  recipientCount Int    @default(0)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  @@index([createdAt(sort: Desc)])
+  @@map("newsletter_campaigns")
+}
+
+// ===================================================
+// 21. COURSE REGISTRATIONS
+// ===================================================
+
+model CourseRegistration {
+  id         Int    @id @default(autoincrement())
+  fullName   String @default("")
+  email      String @unique
+  phone      String @default("")
+  profession String @default("")
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([createdAt(sort: Desc)])
+  @@map("course_registrations")
+}
+
+// ===================================================
+// 22. COURSE CAMPAIGNS
+// ===================================================
+
+model CourseCampaign {
+  id             Int    @id @default(autoincrement())
+  subject        String
+  body           String
+  sentBy         Int?   // admin_users.id (legacy)
+  recipientCount Int    @default(0)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  @@index([createdAt(sort: Desc)])
+  @@map("course_campaigns")
+}
+
+// ===================================================
+// 23. MEDIA FILES
+// ===================================================
+
+model MediaFile {
+  id       Int    @id @default(autoincrement())
+  filename String @unique
+  original String @default("") // Original filename before rename
+  size     Int    @default(0)  // File size in bytes
+  mimeType String @default("")
+
+  // Uploader (StaffMember)
+  uploadedById String?
+  uploadedBy   StaffMember? @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  @@index([filename])
+  @@index([mimeType])
+  @@map("media_files")
+}
+
+// ===================================================
+// 24. SITE SETTINGS (key-value config store)
+// ===================================================
+
+model SiteSetting {
+  key   String @id
+  value String? // JSON string for complex values
+
+  // Timestamps
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@map("site_settings")
+}
+
+// ===================================================
+// 25. PAGEVIEWS (raw analytics)
+// ===================================================
+
+model Pageview {
+  id          BigInt     @id @default(autoincrement())
+  visitorHash String     @db.Char(64)
+  path        String
+  referrer    String     @default("")
+  deviceType  DeviceType @default(DESKTOP)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([createdAt, path])
+  @@index([visitorHash, createdAt])
+  @@map("pageviews")
+}
+
+// ===================================================
+// 26. PAGEVIEW DAILY (rolled-up analytics)
+// ===================================================
+
+model PageviewDaily {
+  id         Int        @id @default(autoincrement())
+  date       DateTime   @db.Date
+  path       String
+  views      Int        @default(0)
+  visitors   Int        @default(0)
+  referrer   String     @default("")
+  deviceType DeviceType @default(DESKTOP)
+
+  @@unique([date, path, referrer, deviceType], map: "uq_daily")
+  @@index([date])
+  @@map("pageviews_daily")
+}
+
+// ===================================================
+// 27. GOOGLE REVIEWS
+// ===================================================
+
+model GoogleReview {
+  id           Int     @id @default(autoincrement())
+  googleId     String  @unique
+  authorName   String
+  authorUrl    String  @default("")
+  profilePhoto String  @default("")
+  rating       Int     @db.SmallInt
+  relativeTime String  @default("")
+  reviewText   String?
+  publishTime  BigInt  @default(0)
+  isVisible    Boolean @default(true)
+  isFeatured   Boolean @default(false)
+
+  // Timestamps
+  syncedAt  DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  @@index([isVisible, rating, publishTime])
+  @@index([isFeatured, publishTime])
+  @@map("google_reviews")
+}
+
+// ===================================================
+// 28. PARTNERS (replaces both 'partners' and 'boutiques' from MySQL)
+// ===================================================
+
+model Partner {
+  id           Int         @id @default(autoincrement())
+  name         String
+  organization String      @default("")
+  description  String?
+  features     String?     // Comma-separated or JSON features
+  address      String?
+  city         String      @default("")
+  phone        String      @default("")
+  website      String      @default("")
+  mapsUrl      String      @default("")
+  image        String      @default("")
+  tags         String      @default("")
+  sortOrder    Int         @default(0)
+  type         PartnerType @default(ESTABLISHMENT)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  @@index([type])
+  @@index([sortOrder])
+  @@map("partners")
+}
+
+// ===================================================
+// 29. SESSION BUILDS (service estimate submissions from website)
+// ===================================================
+
+model SessionBuild {
+  id           Int                @id @default(autoincrement())
+  clientName   String
+  clientEmail  String
+  clientPhone  String             @default("")
+  serviceName  String             @default("")
+  packageLabel String             @default("")
+  packagePrice Decimal            @default(0) @db.Decimal(10, 2)
+  quantity     Int                @default(1)
+  addonsJson   Json?              // Array of selected add-ons
+  addonsTotal  Decimal            @default(0) @db.Decimal(10, 2)
+  total        Decimal            @default(0) @db.Decimal(10, 2)
+  notes        String?
+  status       SessionBuildStatus @default(NEW)
+  isRead       Boolean            @default(false)
+  createdById  String?            // StaffMember who may have created it internally
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([createdAt(sort: Desc)])
+  @@index([status, isRead])
+  @@map("session_builds")
+}
+
+// ===================================================
+// 30. ADDONS (service add-ons for website)
+// ===================================================
+
+model Addon {
+  id             Int            @id @default(autoincrement())
+  name           String
+  slug           String         @unique
+  description    String?
+  price          Decimal        @default(0) @db.Decimal(10, 2)
+  duration       String         @default("")
+  image          String         @default("")
+  icon           String         @default("")
+  addonType      AddonType      @default(GLOBAL)
+  enabled        Boolean        @default(false)
+  sortOrder      Int            @default(0)
+  approvalStatus ApprovalStatus @default(DRAFT)
+  createdById    String?        // StaffMember who created it
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  // Relationships
+  serviceLinks AddonService[]
+
+  @@index([slug])
+  @@index([sortOrder, enabled])
+  @@index([approvalStatus, enabled])
+  @@index([createdById])
+  @@map("addons")
+}
+
+// ===================================================
+// 31. ADDON SERVICES (junction: addons <-> service_categories)
+// ===================================================
+
+model AddonService {
+  addonId   Int
+  serviceId String
+
+  addon   Addon           @relation(fields: [addonId], references: [id], onDelete: Cascade)
+  service ServiceCategory @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@id([addonId, serviceId])
+  @@index([serviceId])
+  @@map("addon_services")
 }
