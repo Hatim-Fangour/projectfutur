@@ -1,0 +1,13 @@
+# Magic Spa Center - Internal SaaS Platform
+# When ready for public site, update these rules
+
+User-agent: *
+Disallow: /
+
+# Future: allow marketing pages
+# User-agent: *
+# Allow: /
+# Disallow: /api/
+# Disallow: /en/dashboard
+# Disallow: /fr/dashboard
+# Sitemap: https://magicpostop.com/sitemap.xml

@@ -1,0 +1,491 @@
+@import './variables';
+
+// ============================================
+// Calendar Page Body
+// ============================================
+
+.calendarPageBody {
+  height: 100%;
+
+  .calendar-container {
+    height: 100%;
+    box-sizing: border-box;
+  }
+}
+
+// ============================================
+// Global react-big-calendar overrides
+// ============================================
+
+.rbc-calendar {
+  color: var(--cal-text);
+  font-family: inherit;
+}
+
+// Header row (Sun, Mon, etc.)
+.rbc-header {
+  background: var(--cal-header-bg);
+  border-bottom: 1px solid var(--cal-border) !important;
+  border-left: none !important;
+  padding: 8px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--cal-text-muted);
+
+  & + .rbc-header {
+    border-left: 1px solid var(--cal-border) !important;
+  }
+}
+
+// ============================================
+// Month View
+// ============================================
+
+.rbc-month-view {
+  border: 1px solid var(--cal-border) !important;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.rbc-month-row {
+  border-top: 1px solid var(--cal-border);
+  border-bottom: none;
+
+  & + .rbc-month-row {
+    border-top: 1px solid var(--cal-border);
+  }
+}
+
+.rbc-day-bg {
+  border-left: 1px solid var(--cal-border) !important;
+  transition: background-color 0.15s ease;
+
+  &:first-child {
+    border-left: none !important;
+  }
+
+  &:hover {
+    background-color: var(--cal-hover);
+  }
+
+  &.rbc-today {
+    background-color: var(--cal-today-bg) !important;
+  }
+
+  &.rbc-off-range-bg {
+    background-color: var(--cal-off-range);
+  }
+}
+
+// Date number in month cells
+.rbc-date-cell {
+  padding: 4px 6px;
+  text-align: right;
+  font-size: 13px;
+  color: var(--cal-text-muted);
+
+  &.rbc-now {
+    .rbc-button-link {
+      color: var(--cal-today-num-color);
+      font-weight: 700;
+      background: var(--cal-today-num-bg);
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+  }
+
+  &.rbc-off-range {
+    color: var(--cal-text-muted);
+    opacity: 0.4;
+  }
+
+  .rbc-button-link {
+    color: var(--cal-text);
+    font-size: 13px;
+  }
+}
+
+// "Show more" link
+.rbc-show-more {
+  color: var(--cal-gold) !important;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 4px;
+
+  &:hover {
+    color: var(--cal-gold-light) !important;
+  }
+}
+
+// ============================================
+// Events (all views)
+// ============================================
+
+.rbc-event {
+  background-color: var(--event-service-bg) !important;
+  border: none !important;
+  border-left: 3px solid var(--event-service-border) !important;
+  border-radius: 4px !important;
+  color: var(--cal-text) !important;
+  font-size: 12px;
+  padding: 2px 6px !important;
+  outline: none !important;
+  box-shadow: none !important;
+  transition: opacity 0.15s ease;
+  overflow: hidden;
+
+  &:hover {
+    opacity: 0.85;
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 2px rgba(201, 168, 76, 0.3) !important;
+  }
+
+  &.rbc-selected {
+    opacity: 1;
+    box-shadow: 0 0 0 2px rgba(201, 168, 76, 0.4) !important;
+  }
+
+  // Type-specific
+  &.serviceEvent {
+    background-color: var(--event-service-bg) !important;
+    border-left-color: var(--event-service-border) !important;
+  }
+
+  &.classEvent {
+    background-color: var(--event-class-bg) !important;
+    border-left-color: var(--event-class-border) !important;
+  }
+
+  &.eventEvent {
+    background-color: var(--event-event-bg) !important;
+    border-left-color: var(--event-event-border) !important;
+  }
+
+  &.reminderEvent {
+    background-color: var(--event-reminder-bg) !important;
+    border-left-color: var(--event-reminder-border) !important;
+  }
+
+  .rbc-event-content {
+    font-size: 12px;
+    line-height: 1.3;
+    color: var(--cal-text);
+  }
+
+  .rbc-event-label {
+    font-size: 11px;
+    color: var(--cal-text-muted);
+    padding: 2px 0;
+  }
+}
+
+// ============================================
+// Time Views (Week & Day)
+// ============================================
+
+.rbc-time-view {
+  border: 1px solid var(--cal-border) !important;
+  border-radius: 8px;
+  overflow: hidden;
+
+  .rbc-time-header {
+    border-right: none !important;
+    margin-right: 0 !important;
+
+    .rbc-time-header-gutter {
+      border: none;
+      width: 52px;
+      min-width: 48px;
+      max-width: 52px;
+    }
+
+    .rbc-time-header-content {
+      border-left: 1px solid var(--cal-border);
+
+      .rbc-allday-cell {
+        border-bottom: 1px solid var(--cal-border);
+      }
+    }
+  }
+}
+
+.rbc-time-content {
+  border-top: 1px solid var(--cal-border) !important;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--cal-scrollbar);
+    border-radius: 4px;
+
+    &:hover {
+      background: var(--cal-scrollbar-hover);
+    }
+  }
+
+  .rbc-time-gutter {
+    .rbc-timeslot-group {
+      border-bottom: 1px solid var(--cal-border);
+      min-height: 60px;
+
+      .rbc-label {
+        font-size: 11px;
+        color: var(--cal-text-muted);
+        padding: 0 8px;
+      }
+    }
+  }
+
+  & > * + * > * {
+    border-left: 1px solid var(--cal-border);
+  }
+}
+
+// Day slots
+.rbc-day-slot {
+  .rbc-timeslot-group {
+    border-bottom: 1px solid var(--cal-border);
+    min-height: 60px;
+
+    .rbc-time-slot {
+      border-top: 1px solid var(--cal-border);
+      opacity: 0.4;
+
+      &:first-child {
+        border-top: none;
+      }
+    }
+  }
+
+  .rbc-current-time-indicator {
+    background-color: var(--cal-current-time);
+    height: 2px;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: -4px;
+      top: -3px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--cal-current-time);
+    }
+  }
+
+  .rbc-events-container {
+    margin: 0;
+
+    .rbc-event {
+      border-left-width: 3px !important;
+
+      .rbc-event-label {
+        display: none;
+      }
+    }
+  }
+}
+
+// Today column highlight
+.rbc-today {
+  background-color: var(--cal-today-bg) !important;
+}
+
+// ============================================
+// Agenda View
+// ============================================
+
+.rbc-agenda-view {
+  border: none !important;
+
+  .rbc-agenda-empty {
+    text-align: center;
+    padding: 60px 20px;
+    font-size: 16px;
+    color: var(--cal-text-muted);
+  }
+
+  table.rbc-agenda-table {
+    border: none;
+
+    thead > tr > th {
+      border-bottom: 1px solid var(--cal-border-strong);
+      padding: 10px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--cal-text-muted);
+    }
+
+    tbody > tr > td {
+      border-bottom: 1px solid var(--cal-border);
+      padding: 10px 12px;
+      font-size: 13px;
+      color: var(--cal-text);
+    }
+
+    tbody > tr:hover {
+      background-color: var(--cal-hover);
+    }
+  }
+
+  .rbc-agenda-date-cell,
+  .rbc-agenda-time-cell {
+    white-space: nowrap;
+    color: var(--cal-text-muted);
+    font-size: 12px;
+  }
+
+  .rbc-agenda-event-cell {
+    color: var(--cal-text);
+  }
+}
+
+// ============================================
+// Overlay / Popup
+// ============================================
+
+.rbc-overlay {
+  background: var(--cal-overlay-bg) !important;
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--cal-overlay-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--cal-overlay-shadow) !important;
+  padding: 12px !important;
+  z-index: 50;
+
+  .rbc-overlay-header {
+    border-bottom: 1px solid var(--cal-border);
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--cal-gold);
+  }
+
+  .rbc-event {
+    margin-bottom: 4px;
+  }
+}
+
+// ============================================
+// Drag & Drop
+// ============================================
+
+.rbc-addons-dnd {
+  .rbc-addons-dnd-row-body {
+    position: relative;
+  }
+
+  .rbc-addons-dnd-drag-row {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+  }
+
+  .rbc-event {
+    transition: opacity 0.15s ease;
+  }
+
+  .rbc-addons-dnd-dragged-event {
+    opacity: 0;
+  }
+
+  &.rbc-addons-dnd-is-dragging .rbc-event:not(.rbc-addons-dnd-dragged-event):not(.rbc-addons-dnd-drag-preview) {
+    opacity: 0.5;
+  }
+
+  .rbc-addons-dnd-drag-preview .rbc-event {
+    box-shadow: var(--cal-overlay-shadow) !important;
+    opacity: 0.9;
+  }
+}
+
+// ============================================
+// Selection
+// ============================================
+
+.rbc-slot-selection {
+  background-color: var(--cal-selection-bg) !important;
+  border: 1px solid var(--cal-selection-border) !important;
+  border-radius: 4px;
+  color: var(--cal-gold) !important;
+  font-size: 12px;
+}
+
+// ============================================
+// Responsive
+// ============================================
+
+@media (max-width: 768px) {
+  .rbc-header {
+    font-size: 10px;
+    padding: 6px 2px;
+    letter-spacing: 0;
+  }
+
+  .rbc-date-cell {
+    font-size: 11px;
+    padding: 2px 4px;
+
+    &.rbc-now .rbc-button-link {
+      width: 24px;
+      height: 24px;
+      font-size: 11px;
+    }
+  }
+
+  .rbc-event {
+    font-size: 10px !important;
+    padding: 1px 4px !important;
+    border-left-width: 2px !important;
+
+    .rbc-event-content {
+      font-size: 10px;
+    }
+  }
+
+  .rbc-show-more {
+    font-size: 10px;
+  }
+
+  .rbc-time-content .rbc-time-gutter .rbc-timeslot-group {
+    min-height: 48px;
+
+    .rbc-label {
+      font-size: 10px;
+      padding: 0 4px;
+    }
+  }
+
+  .rbc-day-slot .rbc-timeslot-group {
+    min-height: 48px;
+  }
+}
+
+@media (max-width: 480px) {
+  .rbc-month-view .rbc-month-row {
+    min-height: 60px;
+  }
+
+  .rbc-header {
+    font-size: 9px;
+  }
+}

@@ -1,0 +1,131 @@
+@import './../../calendar/style/variables';
+
+.customer-calendar-container {
+  height: 100%;
+  box-sizing: border-box;
+
+  .rbc-toolbar {
+    .rbc-btn-group {
+      display: none;
+    }
+
+    .rbc-toolbar-label {
+      font-size: 20px;
+      color: var(--cal-text);
+    }
+  }
+
+  .rbc-time-view {
+    border: none;
+
+    .rbc-time-header {
+      margin-right: 0 !important;
+
+      .rbc-time-header-gutter {
+        border: none;
+        width: 52px;
+        min-width: 48px;
+        max-width: 52px;
+      }
+
+      .rbc-time-header-content {
+        border-color: var(--cal-border);
+
+        .rbc-header .rbc-button-link {
+          font-weight: 600;
+          font-size: 12px;
+          color: var(--cal-text-muted);
+        }
+
+        .rbc-allday-cell .rbc-day-bg.rbc-today {
+          background-color: var(--cal-today-bg);
+        }
+      }
+
+      &.rbc-overflowing {
+        border-right: 1px solid var(--cal-border);
+      }
+    }
+
+    .rbc-time-content {
+      border-top: 1px solid var(--cal-border);
+      border-bottom: 1px solid var(--cal-border);
+
+      &::-webkit-scrollbar {
+        width: 4px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: var(--cal-scrollbar);
+        border-radius: 4px;
+      }
+
+      .rbc-time-gutter .rbc-timeslot-group {
+        border: 1px solid var(--cal-border);
+        min-height: 60px;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        .rbc-time-slot {
+          margin-top: 4px;
+        }
+
+        .rbc-label {
+          font-size: 11px;
+          color: var(--cal-text-muted);
+        }
+      }
+
+      .rbc-day-slot {
+        border: none;
+
+        &.rbc-now.rbc-today {
+          background-color: var(--cal-today-bg);
+        }
+
+        .rbc-timeslot-group {
+          border: none;
+          min-height: 60px;
+
+          .rbc-time-slot {
+            border-color: var(--cal-border);
+          }
+        }
+
+        .rbc-current-time-indicator {
+          background-color: var(--cal-current-time);
+          height: 2px;
+        }
+
+        .rbc-events-container {
+          border-left: none;
+
+          .rbc-event {
+            padding: 0;
+            border-radius: 4px !important;
+            border: none !important;
+            border-left: 3px solid var(--event-service-border) !important;
+            overflow: hidden !important;
+            background-color: var(--event-service-bg) !important;
+            color: var(--cal-text) !important;
+
+            .rbc-event-label {
+              display: none !important;
+            }
+
+            .rbc-event-content {
+              font-size: 12px;
+              color: var(--cal-text);
+            }
+          }
+        }
+      }
+    }
+  }
+}

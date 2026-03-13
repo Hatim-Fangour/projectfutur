@@ -1,0 +1,21 @@
+{
+  "name": "Magic Spa Center",
+  "short_name": "Magic Spa",
+  "description": "Premium luxury spa management platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#C9A84C",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

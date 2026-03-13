@@ -1,0 +1,72 @@
+// CSS custom properties for light/dark mode support
+// Applied via :root (light) and .dark (dark)
+
+:root {
+  // Gold brand
+  --cal-gold: #C9A84C;
+  --cal-gold-light: #b89a3e;
+
+  // Calendar chrome
+  --cal-bg: transparent;
+  --cal-border: rgba(0, 0, 0, 0.1);
+  --cal-border-strong: rgba(0, 0, 0, 0.15);
+  --cal-text: #1a1a2e;
+  --cal-text-muted: #6b7280;
+  --cal-today-bg: rgba(201, 168, 76, 0.08);
+  --cal-hover: rgba(0, 0, 0, 0.02);
+  --cal-header-bg: rgba(0, 0, 0, 0.02);
+  --cal-off-range: rgba(0, 0, 0, 0.03);
+  --cal-today-num-bg: linear-gradient(135deg, #C9A84C, #dbb960);
+  --cal-today-num-color: #fff;
+
+  // Event type colors
+  --event-service-bg: rgba(201, 168, 76, 0.12);
+  --event-service-border: #C9A84C;
+  --event-class-bg: rgba(20, 184, 166, 0.10);
+  --event-class-border: #14b8a6;
+  --event-event-bg: rgba(139, 92, 246, 0.10);
+  --event-event-border: #8b5cf6;
+  --event-reminder-bg: rgba(245, 158, 11, 0.10);
+  --event-reminder-border: #f59e0b;
+
+  // Overlay
+  --cal-overlay-bg: rgba(255, 255, 255, 0.95);
+  --cal-overlay-border: rgba(0, 0, 0, 0.1);
+  --cal-overlay-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+
+  // Selection
+  --cal-selection-bg: rgba(201, 168, 76, 0.12);
+  --cal-selection-border: rgba(201, 168, 76, 0.3);
+
+  // Scrollbar
+  --cal-scrollbar: rgba(201, 168, 76, 0.2);
+  --cal-scrollbar-hover: rgba(201, 168, 76, 0.35);
+
+  // Current time
+  --cal-current-time: #C9A84C;
+}
+
+.dark {
+  --cal-border: rgba(255, 255, 255, 0.06);
+  --cal-border-strong: rgba(255, 255, 255, 0.1);
+  --cal-text: #f0ece4;
+  --cal-text-muted: rgba(240, 236, 228, 0.4);
+  --cal-today-bg: rgba(201, 168, 76, 0.06);
+  --cal-hover: rgba(255, 255, 255, 0.03);
+  --cal-header-bg: rgba(255, 255, 255, 0.02);
+  --cal-off-range: rgba(0, 0, 0, 0.15);
+  --cal-today-num-color: #0a0a0f;
+
+  --event-service-bg: rgba(201, 168, 76, 0.12);
+  --event-class-bg: rgba(45, 212, 191, 0.12);
+  --event-event-bg: rgba(139, 92, 246, 0.12);
+  --event-reminder-bg: rgba(251, 191, 36, 0.12);
+
+  --cal-overlay-bg: rgba(15, 15, 20, 0.95);
+  --cal-overlay-border: rgba(255, 255, 255, 0.1);
+  --cal-overlay-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+
+  --cal-selection-bg: rgba(201, 168, 76, 0.15);
+  --cal-scrollbar: rgba(201, 168, 76, 0.15);
+  --cal-scrollbar-hover: rgba(201, 168, 76, 0.3);
+}
