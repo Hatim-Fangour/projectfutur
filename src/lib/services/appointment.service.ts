@@ -268,7 +268,7 @@ export async function updateAppointment(
       input.status,
       newTherapistId,
       input.service ?? existing.service,
-      existing.customer.fullName,
+      existing.customer?.fullName ?? '',
     )
   }
 

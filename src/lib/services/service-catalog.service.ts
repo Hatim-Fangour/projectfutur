@@ -124,6 +124,7 @@ export async function createCategory(input: z.infer<typeof createCategorySchema>
   return prisma.serviceCategory.create({
     data: {
       name: input.name,
+      slug: input.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
       description: input.description ?? null,
       color: input.color ?? null,
       icon: input.icon ?? null,
